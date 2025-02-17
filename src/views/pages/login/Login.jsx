@@ -36,9 +36,13 @@ export default function login() {
       const response = await axios.post(api + "/login", data);
       if (response.data.success) {
         console.log(response.data);
-        window.localStorage.setItem('id', response.data.id);
-        window.localStorage.setItem('token', response.data.token);
-        location.reload();
+        if(data.password == "Password@123"){
+          navigate(`/change-password/${response.data.id}`);
+        }else{
+          window.localStorage.setItem('id', response.data.id);
+          window.localStorage.setItem('token', response.data.token);
+          location.reload();
+        }
       } else {
         toast.error('Login failed. Please check your credentials.');
       }

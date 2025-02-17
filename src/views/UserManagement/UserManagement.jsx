@@ -116,11 +116,16 @@ const UserForm = ({ User, onClose }) => {
     const onSubmit = async (data) => {
         try {
             const response = await axios.post(`${api}/user-create-edit`, data);
-            toast.success(response.data.message);
-            reset();
-            onClose();
+            if(response.data.success){
+                toast.success(response.data.message);
+                reset();
+                onClose();
+            }else{
+                toast.error(response.data.message);
+            }
+            
         } catch (error) {
-            toast.error('Error saving User');
+            toast.error("error while saving User, Try again!..");
             console.error('Error saving User:', error);
         }
     };
