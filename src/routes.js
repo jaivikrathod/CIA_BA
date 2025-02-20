@@ -14,7 +14,7 @@ const routes = [
   { path: '/customers', name: 'customers', element: CustomerManagement },
   { path: '/users', name: 'users', element: UserManagement },
   { path: '/insurance', name: 'insurance', element: InsuranceManagement },
-  { path: '/insurance-initial', name: 'insuranceInitial', element: InsuranceInitialDetails },
+  { path: '/insurance-initial/:id', name: 'insuranceInitial', element: InsuranceInitialDetails },
   { path: '/common-insurance1/:id', name: 'insuranceInitial', element: InsuranceCommonDetails1 },
   { path: '/common-insurance2/:id', name: 'insuranceInitial', element: InsuranceCommonDetails2 },
 ]

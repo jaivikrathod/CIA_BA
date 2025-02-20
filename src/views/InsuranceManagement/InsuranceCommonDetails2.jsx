@@ -3,9 +3,10 @@ import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
-import { useParams } from 'react-router-dom';
+import { useParams,useNavigate } from 'react-router-dom';
 
 export default function InsuranceCommonDetails2() {
+    const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const api = "http://localhost:3005";
     const { id } = useParams();
@@ -16,6 +17,8 @@ export default function InsuranceCommonDetails2() {
             const response = await axios.post(`${api}/common-general`, data);
             if (response.data.message) {
                 toast.success('Form submitted successfully!');
+                navigate(`/insurance`);
+                
             } else {
                 throw new Error('Submission failed');
             }

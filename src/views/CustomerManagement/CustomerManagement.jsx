@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-// import 'bootstrap/dist/css/bootstrap.min.css';
 
 const api = "http://localhost:3005";
-
 const CustomerManagement = () => {
+    const navigate = useNavigate();
     const [customers, setCustomers] = useState([]);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [confirmDelete, setConfirmDelete] = useState({ show: false, id: null });
@@ -36,6 +36,19 @@ const CustomerManagement = () => {
         }
     };
 
+    const addNewInsurance = async (customerID) => {
+
+        try {
+            const response = await axios.post(`${api}/create-insurance`, { customerID });
+            if (response.data.id) {
+                navigate(`/insurance-initial/${response.data.id}`)
+            }
+        } catch (error) {
+            toast.error('Error while creating Insurance');
+        }
+    }
+
+
     return (
         <div className="container mt-4">
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
@@ -59,6 +72,7 @@ const CustomerManagement = () => {
                             <th>Gender</th>
                             <th>Address</th>
                             <th>Actions</th>
+                            <th>Insurance</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -77,6 +91,10 @@ const CustomerManagement = () => {
                                     <button className="btn btn-danger btn-sm" onClick={() => setConfirmDelete({ show: true, id: customer.id })}>
                                         Delete
                                     </button>
+                                </td>
+                                <td> <button className="btn btn-sm" onClick={() => addNewInsurance(customer.id)}>
+                                    Add insurance
+                                </button>
                                 </td>
                             </tr>
                         ))}
