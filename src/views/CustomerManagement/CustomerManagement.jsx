@@ -4,9 +4,13 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import MediaUploadModal from '../UploadDoc/MediaUploadModal';
+import "../../scss/CustomerManagement.css";
 
 const api = "http://localhost:3005";
 const CustomerManagement = () => {
+    const [uploadModal, setUploadModal] = useState({ show: false, id: null });
+
     const navigate = useNavigate();
     const [customers, setCustomers] = useState([]);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -48,6 +52,13 @@ const CustomerManagement = () => {
         }
     }
 
+    const openUploadModal = (id) => {
+        setUploadModal({ show: true, id });
+    };
+    const closeUploadModal = () => {
+        setUploadModal({ show: false, id: null });
+    };
+
 
     return (
         <div className="container mt-4">
@@ -61,7 +72,7 @@ const CustomerManagement = () => {
             </div>
 
             {/* Customer Table */}
-            <div className="table-responsive">
+            {/* <div className="table-responsive">
                 <table className="table table-bordered table-striped">
                     <thead className="table-dark">
                         <tr>
@@ -73,6 +84,8 @@ const CustomerManagement = () => {
                             <th>Address</th>
                             <th>Actions</th>
                             <th>Insurance</th>
+                            <th>upload</th>
+                            <th>view</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -96,11 +109,108 @@ const CustomerManagement = () => {
                                     Add insurance
                                 </button>
                                 </td>
+                                <td className="py-2 px-4">
+                                    <button
+                                        onClick={() => openUploadModal(customer.id)}
+                                        className="btn btn-primary btn-sm"
+                                    >
+                                        Upload
+                                    </button>
+                                </td>
+                                <td className="py-2 px-4">
+                                    <button
+                                        className="btn btn-success btn-sm"
+                                    >
+                                        view
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
-            </div>
+            </div> */}
+           <div className="table-responsive">
+    <table className="table table-bordered table-hover">
+        <thead className="thead-dark">
+            <tr>
+                <th>Sr. No.</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Primary Mobile</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Address</th>
+                <th>Actions</th>
+                <th>Insurance</th>
+                <th>Upload</th>
+                <th>View</th>
+            </tr>
+        </thead>
+        <tbody>
+            {customers.map((customer, index) => (
+                <tr key={customer.id}>
+                    <td>{index + 1}</td>
+                    <td>{customer.full_name}</td>
+                    <td>{customer.email}</td>
+                    <td>{customer.primary_mobile}</td>
+                    <td>{customer.age || 'N/A'}</td>
+                    <td>{customer.gender || 'N/A'}</td>
+                    <td>{customer.full_address || 'N/A'}</td>
+                    <td>
+                        <button
+                            className="btn btn-link text-warning p-0 me-2"
+                            onClick={() => setSelectedCustomer(customer)}
+                            title="Edit"
+                        >
+                            <i className="fas fa-edit"></i>
+                        </button>
+                        <button
+                            className="btn btn-link text-danger p-0"
+                            onClick={() => setConfirmDelete({ show: true, id: customer.id })}
+                            title="Delete"
+                        >
+                            <i className="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button
+                            className="btn btn-link text-info p-0"
+                            onClick={() => addNewInsurance(customer.id)}
+                            title="Add Insurance"
+                        >
+                            <i className="fas fa-plus-circle"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button
+                            className="btn btn-link text-primary p-0"
+                            onClick={() => openUploadModal(customer.id)}
+                            title="Upload"
+                        >
+                            <i className="fas fa-upload"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button
+                            className="btn btn-link text-success p-0"
+                            title="View"
+                        >
+                            <i className="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            ))}
+        </tbody>
+    </table>
+</div>
+
+           
+            <MediaUploadModal
+                customerId={uploadModal.id}
+                show={uploadModal.show}
+                isCustomerDoc={true}
+                handleClose={() => setUploadModal({ show: false, id: null })}
+            />
 
             {/* Customer Form Modal */}
             {selectedCustomer !== null && (
@@ -138,6 +248,7 @@ const CustomerManagement = () => {
     );
 };
 
+
 // Customer Form Component
 const CustomerForm = ({ customer, onClose }) => {
     const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
@@ -162,106 +273,208 @@ const CustomerForm = ({ customer, onClose }) => {
     };
 
     return (
+        // <div className="modal fade show d-block" tabIndex="-1">
+        //     <div className="modal-dialog">
+        //         <div className="modal-content">
+        //             <div className="modal-header">
+        //                 <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>
+        //                 <button type="button" className="btn-close" onClick={onClose}></button>
+        //             </div>
+        //             <div className="modal-body">
+        //                 <form onSubmit={handleSubmit(onSubmit)}>
+        //                     <div className="mb-3">
+        //                         <label className="form-label">Full Name</label>
+        //                         <input
+        //                             type="text"
+        //                             {...register("full_name", { required: "Full Name is required" })}
+        //                             className="form-control"
+        //                         />
+        //                         {errors.full_name && <small className="text-danger">{errors.full_name.message}</small>}
+        //                     </div>
+
+        //                     <div className="mb-3">
+        //                         <label className="form-label">Email</label>
+        //                         <input
+        //                             type="email"
+        //                             {...register("email", { required: "Email is required" })}
+        //                             className="form-control"
+        //                         />
+        //                         {errors.email && <small className="text-danger">{errors.email.message}</small>}
+        //                     </div>
+
+        //                     <div className="mb-3">
+        //                         <label className="form-label">Primary Mobile</label>
+        //                         <input
+        //                             type="text"
+        //                             {...register("primary_mobile", { required: "Primary Mobile is required" })}
+        //                             className="form-control"
+        //                         />
+        //                         {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
+        //                     </div>
+
+        //                     <div className="mb-3">
+        //                         <label className="form-label">Additional Mobile</label>
+        //                         <input
+        //                             type="text"
+        //                             {...register("additional_mobile")}
+        //                             className="form-control"
+        //                         />
+        //                     </div>
+
+        //                     <div className="mb-3">
+        //                         <label className="form-label">Age</label>
+        //                         <input
+        //                             type="number"
+        //                             {...register("age")}
+        //                             className="form-control"
+        //                         />
+        //                     </div>
+
+        //                     <div className="mb-3">
+        //                         <label className="form-label">Gender</label>
+        //                         <select {...register("gender")} className="form-select">
+        //                             <option value="male">Male</option>
+        //                             <option value="female">Female</option>
+        //                         </select>
+        //                     </div>
+
+        //                     <div className="mb-3">
+        //                         <label className="form-label">State</label>
+        //                         <input
+        //                             type="text"
+        //                             {...register("state")}
+        //                             className="form-control"
+        //                         />
+        //                     </div>
+
+        //                     <div className="mb-3">
+        //                         <label className="form-label">City</label>
+        //                         <input
+        //                             type="text"
+        //                             {...register("city")}
+        //                             className="form-control"
+        //                         />
+        //                     </div>
+
+        //                     <div className="mb-3">
+        //                         <label className="form-label">Full Address</label>
+        //                         <textarea
+        //                             {...register("full_address")}
+        //                             className="form-control"
+        //                         />
+        //                     </div>
+
+        //                     <button type="submit" className="btn btn-success">
+        //                         {customer.id ? 'Update' : 'Create'}
+        //                     </button>
+        //                 </form>
+        //             </div>
+
+        //         </div>
+        //     </div>
+        // </div>
         <div className="modal fade show d-block" tabIndex="-1">
-            <div className="modal-dialog">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>
-                        <button type="button" className="btn-close" onClick={onClose}></button>
-                    </div>
-                    <div className="modal-body">
-                        <form onSubmit={handleSubmit(onSubmit)}>
-                            <div className="mb-3">
-                                <label className="form-label">Full Name</label>
-                                <input
-                                    type="text"
-                                    {...register("full_name", { required: "Full Name is required" })}
-                                    className="form-control"
-                                />
-                                {errors.full_name && <small className="text-danger">{errors.full_name.message}</small>}
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label">Email</label>
-                                <input
-                                    type="email"
-                                    {...register("email", { required: "Email is required" })}
-                                    className="form-control"
-                                />
-                                {errors.email && <small className="text-danger">{errors.email.message}</small>}
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label">Primary Mobile</label>
-                                <input
-                                    type="text"
-                                    {...register("primary_mobile", { required: "Primary Mobile is required" })}
-                                    className="form-control"
-                                />
-                                {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label">Additional Mobile</label>
-                                <input
-                                    type="text"
-                                    {...register("additional_mobile")}
-                                    className="form-control"
-                                />
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label">Age</label>
-                                <input
-                                    type="number"
-                                    {...register("age")}
-                                    className="form-control"
-                                />
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label">Gender</label>
-                                <select {...register("gender")} className="form-select">
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                </select>
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label">State</label>
-                                <input
-                                    type="text"
-                                    {...register("state")}
-                                    className="form-control"
-                                />
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label">City</label>
-                                <input
-                                    type="text"
-                                    {...register("city")}
-                                    className="form-control"
-                                />
-                            </div>
-
-                            <div className="mb-3">
-                                <label className="form-label">Full Address</label>
-                                <textarea
-                                    {...register("full_address")}
-                                    className="form-control"
-                                />
-                            </div>
-
-                            <button type="submit" className="btn btn-success">
-                                {customer.id ? 'Update' : 'Create'}
-                            </button>
-                        </form>
+    <div className="modal-dialog modal-dialog-centered modal-lg">
+        <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+            <div className="modal-header bg-dark text-white">
+                <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>
+                <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
+            </div>
+            <div className="modal-body p-4">
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="mb-4">
+                        <label className="form-label fw-bold">Full Name</label>
+                        <input
+                            type="text"
+                            {...register("full_name", { required: "Full Name is required" })}
+                            className="form-control"
+                        />
+                        {errors.full_name && <small className="text-danger">{errors.full_name.message}</small>}
                     </div>
 
-                </div>
+                    <div className="mb-4">
+                        <label className="form-label fw-bold">Email</label>
+                        <input
+                            type="email"
+                            {...register("email", { required: "Email is required" })}
+                            className="form-control"
+                        />
+                        {errors.email && <small className="text-danger">{errors.email.message}</small>}
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="form-label fw-bold">Primary Mobile</label>
+                        <input
+                            type="text"
+                            {...register("primary_mobile", { required: "Primary Mobile is required" })}
+                            className="form-control"
+                        />
+                        {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="form-label fw-bold">Additional Mobile</label>
+                        <input
+                            type="text"
+                            {...register("additional_mobile")}
+                            className="form-control"
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="form-label fw-bold">Age</label>
+                        <input
+                            type="number"
+                            {...register("age")}
+                            className="form-control"
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="form-label fw-bold">Gender</label>
+                        <select {...register("gender")} className="form-select">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="form-label fw-bold">State</label>
+                        <input
+                            type="text"
+                            {...register("state")}
+                            className="form-control"
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="form-label fw-bold">City</label>
+                        <input
+                            type="text"
+                            {...register("city")}
+                            className="form-control"
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="form-label fw-bold">Full Address</label>
+                        <textarea
+                            {...register("full_address")}
+                            className="form-control"
+                            rows="4"
+                        />
+                    </div>
+
+                    <div className="d-flex justify-content-end mt-4">
+                        <button type="submit" className="btn btn-success px-4">
+                            {customer.id ? 'Update' : 'Create'}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
+</div>
     );
 };
 
