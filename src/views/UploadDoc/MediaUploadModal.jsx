@@ -9,16 +9,16 @@ const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key 
   const [selectedDocType, setselectedDocType] = useState([]);
   const [route, setroute] = useState("");
   const customerDocumentTypes = [
-    { label: "Adhar Card", value: "adhar" },
-    { label: "Pan Card", value: "pan" },
-    { label: "Driving license", value: "license"},
+    { label: "Adhar Card", value: "AdharCard" },
+    { label: "Pan Card", value: "PanCard" },
+    { label: "Driving license", value: "License"},
     { label: "Other", value: "other" },
   ];
 
   const insuranceDocumentTypes =[
-    { label: "Policy", value: "policy"},
-    { label: "Forms", value: "form" },
-    { label: "Receipt", value: "receipt"},
+    { label: "Policy", value: "Policy"},
+    { label: "Forms", value: "Forms" },
+    { label: "Receipt", value: "Receipt"},
     { label: "Other", value: "other" },
   ];
   const api = "http://localhost:3005";

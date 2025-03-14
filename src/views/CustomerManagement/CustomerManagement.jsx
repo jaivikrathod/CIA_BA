@@ -6,12 +6,13 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MediaUploadModal from '../UploadDoc/MediaUploadModal';
 import "../../scss/CustomerManagement.css";
-import { FaInfoCircle, FaTrash, FaPlusSquare, FaUpload, FaEye, FaDownload } from "react-icons/fa";
+import { FaInfoCircle, FaEdit, FaTrash, FaPlusSquare, FaUpload, FaEye, FaDownload } from "react-icons/fa";
 import pdfImage from "../../assets/images/pdf.jpg";
 
 const api = "http://localhost:3005";
 
 const CustomerManagement = () => {
+    const [isReadable, setisReadable] = useState(false);
     const [uploadModal, setUploadModal] = useState({ show: false, id: null });
 
     const navigate = useNavigate();
@@ -31,6 +32,7 @@ const CustomerManagement = () => {
     useEffect(() => {
         fetchCustomers();
     }, []);
+
 
     const handleDeleteCustomer = async (id) => {
         try {
@@ -116,7 +118,7 @@ const CustomerManagement = () => {
                 {/* Header Section */}
                 <div className="d-flex justify-content-between align-items-center mb-3">
                     <h2>Customer Management</h2>
-                    <button className="btn btn-primary" onClick={() => setSelectedCustomer({})}>
+                    <button className="btn btn-primary" onClick={() => { setSelectedCustomer({}), setisReadable(true) }}>
                         <FaPlusSquare /> New Customer
                     </button>
                 </div>
@@ -242,7 +244,9 @@ const CustomerManagement = () => {
                 <CustomerForm customer={selectedCustomer} onClose={() => {
                     setSelectedCustomer(null);
                     fetchCustomers();
-                }} />
+                    setisReadable(false);
+                }} setisReadable={setisReadable} isReadable={isReadable}
+                />
             )}
 
             {/* Delete Confirmation Modal */}
@@ -275,10 +279,12 @@ const CustomerManagement = () => {
 
 
 // Customer Form Component
-const CustomerForm = ({ customer, onClose }) => {
+const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
     const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
         defaultValues: customer || {}
     });
+
+    const [selectedID, setselectedID] = useState(customer.id);
 
     useEffect(() => {
         if (customer) {
@@ -297,7 +303,23 @@ const CustomerForm = ({ customer, onClose }) => {
             toast.error('Error saving customer');
         }
     };
-    const documents = customer.documents ? JSON.parse(customer.documents) : [];
+
+    const deleteDocument = async (document) => {
+        try {
+            const response = await axios.post(`${api}/delete-customer-document`, { selectedID, document });
+            if (response.data.success) {
+                setdocuments(documents.filter(doc => doc.name !== document));
+                toast.success('Document deleted successfully');
+            } else {
+                console.log("djfhb");
+                toast.error('Error deleting document');
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error('Error deleting document');
+        }
+    }
+    const [documents, setdocuments] = useState(customer.documents ? JSON.parse(customer.documents) : []);
 
 
     return (
@@ -305,7 +327,10 @@ const CustomerForm = ({ customer, onClose }) => {
             <div className="modal-dialog modal-dialog-centered modal-lg">
                 <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'hidden' }}>
                     <div className="modal-header bg-dark text-white">
-                        <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>
+                        {isReadable && <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>}
+                        {!isReadable && <><h5 className="modal-title">Customer Details</h5>
+                            <FaEdit className='ms-4' style={{ cursor: 'pointer' }} onClick={() => setisReadable(true)} /></>
+                        }
                         <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
                     </div>
                     <div className="modal-body p-4" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
@@ -316,6 +341,7 @@ const CustomerForm = ({ customer, onClose }) => {
                                     type="text"
                                     {...register("full_name", { required: "Full Name is required" })}
                                     className="form-control"
+                                    disabled={!isReadable}
                                 />
                                 {errors.full_name && <small className="text-danger">{errors.full_name.message}</small>}
                             </div>
@@ -326,6 +352,7 @@ const CustomerForm = ({ customer, onClose }) => {
                                     type="email"
                                     {...register("email", { required: "Email is required" })}
                                     className="form-control"
+                                    disabled={!isReadable}
                                 />
                                 {errors.email && <small className="text-danger">{errors.email.message}</small>}
                             </div>
@@ -336,6 +363,7 @@ const CustomerForm = ({ customer, onClose }) => {
                                     type="text"
                                     {...register("primary_mobile", { required: "Primary Mobile is required" })}
                                     className="form-control"
+                                    disabled={!isReadable}
                                 />
                                 {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
                             </div>
@@ -346,6 +374,7 @@ const CustomerForm = ({ customer, onClose }) => {
                                     type="text"
                                     {...register("additional_mobile")}
                                     className="form-control"
+                                    disabled={!isReadable}
                                 />
                             </div>
 
@@ -355,6 +384,7 @@ const CustomerForm = ({ customer, onClose }) => {
                                     type="date"
                                     {...register("dob", { required: "Date of birth is required" })}
                                     className="form-control"
+                                    disabled={!isReadable}
                                 />
                                 {errors.dob && <small className="text-danger">{errors.dob.message}</small>}
 
@@ -362,7 +392,7 @@ const CustomerForm = ({ customer, onClose }) => {
 
                             <div className="mb-4">
                                 <label className="form-label fw-bold">Gender</label>
-                                <select {...register("gender", { required: "Gender is required" })} className="form-select">
+                                <select disabled={!isReadable} {...register("gender", { required: "Gender is required" })} className="form-select">
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
                                 </select>
@@ -375,6 +405,7 @@ const CustomerForm = ({ customer, onClose }) => {
                                     type="text"
                                     {...register("state", { required: "State is required" })}
                                     className="form-control"
+                                    disabled={!isReadable}
                                 />
                                 {errors.state && <small className="text-danger">{errors.state.message}</small>}
                             </div>
@@ -385,6 +416,7 @@ const CustomerForm = ({ customer, onClose }) => {
                                     type="text"
                                     {...register("city", { required: "City is required" })}
                                     className="form-control"
+                                    disabled={!isReadable}
                                 />
                                 {errors.city && <small className="text-danger">{errors.city.message}</small>}
                             </div>
@@ -394,6 +426,7 @@ const CustomerForm = ({ customer, onClose }) => {
                                 <textarea
                                     {...register("full_address", { required: "Address is required" })}
                                     className="form-control"
+                                    disabled={!isReadable}
                                     rows="4"
                                 />
                                 {errors.full_address && <small className="text-danger">{errors.full_address.message}</small>}
@@ -402,38 +435,48 @@ const CustomerForm = ({ customer, onClose }) => {
 
                             <div className="mb-4 d-flex">
                                 {documents.map((doc, index) => (
-                                    <div key={index} className='ms-3'>
-                                        {doc.ext === '.pdf' ? (
-                                            <>
-                                                <div>
-                                                    {doc.type}
-                                                </div>
-                                                <a href={`${path}/${doc.name}`} target='_blank' className='text-primary' style={{ textDecoration: 'none' }}>
-                                                    <img src={pdfImage} style={{ width: '100px', height: 'auto' }} />
-                                                </a>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <div>
-                                                    {doc.type}
-                                                </div>
-                                                <a href={`${path}/${doc.name}`} target='_blank' className='text-primary' style={{ textDecoration: 'none' }}>
-                                                  <img src={`${path}/${doc.name}`} alt={doc.type} style={{ width: '100px', height: 'auto' }} />
-                                                </a>
-                                            </>
-                                        )}
+                                    <div key={index} className="position-relative ms-3">
+                                        {/* Document Image / PDF */}
+                                        <a href={`${path}/${doc.name}`} target="_blank" className="text-primary" style={{ textDecoration: "none", position: "relative", display: "inline-block" }}>
+                                            {doc.ext === ".pdf" ? (
+                                                <img src={pdfImage} style={{ width: "100px", height: "auto", display: "block" }} />
+                                            ) : (
+                                                <img src={`${path}/${doc.name}`} alt={doc.type} style={{ width: "100px", height: "auto", display: "block" }} />
+                                            )}
+
+                                            {isReadable && <button
+                                                className="position-absolute top-0 end-0 bg-danger text-white border-0 rounded-circle d-flex align-items-center justify-content-center"
+                                                style={{
+                                                    width: "22px",
+                                                    height: "22px",
+                                                    fontSize: "14px",
+                                                    cursor: "pointer",
+                                                    transform: "translate(50%, -50%)" /* Moves button slightly outside image */,
+                                                }}
+                                                onClick={() => deleteDocument(doc.name)}
+                                            >
+                                                ×
+                                            </button>
+                                            }
+                                        </a>
+
+                                        {/* Document Type Below */}
+                                        <div className="text-center mt-2">{doc.type}</div>
                                     </div>
+
                                 ))}
                             </div>
 
-                            <div className="d-flex justify-content-end mt-4">
-                                <button type="submit" className="btn btn-primary px-4">
-                                    {customer.id ? 'Update' : 'Create'}
-                                </button>
-                                <button type='button' className='btn btn-danger ms-2' onClick={onClose}>
-                                    Cancel
-                                </button>
-                            </div>
+                            {isReadable &&
+                                <div className="d-flex justify-content-end mt-4">
+                                    <button type="submit" className="btn btn-primary px-4">
+                                        {customer.id ? 'Update' : 'Create'}
+                                    </button>
+                                    <button type='button' className='btn btn-danger ms-2' onClick={onClose}>
+                                        Cancel
+                                    </button>
+                                </div>
+                            }
                         </form>
                     </div>
                 </div>
