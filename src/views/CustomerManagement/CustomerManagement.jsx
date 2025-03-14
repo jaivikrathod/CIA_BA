@@ -6,8 +6,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MediaUploadModal from '../UploadDoc/MediaUploadModal';
 import "../../scss/CustomerManagement.css";
+import { FaInfoCircle, FaTrash, FaPlusSquare, FaUpload, FaEye, FaDownload } from "react-icons/fa";
+import pdfImage from "../../assets/images/pdf.jpg";
 
 const api = "http://localhost:3005";
+
 const CustomerManagement = () => {
     const [uploadModal, setUploadModal] = useState({ show: false, id: null });
 
@@ -59,152 +62,174 @@ const CustomerManagement = () => {
         setUploadModal({ show: false, id: null });
     };
 
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filters, setFilters] = useState({
+        gender: "",
+        ageRange: ""
+    });
+
+    // Filter customers based on search and filters
+    const filteredCustomers = customers.filter(customer => {
+        const matchesSearch = customer.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesGender = filters.gender ? customer.gender == filters.gender : true;
+        const matchesAge = filters.ageRange ? (
+            filters.ageRange === "0-18" ? customer.age <= 18 :
+                filters.ageRange === "19-35" ? customer.age > 18 && customer.age <= 35 :
+                    filters.ageRange === "36-60" ? customer.age > 35 && customer.age <= 60 :
+                        customer.age > 60
+        ) : true;
+        return matchesSearch && matchesGender && matchesAge;
+    });
+
+    // Download CSV
+    const downloadCSV = () => {
+        const headers = ["Sr. No.", "Name", "Email", "Primary Mobile", "Age", "Gender", "Address"];
+        const rows = filteredCustomers.map((customer, index) => [
+            index + 1,
+            customer.full_name,
+            customer.email,
+            customer.primary_mobile,
+            customer.age || "N/A",
+            customer.gender || "N/A",
+            customer.full_address || "N/A"
+        ]);
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += headers.join(",") + "\n";
+        rows.forEach(row => csvContent += row.join(",") + "\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "customers.csv");
+        document.body.appendChild(link);
+        link.click();
+    };
+
 
     return (
-        <div className="container mt-4">
+        <div className="container">
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
 
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h2>Customer Management</h2>
-                <button className="btn btn-primary" onClick={() => setSelectedCustomer({})}>
-                    + New Customer
-                </button>
+            <div className="container-fluid p-3">
+                {/* Header Section */}
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h2>Customer Management</h2>
+                    <button className="btn btn-primary" onClick={() => setSelectedCustomer({})}>
+                        <FaPlusSquare /> New Customer
+                    </button>
+                </div>
+
+                {/* Search and Filter Section */}
+                <div className="row mb-3">
+                    <div className="col-md-4 mb-2">
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Search by name or email"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <div className="col-md-3 mb-2">
+                        <select
+                            className="form-control"
+                            value={filters.gender}
+                            onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
+                        >
+                            <option value="">All Genders</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div className="col-md-3 mb-2">
+                        <select
+                            className="form-control"
+                            value={filters.ageRange}
+                            onChange={(e) => setFilters({ ...filters, ageRange: e.target.value })}
+                        >
+                            <option value="">All Ages</option>
+                            <option value="0-18">0-18</option>
+                            <option value="19-35">19-35</option>
+                            <option value="36-60">36-60</option>
+                            <option value="60+">60+</option>
+                        </select>
+                    </div>
+                    <div className="col-md-2 mb-2">
+                        <button className="btn btn-success w-100" onClick={downloadCSV}>
+                            <FaDownload /> Download CSV
+                        </button>
+                    </div>
+                </div>
+
+                {/* Table Section */}
+                <div className="table-responsive">
+                    <table className="table table-striped table-hover">
+                        <thead className="thead-dark">
+                            <tr>
+                                <th>Sr. No.</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Primary Mobile</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Address</th>
+                                <th>Actions</th>
+                                <th>Files & Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredCustomers.map((customer, index) => (
+                                <tr key={customer.id}>
+                                    <td>{index + 1}</td>
+                                    <td>{customer.full_name}</td>
+                                    <td>{customer.email}</td>
+                                    <td>{customer.primary_mobile}</td>
+                                    <td>{customer.age || 'N/A'}</td>
+                                    <td>{customer.gender || 'N/A'}</td>
+                                    <td>{customer.full_address || 'N/A'}</td>
+                                    <td>
+                                        <button
+                                            className="btn btn-link"
+                                            onClick={() => setSelectedCustomer(customer)}
+                                            title="Info"
+                                        >
+                                            <FaInfoCircle />
+                                        </button>
+                                        <button
+                                            className="btn btn-link text-danger"
+                                            onClick={() => setConfirmDelete({ show: true, id: customer.id })}
+                                            title="Delete"
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button
+                                            className="btn btn-link text-info"
+                                            onClick={() => addNewInsurance(customer.id)}
+                                            title="Add Insurance"
+                                        >
+                                            <FaPlusSquare />
+                                        </button>
+                                        <button
+                                            className="btn btn-link text-primary"
+                                            onClick={() => openUploadModal(customer.id)}
+                                            title="Upload"
+                                        >
+                                            <FaUpload />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            {/* Customer Table */}
-            {/* <div className="table-responsive">
-                <table className="table table-bordered table-striped">
-                    <thead className="table-dark">
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Primary Mobile</th>
-                            <th>Age</th>
-                            <th>Gender</th>
-                            <th>Address</th>
-                            <th>Actions</th>
-                            <th>Insurance</th>
-                            <th>upload</th>
-                            <th>view</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {customers.map((customer) => (
-                            <tr key={customer.id}>
-                                <td>{customer.full_name}</td>
-                                <td>{customer.email}</td>
-                                <td>{customer.primary_mobile}</td>
-                                <td>{customer.age || 'N/A'}</td>
-                                <td>{customer.gender || 'N/A'}</td>
-                                <td>{customer.full_address || 'N/A'}</td>
-                                <td>
-                                    <button className="btn btn-warning btn-sm me-2" onClick={() => setSelectedCustomer(customer)}>
-                                        Edit
-                                    </button>
-                                    <button className="btn btn-danger btn-sm" onClick={() => setConfirmDelete({ show: true, id: customer.id })}>
-                                        Delete
-                                    </button>
-                                </td>
-                                <td> <button className="btn btn-sm" onClick={() => addNewInsurance(customer.id)}>
-                                    Add insurance
-                                </button>
-                                </td>
-                                <td className="py-2 px-4">
-                                    <button
-                                        onClick={() => openUploadModal(customer.id)}
-                                        className="btn btn-primary btn-sm"
-                                    >
-                                        Upload
-                                    </button>
-                                </td>
-                                <td className="py-2 px-4">
-                                    <button
-                                        className="btn btn-success btn-sm"
-                                    >
-                                        view
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div> */}
-           <div className="table-responsive">
-    <table className="table table-bordered table-hover">
-        <thead className="thead-dark">
-            <tr>
-                <th>Sr. No.</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Primary Mobile</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Address</th>
-                <th>Actions</th>
-                <th>Insurance</th>
-                <th>Upload</th>
-                <th>View</th>
-            </tr>
-        </thead>
-        <tbody>
-            {customers.map((customer, index) => (
-                <tr key={customer.id}>
-                    <td>{index + 1}</td>
-                    <td>{customer.full_name}</td>
-                    <td>{customer.email}</td>
-                    <td>{customer.primary_mobile}</td>
-                    <td>{customer.age || 'N/A'}</td>
-                    <td>{customer.gender || 'N/A'}</td>
-                    <td>{customer.full_address || 'N/A'}</td>
-                    <td>
-                        <button
-                            className="btn btn-link text-warning p-0 me-2"
-                            onClick={() => setSelectedCustomer(customer)}
-                            title="Edit"
-                        >
-                            <i className="fas fa-edit"></i>
-                        </button>
-                        <button
-                            className="btn btn-link text-danger p-0"
-                            onClick={() => setConfirmDelete({ show: true, id: customer.id })}
-                            title="Delete"
-                        >
-                            <i className="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                    <td>
-                        <button
-                            className="btn btn-link text-info p-0"
-                            onClick={() => addNewInsurance(customer.id)}
-                            title="Add Insurance"
-                        >
-                            <i className="fas fa-plus-circle"></i>
-                        </button>
-                    </td>
-                    <td>
-                        <button
-                            className="btn btn-link text-primary p-0"
-                            onClick={() => openUploadModal(customer.id)}
-                            title="Upload"
-                        >
-                            <i className="fas fa-upload"></i>
-                        </button>
-                    </td>
-                    <td>
-                        <button
-                            className="btn btn-link text-success p-0"
-                            title="View"
-                        >
-                            <i className="fas fa-eye"></i>
-                        </button>
-                    </td>
-                </tr>
-            ))}
-        </tbody>
-    </table>
-</div>
 
-           
             <MediaUploadModal
                 customerId={uploadModal.id}
                 show={uploadModal.show}
@@ -260,6 +285,7 @@ const CustomerForm = ({ customer, onClose }) => {
             Object.keys(customer).forEach((field) => setValue(field, customer[field]));
         }
     }, [customer, setValue]);
+    const [path, setpath] = useState('http://localhost:3005/get-customer-uploads');
 
     const onSubmit = async (data) => {
         try {
@@ -271,210 +297,148 @@ const CustomerForm = ({ customer, onClose }) => {
             toast.error('Error saving customer');
         }
     };
+    const documents = customer.documents ? JSON.parse(customer.documents) : [];
+
 
     return (
-        // <div className="modal fade show d-block" tabIndex="-1">
-        //     <div className="modal-dialog">
-        //         <div className="modal-content">
-        //             <div className="modal-header">
-        //                 <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>
-        //                 <button type="button" className="btn-close" onClick={onClose}></button>
-        //             </div>
-        //             <div className="modal-body">
-        //                 <form onSubmit={handleSubmit(onSubmit)}>
-        //                     <div className="mb-3">
-        //                         <label className="form-label">Full Name</label>
-        //                         <input
-        //                             type="text"
-        //                             {...register("full_name", { required: "Full Name is required" })}
-        //                             className="form-control"
-        //                         />
-        //                         {errors.full_name && <small className="text-danger">{errors.full_name.message}</small>}
-        //                     </div>
-
-        //                     <div className="mb-3">
-        //                         <label className="form-label">Email</label>
-        //                         <input
-        //                             type="email"
-        //                             {...register("email", { required: "Email is required" })}
-        //                             className="form-control"
-        //                         />
-        //                         {errors.email && <small className="text-danger">{errors.email.message}</small>}
-        //                     </div>
-
-        //                     <div className="mb-3">
-        //                         <label className="form-label">Primary Mobile</label>
-        //                         <input
-        //                             type="text"
-        //                             {...register("primary_mobile", { required: "Primary Mobile is required" })}
-        //                             className="form-control"
-        //                         />
-        //                         {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
-        //                     </div>
-
-        //                     <div className="mb-3">
-        //                         <label className="form-label">Additional Mobile</label>
-        //                         <input
-        //                             type="text"
-        //                             {...register("additional_mobile")}
-        //                             className="form-control"
-        //                         />
-        //                     </div>
-
-        //                     <div className="mb-3">
-        //                         <label className="form-label">Age</label>
-        //                         <input
-        //                             type="number"
-        //                             {...register("age")}
-        //                             className="form-control"
-        //                         />
-        //                     </div>
-
-        //                     <div className="mb-3">
-        //                         <label className="form-label">Gender</label>
-        //                         <select {...register("gender")} className="form-select">
-        //                             <option value="male">Male</option>
-        //                             <option value="female">Female</option>
-        //                         </select>
-        //                     </div>
-
-        //                     <div className="mb-3">
-        //                         <label className="form-label">State</label>
-        //                         <input
-        //                             type="text"
-        //                             {...register("state")}
-        //                             className="form-control"
-        //                         />
-        //                     </div>
-
-        //                     <div className="mb-3">
-        //                         <label className="form-label">City</label>
-        //                         <input
-        //                             type="text"
-        //                             {...register("city")}
-        //                             className="form-control"
-        //                         />
-        //                     </div>
-
-        //                     <div className="mb-3">
-        //                         <label className="form-label">Full Address</label>
-        //                         <textarea
-        //                             {...register("full_address")}
-        //                             className="form-control"
-        //                         />
-        //                     </div>
-
-        //                     <button type="submit" className="btn btn-success">
-        //                         {customer.id ? 'Update' : 'Create'}
-        //                     </button>
-        //                 </form>
-        //             </div>
-
-        //         </div>
-        //     </div>
-        // </div>
         <div className="modal fade show d-block" tabIndex="-1">
-    <div className="modal-dialog modal-dialog-centered modal-lg">
-        <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
-            <div className="modal-header bg-dark text-white">
-                <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>
-                <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
-            </div>
-            <div className="modal-body p-4">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="mb-4">
-                        <label className="form-label fw-bold">Full Name</label>
-                        <input
-                            type="text"
-                            {...register("full_name", { required: "Full Name is required" })}
-                            className="form-control"
-                        />
-                        {errors.full_name && <small className="text-danger">{errors.full_name.message}</small>}
+            <div className="modal-dialog modal-dialog-centered modal-lg">
+                <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'hidden' }}>
+                    <div className="modal-header bg-dark text-white">
+                        <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>
+                        <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
                     </div>
+                    <div className="modal-body p-4" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">Full Name</label>
+                                <input
+                                    type="text"
+                                    {...register("full_name", { required: "Full Name is required" })}
+                                    className="form-control"
+                                />
+                                {errors.full_name && <small className="text-danger">{errors.full_name.message}</small>}
+                            </div>
 
-                    <div className="mb-4">
-                        <label className="form-label fw-bold">Email</label>
-                        <input
-                            type="email"
-                            {...register("email", { required: "Email is required" })}
-                            className="form-control"
-                        />
-                        {errors.email && <small className="text-danger">{errors.email.message}</small>}
-                    </div>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">Email</label>
+                                <input
+                                    type="email"
+                                    {...register("email", { required: "Email is required" })}
+                                    className="form-control"
+                                />
+                                {errors.email && <small className="text-danger">{errors.email.message}</small>}
+                            </div>
 
-                    <div className="mb-4">
-                        <label className="form-label fw-bold">Primary Mobile</label>
-                        <input
-                            type="text"
-                            {...register("primary_mobile", { required: "Primary Mobile is required" })}
-                            className="form-control"
-                        />
-                        {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
-                    </div>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">Primary Mobile</label>
+                                <input
+                                    type="text"
+                                    {...register("primary_mobile", { required: "Primary Mobile is required" })}
+                                    className="form-control"
+                                />
+                                {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
+                            </div>
 
-                    <div className="mb-4">
-                        <label className="form-label fw-bold">Additional Mobile</label>
-                        <input
-                            type="text"
-                            {...register("additional_mobile")}
-                            className="form-control"
-                        />
-                    </div>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">Additional Mobile</label>
+                                <input
+                                    type="text"
+                                    {...register("additional_mobile")}
+                                    className="form-control"
+                                />
+                            </div>
 
-                    <div className="mb-4">
-                        <label className="form-label fw-bold">Age</label>
-                        <input
-                            type="number"
-                            {...register("age")}
-                            className="form-control"
-                        />
-                    </div>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">Date of birth</label>
+                                <input
+                                    type="date"
+                                    {...register("dob", { required: "Date of birth is required" })}
+                                    className="form-control"
+                                />
+                                {errors.dob && <small className="text-danger">{errors.dob.message}</small>}
 
-                    <div className="mb-4">
-                        <label className="form-label fw-bold">Gender</label>
-                        <select {...register("gender")} className="form-select">
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                        </select>
-                    </div>
+                            </div>
 
-                    <div className="mb-4">
-                        <label className="form-label fw-bold">State</label>
-                        <input
-                            type="text"
-                            {...register("state")}
-                            className="form-control"
-                        />
-                    </div>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">Gender</label>
+                                <select {...register("gender", { required: "Gender is required" })} className="form-select">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                                {errors.gender && <small className="text-danger">{errors.gender.message}</small>}
+                            </div>
 
-                    <div className="mb-4">
-                        <label className="form-label fw-bold">City</label>
-                        <input
-                            type="text"
-                            {...register("city")}
-                            className="form-control"
-                        />
-                    </div>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">State</label>
+                                <input
+                                    type="text"
+                                    {...register("state", { required: "State is required" })}
+                                    className="form-control"
+                                />
+                                {errors.state && <small className="text-danger">{errors.state.message}</small>}
+                            </div>
 
-                    <div className="mb-4">
-                        <label className="form-label fw-bold">Full Address</label>
-                        <textarea
-                            {...register("full_address")}
-                            className="form-control"
-                            rows="4"
-                        />
-                    </div>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">City</label>
+                                <input
+                                    type="text"
+                                    {...register("city", { required: "City is required" })}
+                                    className="form-control"
+                                />
+                                {errors.city && <small className="text-danger">{errors.city.message}</small>}
+                            </div>
 
-                    <div className="d-flex justify-content-end mt-4">
-                        <button type="submit" className="btn btn-success px-4">
-                            {customer.id ? 'Update' : 'Create'}
-                        </button>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">Full Address</label>
+                                <textarea
+                                    {...register("full_address", { required: "Address is required" })}
+                                    className="form-control"
+                                    rows="4"
+                                />
+                                {errors.full_address && <small className="text-danger">{errors.full_address.message}</small>}
+                            </div>
+
+
+                            <div className="mb-4 d-flex">
+                                {documents.map((doc, index) => (
+                                    <div key={index} className='ms-3'>
+                                        {doc.ext === '.pdf' ? (
+                                            <>
+                                                <div>
+                                                    {doc.type}
+                                                </div>
+                                                <a href={`${path}/${doc.name}`} target='_blank' className='text-primary' style={{ textDecoration: 'none' }}>
+                                                    <img src={pdfImage} style={{ width: '100px', height: 'auto' }} />
+                                                </a>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div>
+                                                    {doc.type}
+                                                </div>
+                                                <a href={`${path}/${doc.name}`} target='_blank' className='text-primary' style={{ textDecoration: 'none' }}>
+                                                  <img src={`${path}/${doc.name}`} alt={doc.type} style={{ width: '100px', height: 'auto' }} />
+                                                </a>
+                                            </>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="d-flex justify-content-end mt-4">
+                                <button type="submit" className="btn btn-primary px-4">
+                                    {customer.id ? 'Update' : 'Create'}
+                                </button>
+                                <button type='button' className='btn btn-danger ms-2' onClick={onClose}>
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-</div>
     );
 };
 
