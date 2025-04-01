@@ -286,6 +286,9 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
 
     const [selectedID, setselectedID] = useState(customer.id);
 
+    console.log(customer);
+    
+
     useEffect(() => {
         if (customer) {
             Object.keys(customer).forEach((field) => setValue(field, customer[field]));

@@ -1,22 +1,25 @@
 import React from 'react'
+import InsuranceManagement2 from './views/InsuranceManagement/InsuranceManagement2'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const CustomerManagement = React.lazy(() => import('./views/CustomerManagement/CustomerManagement'))
 const UserManagement = React.lazy(() => import('./views/UserManagement/UserManagement'))
-const InsuranceManagement = React.lazy(() => import('./views/InsuranceManagement/InsuranceManagement'))
+// const InsuranceManagement = React.lazy(() => import('./views/InsuranceManagement/InsuranceManagement'))
 const InsuranceInitialDetails = React.lazy(() => import('./views/InsuranceManagement/InitialInsurance'))
 const InsuranceCommonDetails1 = React.lazy(() => import('./views/InsuranceManagement/InsuranceCommonDetails1'))
 const InsuranceCommonDetails2 = React.lazy(() => import('./views/InsuranceManagement/InsuranceCommonDetails2'))
+const InsuranceDetailMain = React.lazy(() => import('./views/InsuranceManagement/InsuranceDetailMain'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/customers', name: 'customers', element: CustomerManagement },
   { path: '/users', name: 'users', element: UserManagement },
-  { path: '/insurance', name: 'insurance', element: InsuranceManagement },
-  { path: '/insurance-initial/:id', name: 'insuranceInitial', element: InsuranceInitialDetails },
-  { path: '/common-insurance1/:id', name: 'insuranceInitial', element: InsuranceCommonDetails1 },
-  { path: '/common-insurance2/:id', name: 'insuranceInitial', element: InsuranceCommonDetails2 },
+  { path: '/insurance', name: 'insurance', element: InsuranceManagement2 },
+  { path: '/insurance-initial/:id',  element: InsuranceInitialDetails },
+  { path: '/common-insurance1/:id',  element: InsuranceCommonDetails1 },
+  { path: '/common-insurance2/:id',  element: InsuranceCommonDetails2 },
+  { path: '/insurance-detail/:id', element: InsuranceDetailMain },
 ]
 
 export default routes

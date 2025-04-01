@@ -202,7 +202,7 @@ const InsuranceManagement = () => {
       if (response.data.success) {
         toast.success("Customer found!");
         setShowModal(false);
-        navigate(`/insurance-initial/${response.data.customerId}`);
+        // navigate(`/insurance-initial/${response.data.id}`);
       } else {
         toast.error("No customer found with this email.");
       }
@@ -234,16 +234,12 @@ const InsuranceManagement = () => {
   return (
     <div className="container mt-4">
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
-
-      {/* Page Title & Button */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="fw-bold">Insurance Management</h2>
         <button onClick={() => setShowModal(true)} className="btn btn-primary">
           <i className="fas fa-plus me-2"></i>New Insurance
         </button>
       </div>
-
-      {/* Responsive Table */}
       <div className="card shadow-sm">
         <div className="card-body">
           <div className="table-responsive">
@@ -251,17 +247,17 @@ const InsuranceManagement = () => {
               <thead className="table-dark">
                 <tr>
                   <th>Sr.No</th>
-                  <th>Segment</th>
-                  <th>Customer ID</th>
-                  <th>Vehicle Number</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th></th>
                   <th>Actions</th>
                   <th>Upload</th>
                 </tr>
               </thead>
               <tbody>
-                {insurance.map((insurance,item) => (
+                {insurance.map((insurance, item) => (
                   <tr key={insurance.id}>
-                    <td>{item+1}</td>
+                    <td>{item + 1}</td>
                     <td>{insurance.segment}</td>
                     <td>{insurance.customer_id}</td>
                     <td>{insurance.vehicle_number}</td>
