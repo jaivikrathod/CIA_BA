@@ -79,3 +79,8 @@
     background-color: #218838;
     border-color: #1e7e34;
 }
+.btn-common {
+    padding: 10px 20px;
+    font-weight: 600;
+}
+

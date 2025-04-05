@@ -23,7 +23,9 @@ const CustomerManagement = () => {
     const fetchCustomers = async () => {
         try {
             const response = await axios.post(`${api}/customer-list`);
-            setCustomers(response.data.data);
+            if (response.data.data) {
+                setCustomers(response.data.data);
+            }
         } catch (error) {
             toast.error('Failed to fetch customers');
         }
@@ -71,7 +73,7 @@ const CustomerManagement = () => {
     });
 
     // Filter customers based on search and filters
-    const filteredCustomers = customers.filter(customer => {
+    const filteredCustomers = customers?.filter(customer => {
         const matchesSearch = customer.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             customer.email.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesGender = filters.gender ? customer.gender == filters.gender : true;
@@ -123,112 +125,118 @@ const CustomerManagement = () => {
                     </button>
                 </div>
 
-                {/* Search and Filter Section */}
-                <div className="row mb-3">
-                    <div className="col-md-4 mb-2">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search by name or email"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                {customers.length === 0 ? (
+                    <div className="alert alert-info text-center" role="alert">
+                        No customers found. Please add a new customer.</div>
+                ) : (<>
+                    {/* Search and Filter Section */}
+                    <div className="row mb-3">
+                        <div className="col-md-4 mb-2">
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Search by name or email"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <div className="col-md-3 mb-2">
+                            <select
+                                className="form-control"
+                                value={filters.gender}
+                                onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
+                            >
+                                <option value="">All Genders</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div className="col-md-3 mb-2">
+                            <select
+                                className="form-control"
+                                value={filters.ageRange}
+                                onChange={(e) => setFilters({ ...filters, ageRange: e.target.value })}
+                            >
+                                <option value="">All Ages</option>
+                                <option value="0-18">0-18</option>
+                                <option value="19-35">19-35</option>
+                                <option value="36-60">36-60</option>
+                                <option value="60+">60+</option>
+                            </select>
+                        </div>
+                        <div className="col-md-2 mb-2">
+                            <button className="btn btn-success w-100" onClick={downloadCSV}>
+                                <FaDownload /> Download CSV
+                            </button>
+                        </div>
                     </div>
-                    <div className="col-md-3 mb-2">
-                        <select
-                            className="form-control"
-                            value={filters.gender}
-                            onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
-                        >
-                            <option value="">All Genders</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div className="col-md-3 mb-2">
-                        <select
-                            className="form-control"
-                            value={filters.ageRange}
-                            onChange={(e) => setFilters({ ...filters, ageRange: e.target.value })}
-                        >
-                            <option value="">All Ages</option>
-                            <option value="0-18">0-18</option>
-                            <option value="19-35">19-35</option>
-                            <option value="36-60">36-60</option>
-                            <option value="60+">60+</option>
-                        </select>
-                    </div>
-                    <div className="col-md-2 mb-2">
-                        <button className="btn btn-success w-100" onClick={downloadCSV}>
-                            <FaDownload /> Download CSV
-                        </button>
-                    </div>
-                </div>
 
-                {/* Table Section */}
-                <div className="table-responsive">
-                    <table className="table table-striped table-hover">
-                        <thead className="thead-dark">
-                            <tr>
-                                <th>Sr. No.</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Primary Mobile</th>
-                                <th>Age</th>
-                                <th>Gender</th>
-                                <th>Address</th>
-                                <th>Actions</th>
-                                <th>Files & Details</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredCustomers.map((customer, index) => (
-                                <tr key={customer.id}>
-                                    <td>{index + 1}</td>
-                                    <td>{customer.full_name}</td>
-                                    <td>{customer.email}</td>
-                                    <td>{customer.primary_mobile}</td>
-                                    <td>{customer.age || 'N/A'}</td>
-                                    <td>{customer.gender || 'N/A'}</td>
-                                    <td>{customer.full_address || 'N/A'}</td>
-                                    <td>
-                                        <button
-                                            className="btn btn-link"
-                                            onClick={() => setSelectedCustomer(customer)}
-                                            title="Info"
-                                        >
-                                            <FaInfoCircle />
-                                        </button>
-                                        <button
-                                            className="btn btn-link text-danger"
-                                            onClick={() => setConfirmDelete({ show: true, id: customer.id })}
-                                            title="Delete"
-                                        >
-                                            <FaTrash />
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <button
-                                            className="btn btn-link text-info"
-                                            onClick={() => addNewInsurance(customer.id)}
-                                            title="Add Insurance"
-                                        >
-                                            <FaPlusSquare />
-                                        </button>
-                                        <button
-                                            className="btn btn-link text-primary"
-                                            onClick={() => openUploadModal(customer.id)}
-                                            title="Upload"
-                                        >
-                                            <FaUpload />
-                                        </button>
-                                    </td>
+                    {/* Table Section */}
+                    <div className="table-responsive">
+                        <table className="table table-striped table-hover">
+                            <thead className="thead-dark">
+                                <tr>
+                                    <th>Sr. No.</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Primary Mobile</th>
+                                    <th>Age</th>
+                                    <th>Gender</th>
+                                    <th>Address</th>
+                                    <th>Actions</th>
+                                    <th>Files & Details</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {filteredCustomers.map((customer, index) => (
+                                    <tr key={customer.id}>
+                                        <td>{index + 1}</td>
+                                        <td>{customer.full_name}</td>
+                                        <td>{customer.email}</td>
+                                        <td>{customer.primary_mobile}</td>
+                                        <td>{customer.age || 'N/A'}</td>
+                                        <td>{customer.gender || 'N/A'}</td>
+                                        <td>{customer.full_address || 'N/A'}</td>
+                                        <td>
+                                            <button
+                                                className="btn btn-link"
+                                                onClick={() => setSelectedCustomer(customer)}
+                                                title="Info"
+                                            >
+                                                <FaInfoCircle />
+                                            </button>
+                                            <button
+                                                className="btn btn-link text-danger"
+                                                onClick={() => setConfirmDelete({ show: true, id: customer.id })}
+                                                title="Delete"
+                                            >
+                                                <FaTrash />
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <button
+                                                className="btn btn-link text-info"
+                                                onClick={() => addNewInsurance(customer.id)}
+                                                title="Add Insurance"
+                                            >
+                                                <FaPlusSquare />
+                                            </button>
+                                            <button
+                                                className="btn btn-link text-primary"
+                                                onClick={() => openUploadModal(customer.id)}
+                                                title="Upload"
+                                            >
+                                                <FaUpload />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </>
+                )}
             </div>
 
 
@@ -287,7 +295,7 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
     const [selectedID, setselectedID] = useState(customer.id);
 
     console.log(customer);
-    
+
 
     useEffect(() => {
         if (customer) {
@@ -342,12 +350,23 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
                                 <label className="form-label fw-bold">Full Name</label>
                                 <input
                                     type="text"
-                                    {...register("full_name", { required: "Full Name is required" })}
+                                    {...register("full_name", {
+                                        required: "Full Name is required",
+                                        validate: value => {
+                                            const trimmed = value.trim();
+                                            const regex = /^[A-Za-z\s]+$/;
+                                            if (!regex.test(trimmed)) {
+                                                return "Only letters are allowed";
+                                            }
+                                            return true;
+                                        }
+                                    })}
                                     className="form-control"
                                     disabled={!isReadable}
                                 />
                                 {errors.full_name && <small className="text-danger">{errors.full_name.message}</small>}
                             </div>
+
 
                             <div className="mb-4">
                                 <label className="form-label fw-bold">Email</label>
@@ -364,10 +383,18 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
                                 <label className="form-label fw-bold">Primary Mobile</label>
                                 <input
                                     type="text"
-                                    {...register("primary_mobile", { required: "Primary Mobile is required" })}
+                                    maxLength={10}
+                                    {...register("primary_mobile", {
+                                        required: "Primary Mobile is required",
+                                        pattern: {
+                                            value: /^[0-9]{10}$/,
+                                            message: "Mobile number must be exactly 10 digits"
+                                        }
+                                    })}
                                     className="form-control"
                                     disabled={!isReadable}
                                 />
+                                {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
                                 {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
                             </div>
 
@@ -375,23 +402,41 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
                                 <label className="form-label fw-bold">Additional Mobile</label>
                                 <input
                                     type="text"
-                                    {...register("additional_mobile")}
+                                    maxLength={10}
+                                    {...register("additional_mobile", {
+                                        required: "Primary Mobile is required",
+                                        pattern: {
+                                            value: /^[0-9]{10}$/,
+                                            message: "Mobile number must be exactly 10 digits"
+                                        }
+                                    })}
                                     className="form-control"
                                     disabled={!isReadable}
                                 />
+                                {errors.additional_mobile && <small className="text-danger">{errors.additional_mobile.message}</small>}
+
                             </div>
 
                             <div className="mb-4">
                                 <label className="form-label fw-bold">Date of birth</label>
                                 <input
                                     type="date"
-                                    {...register("dob", { required: "Date of birth is required" })}
+                                    {...register("dob", {
+                                        required: "Date of birth is required",
+                                        validate: value => {
+                                            const selectedDate = new Date(value);
+                                            const today = new Date();
+                                            const maxDate = new Date();
+                                            maxDate.setFullYear(today.getFullYear() - 120);
+                                            return selectedDate >= maxDate || "DOB cannot be more than 120 years ago";
+                                        }
+                                    })}
                                     className="form-control"
                                     disabled={!isReadable}
                                 />
                                 {errors.dob && <small className="text-danger">{errors.dob.message}</small>}
-
                             </div>
+
 
                             <div className="mb-4">
                                 <label className="form-label fw-bold">Gender</label>
@@ -472,7 +517,7 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
 
                             {isReadable &&
                                 <div className="d-flex justify-content-end mt-4">
-                                    <button type="submit" className="btn btn-primary px-4">
+                                    <button type="submit" className="btn btn-success px-4">
                                         {customer.id ? 'Update' : 'Create'}
                                     </button>
                                     <button type='button' className='btn btn-danger ms-2' onClick={onClose}>

@@ -4,36 +4,22 @@ import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useSelector, useDispatch } from "react-redux";
 
 export default function login() {
+  const apiUrl = useSelector((state)=> state.apiUrl);
+  const isAuthenticated = useSelector((state)=> state.isAuthenticated);
   const navigate = useNavigate();   
-  const apiUrl = "http://localhost:3005";
   useEffect(() => {
-    const checkAuth = async () => {
-      const id = window.localStorage.getItem("id");
-      const token = window.localStorage.getItem("token");
-
-      if (token) {
-        try {
-          const response = await axios.post(`${apiUrl}/verify-token`, { id, token });
-          if (response.data.success) {
-            navigate('/dashboard');
-          }
-        } catch (error) {
-          console.error("Error during token verification:", error);
-        }
+      if(isAuthenticated){
+        navigate('/dashboard');
       }
-    };
-
-    checkAuth();
   }, []);
 
   const { register, handleSubmit, formState: { errors } } = useForm();
   const onLogin = async (data) => {
-    const api = "http://localhost:3005";
-
     try {
-      const response = await axios.post(api + "/login", data);
+      const response = await axios.post(apiUrl + "/login", data);
       if (response.data.success) {
         console.log(response.data);
         if(data.password == "Password@123"){

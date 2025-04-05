@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
 import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import { Navigate } from "react-router-dom";
 
-const apiUrl = "http://localhost:3005"; 
+const apiUrl = "http://localhost:3005";
 
-const PrivateRoute = ({ element }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+const PrivateRoute = ({ children }) => {
+  const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(true);
+  const isAuthenticated = useSelector((state) => state.isAuthenticated);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -17,16 +19,16 @@ const PrivateRoute = ({ element }) => {
         try {
           const response = await axios.post(`${apiUrl}/verify-token`, { id, token });
           if (response.data.success) {
-            setIsAuthenticated(true);
+            dispatch({ type: 'set', id: id, token: token, isAuthenticated: true });
           } else {
-            setIsAuthenticated(false);
+            dispatch({ type: 'clear_credentials' });
           }
         } catch (error) {
-          setIsAuthenticated(false);
+          dispatch({ type: 'clear_credentials' });
           console.error("Error during token verification:", error);
         }
       } else {
-        setIsAuthenticated(false);
+        dispatch({ type: 'clear_credentials' });
       }
       setIsLoading(false);
     };
@@ -35,8 +37,10 @@ const PrivateRoute = ({ element }) => {
   }, []);
 
   if (isLoading) {
-    return <div>Loading...</div>;
- }
-  return isAuthenticated ? element : <Navigate to="/login" replace />;
+    return <div>Loading...</div>; 
+  }
+
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
+
 export default PrivateRoute;
