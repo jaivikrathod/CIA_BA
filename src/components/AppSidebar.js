@@ -9,14 +9,8 @@ import {
   CSidebarHeader,
   CSidebarToggler,
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
-
-import logo from '../assets/brand/logo.svg'
-import { sygnet } from 'src/assets/brand/sygnet'
-
-// sidebar nav config
 import navigation from '../_nav'
 
 const AppSidebar = () => {
@@ -36,7 +30,7 @@ const AppSidebar = () => {
       }}
     >
       <CSidebarHeader className="border-bottom px-3 py-2  shadow-sm">
-          <div className="">
+          <div style={{display: 'flex',gap: '18px',margin: '20px 0px 10px 10px',justifyContent: 'center',alignItems: 'center'}}>
             <img
               src="https://ui-avatars.com/api/?name=Mihir+Rathod&background=random&bold=true"
               alt="Admin Avatar"
@@ -47,9 +41,9 @@ const AppSidebar = () => {
                 objectFit: 'cover',
               }}
             />
-            <div className="text-end">
+            <div >
               <div className="fw-semibold " style={{ fontSize: '0.95rem' }}>Mihir Rathod</div>
-              <div className="badge bg-primary text-white" style={{ fontSize: '0.65rem' }}>Admin</div>
+              <div className="badge bg-primary text-white" style={{ fontSize: '10px' }}>Admin</div>
             </div>
           </div>
 
