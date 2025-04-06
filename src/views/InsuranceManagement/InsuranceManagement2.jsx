@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MediaUploadModal from '../UploadDoc/MediaUploadModal';
 import "../../scss/CustomerManagement.css";
 import { FaInfoCircle, FaUpload, FaSyncAlt } from "react-icons/fa";
-
-const api = "http://localhost:3005";
+import useApi from "../../api/axios";
 
 const InsuranceManagement2 = () => {
     const navigate = useNavigate();
@@ -16,13 +14,15 @@ const InsuranceManagement2 = () => {
     const [email, setEmail] = useState("");
     const [uploadModal, setUploadModal] = useState({ show: false, id: null });
 
+    const api = useApi();
+
     useEffect(() => {
         fetchInsurance();
     }, []);
 
     const fetchInsurance = async () => {
         try {
-            const response = await axios.post(`${api}/insurance-list`);
+            const response = await api.post(`/insurance-list`);
             setInsurance(response.data.data);
         } catch (error) {
             toast.error("Failed to fetch insurance");
@@ -34,7 +34,7 @@ const InsuranceManagement2 = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post(`${api}/check-customer`, { email });
+            const response = await api.post(`/check-customer`, { email });
             console.log(response);
 
             if (response.data.success) {
@@ -51,8 +51,8 @@ const InsuranceManagement2 = () => {
     };
 
     const renewInsurance = async (insuraceID) => {
-            navigate(`/common-insurance2/${insuraceID}`, { state: { type: true } });
-        }
+        navigate(`/common-insurance2/${insuraceID}`, { state: { type: true } });
+    }
 
     const openUploadModal = (id) => {
         setUploadModal({ show: true, id });
@@ -63,7 +63,7 @@ const InsuranceManagement2 = () => {
     };
 
     const getParticularInsurance = async (common_id) => {
-          navigate('/insurance-detail/' + common_id);
+        navigate('/insurance-detail/' + common_id);
     }
 
     return (
@@ -79,54 +79,60 @@ const InsuranceManagement2 = () => {
             </div>
 
             {/* Responsive Table */}
-            <div className="table-responsive">
-                <table className="table table-striped table-hover">
-                    <thead className="thead-dark">
-                        <tr>
-                            <th>Sr.No</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Type</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {insurance.map((insurance, item) => (
-                            <tr key={insurance.id}>
-                                <td>{item + 1}</td>
-                                <td>{insurance.full_name}</td>
-                                <td>{insurance.email}</td>
-                                <td>{insurance.insurance_type}</td>
-                                <td>{insurance.insurance_Date}</td>
-                                <td> <button
-                                    className="btn btn-link"
-                                    onClick={() => getParticularInsurance(insurance.common_id)}
-                                    title="Info"
-                                >
-                                    <FaInfoCircle />
-                                </button>
-                                    <button
-                                        onClick={() => renewInsurance(insurance.id)}
-                                        className="btn btn-link"
-                                        title="Renew Insurance"
-                                    >
-                                        <FaSyncAlt />
+            {insurance.length === 0 ? (
+                <div className="alert alert-info text-center" role="alert">
+                    No Insurance found. Please add a new insurance.</div>
+            ) : (<>
 
-                                    </button>
-                                    <button
-                                        onClick={() => openUploadModal(insurance.id)}
-                                        className="btn btn-link"
-                                        title="Upload"
-                                    >
-                                        <FaUpload />
-                                    </button>
-                                </td>
+                <div className="table-responsive">
+                    <table className="table table-striped table-hover">
+                        <thead className="thead-dark">
+                            <tr>
+                                <th>Sr.No</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {insurance.map((insurance, item) => (
+                                <tr key={insurance.id}>
+                                    <td>{item + 1}</td>
+                                    <td>{insurance.full_name}</td>
+                                    <td>{insurance.email}</td>
+                                    <td>{insurance.insurance_type}</td>
+                                    <td>{insurance.insurance_Date}</td>
+                                    <td> <button
+                                        className="btn btn-link"
+                                        onClick={() => getParticularInsurance(insurance.common_id)}
+                                        title="Info"
+                                    >
+                                        <FaInfoCircle />
+                                    </button>
+                                        <button
+                                            onClick={() => renewInsurance(insurance.id)}
+                                            className="btn btn-link"
+                                            title="Renew Insurance"
+                                        >
+                                            <FaSyncAlt />
+
+                                        </button>
+                                        <button
+                                            onClick={() => openUploadModal(insurance.id)}
+                                            className="btn btn-link"
+                                            title="Upload"
+                                        >
+                                            <FaUpload />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </>)}
 
 
 

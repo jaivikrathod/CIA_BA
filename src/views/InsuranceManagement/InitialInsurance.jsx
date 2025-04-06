@@ -1,11 +1,10 @@
 import React, { useState,useEffect } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import api from "api";
 import { useNavigate,useParams } from "react-router-dom";
-
+import useApi from "../../api/api";
 export default function InsuranceInitialDetails() {
   const navigate = useNavigate();
-  const api = "http://localhost:3005";
   const [step, setStep] = useState(1);
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
   let { id } = useParams();
@@ -23,6 +22,8 @@ export default function InsuranceInitialDetails() {
 
   const [selectedOption, setselectedOption] = useState(option1);
 
+  const api = useApi();
+
   const onSubmit = async (data) => {
     console.log(id);
 
@@ -34,7 +35,7 @@ export default function InsuranceInitialDetails() {
       data.detailedType = data.twoWheelerType + " , " + data.detailedType;
     }
 
-    const response = await axios.post(api + "/fill-initial-details", data);
+    const response = await api.post("/fill-initial-details", data);
     if (response.data.id !== "") {
       id = response.data.id;
       console.log(response.data.id);

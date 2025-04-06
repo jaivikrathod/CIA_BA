@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 export default function login() {
   const apiUrl = useSelector((state)=> state.apiUrl);
   const isAuthenticated = useSelector((state)=> state.isAuthenticated);
+  const dispatch = useDispatch();
   const navigate = useNavigate();   
   useEffect(() => {
       if(isAuthenticated){
@@ -27,12 +28,15 @@ export default function login() {
         }else{
           window.localStorage.setItem('id', response.data.id);
           window.localStorage.setItem('token', response.data.token);
-          location.reload();
+          dispatch({type: 'set', id: response.data.id, token: response.data.token, isAuthenticated: true});
+          navigate('/dashboard');
         }
       } else {
         toast.error('Login failed. Please check your credentials.');
       }
     } catch (error) {
+      console.log(error);
+      
       toast.error('An error occurred. Please try again.');
     }
   }

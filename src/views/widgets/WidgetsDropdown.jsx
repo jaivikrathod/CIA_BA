@@ -14,6 +14,7 @@ import { getStyle } from '@coreui/utils'
 import { CChartBar, CChartLine } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
 import { cilArrowBottom, cilArrowTop, cilOptions } from '@coreui/icons'
+import useApi from '../../api/axios'
 
 const WidgetsDropdown = (props) => {
   const widgetChartRef1 = useRef(null)
@@ -22,6 +23,8 @@ const WidgetsDropdown = (props) => {
   const [customers, setcustomers] = useState(0);
   const [newCustomers, setnewCustomers] = useState(0);
   const [insurance, setinsurance] = useState(0);
+
+  const api = useApi();
 
   useEffect(() => {
     getDashboardData();
@@ -41,16 +44,24 @@ const WidgetsDropdown = (props) => {
       }
     })
   }, [widgetChartRef1, widgetChartRef2]);
-  
+
   const getDashboardData = async () => {
-     let users = await axios.get('http://localhost:3005/getUsersCounts');
-     setusers(users.data.data);
-     let customers = await axios.get('http://localhost:3005/getCustomerCounts');
-     setcustomers(customers.data.data);
-     let newCustomers = await axios.get('http://localhost:3005/getNewCustomerCounts');
-     setnewCustomers(newCustomers.data.data);
-     let insurance = await axios.get('http://localhost:3005/getInsuranceCounts');
-     setinsurance(insurance.data.data);
+    let users = await api.get('/getUsersCounts');
+    if (users.data.data) {
+      setusers(users.data.data);
+    }
+    let customers = await api.get('/getCustomerCounts');
+    if (customers.data.data) {
+      setcustomers(customers.data.data);
+    }
+    let newCustomers = await api.get('/getNewCustomerCounts');
+    if (newCustomers.data.data) {
+      setnewCustomers(newCustomers.data.data);
+    }
+    let insurance = await api.get('/getInsuranceCounts');
+    if (insurance.data.data) {
+      setinsurance(insurance.data.data);
+    }
   }
 
   return (
@@ -155,7 +166,7 @@ const WidgetsDropdown = (props) => {
                 {/* (40.9% <CIcon icon={cilArrowTop} />) */}
               </span>
             </>
-            }
+          }
           title="Customers"
           action={
             <CDropdown alignment="end">
@@ -244,7 +255,7 @@ const WidgetsDropdown = (props) => {
                 {/* (40.9% <CIcon icon={cilArrowTop} />) */}
               </span>
             </>
-            }
+          }
           title="insurance"
           action={
             <CDropdown alignment="end">
@@ -316,7 +327,7 @@ const WidgetsDropdown = (props) => {
                 {/* (40.9% <CIcon icon={cilArrowTop} />) */}
               </span>
             </>
-            }
+          }
           title="New Customers"
           action={
             <CDropdown alignment="end">
