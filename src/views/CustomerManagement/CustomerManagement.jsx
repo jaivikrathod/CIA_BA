@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -8,12 +7,13 @@ import MediaUploadModal from '../UploadDoc/MediaUploadModal';
 import "../../scss/CustomerManagement.css";
 import { FaInfoCircle, FaEdit, FaTrash, FaPlusSquare, FaUpload, FaEye, FaDownload } from "react-icons/fa";
 import pdfImage from "../../assets/images/pdf.jpg";
-
-const api = "http://localhost:3005";
+import useApi from "../../api/axios";
+import { useSelector } from 'react-redux';
 
 const CustomerManagement = () => {
     const [isReadable, setisReadable] = useState(false);
     const [uploadModal, setUploadModal] = useState({ show: false, id: null });
+    const api = useApi();
 
     const navigate = useNavigate();
     const [customers, setCustomers] = useState([]);
@@ -22,7 +22,7 @@ const CustomerManagement = () => {
 
     const fetchCustomers = async () => {
         try {
-            const response = await axios.post(`${api}/customer-list`);
+            const response = await api.post(`/customer-list`);
             if (response.data.data) {
                 setCustomers(response.data.data);
             }
@@ -38,7 +38,7 @@ const CustomerManagement = () => {
 
     const handleDeleteCustomer = async (id) => {
         try {
-            await axios.post(`${api}/customer-delete`, { id });
+            await api.post(`/customer-delete`, { id });
             toast.success('Customer deleted successfully');
             setConfirmDelete({ show: false, id: null });
             fetchCustomers();
@@ -50,7 +50,7 @@ const CustomerManagement = () => {
     const addNewInsurance = async (customerID) => {
 
         try {
-            const response = await axios.post(`${api}/create-insurance`, { customerID });
+            const response = await api.post(`/create-insurance`, { customerID });
             if (response.data.id) {
                 navigate(`/insurance-initial/${response.data.id}`)
             }
@@ -190,7 +190,7 @@ const CustomerManagement = () => {
                             </thead>
                             <tbody>
                                 {filteredCustomers.map((customer, index) => (
-                                    <tr key={customer.id}>
+                                    <tr key={customer.id} style={{verticalAlign: "middle"}}>
                                         <td>{index + 1}</td>
                                         <td>{customer.full_name}</td>
                                         <td>{customer.email}</td>
@@ -291,33 +291,37 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
     const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
         defaultValues: customer || {}
     });
+    const api = useApi();
+    const apiUrl = useSelector((state) => state.apiUrl) + '/get-customer-uploads';
 
     const [selectedID, setselectedID] = useState(customer.id);
-
-    console.log(customer);
-
 
     useEffect(() => {
         if (customer) {
             Object.keys(customer).forEach((field) => setValue(field, customer[field]));
         }
     }, [customer, setValue]);
-    const [path, setpath] = useState('http://localhost:3005/get-customer-uploads');
 
     const onSubmit = async (data) => {
         try {
-            await axios.post(`${api}/customer-create-edit`, data);
-            toast.success('Customer saved successfully!');
-            reset();
-            onClose();
+            const response = await api.post(`/customer-create-edit`, data);
+            if(response.data.success){
+                toast.success('Customer saved successfully!');
+                reset();
+                onClose();
+            }else{
+                toast.error(response.data.message);
+            }
         } catch (error) {
-            toast.error('Error saving customer');
+            console.log(error);
+            
+            toast.error(error);
         }
     };
 
     const deleteDocument = async (document) => {
         try {
-            const response = await axios.post(`${api}/delete-customer-document`, { selectedID, document });
+            const response = await api.post(`/delete-customer-document`, { selectedID, document });
             if (response.data.success) {
                 setdocuments(documents.filter(doc => doc.name !== document));
                 toast.success('Document deleted successfully');
@@ -485,11 +489,11 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
                                 {documents.map((doc, index) => (
                                     <div key={index} className="position-relative ms-3">
                                         {/* Document Image / PDF */}
-                                        <a href={`${path}/${doc.name}`} target="_blank" className="text-primary" style={{ textDecoration: "none", position: "relative", display: "inline-block" }}>
+                                        <a href={`${apiUrl}/${doc.name}`} target="_blank" className="text-primary" style={{ textDecoration: "none", position: "relative", display: "inline-block" }}>
                                             {doc.ext === ".pdf" ? (
                                                 <img src={pdfImage} style={{ width: "100px", height: "auto", display: "block" }} />
                                             ) : (
-                                                <img src={`${path}/${doc.name}`} alt={doc.type} style={{ width: "100px", height: "auto", display: "block" }} />
+                                                <img src={`${apiUrl}/${doc.name}`} alt={doc.type} style={{ width: "100px", height: "auto", display: "block" }} />
                                             )}
 
                                             {isReadable && <button

@@ -1,23 +1,22 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import api from "api";
-import { useNavigate,useParams } from "react-router-dom";
-import useApi from "../../api/api";
+import { useNavigate, useParams } from "react-router-dom";
+import useApi from "../../api/axios"
 export default function InsuranceInitialDetails() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
   let { id } = useParams();
   const option1 = [
-    {Heading: "SA OD", value: "SAOD"},
-    {Heading: "Third Party", value: "ThirdParty"},
-    {Heading: "Comprehensive", value: "COMPREHENSIVE"},
-    {Heading: "New Vehicle", value: "NewVehicle"}
+    { Heading: "SA OD", value: "SAOD" },
+    { Heading: "Third Party", value: "ThirdParty" },
+    { Heading: "Comprehensive", value: "COMPREHENSIVE" },
+    { Heading: "New Vehicle", value: "NewVehicle" }
   ];
-    const option2 = [
-    {Heading: "PCV[Taxi, Rikshaw]", value: "PCV"},
-    {Heading: "GCV [Truck,mini truck]", value: "GCV"},
-    {Heading: "MISD [Ambulance, Elavator]", value: "MISD"},
+  const option2 = [
+    { Heading: "PCV[Taxi, Rikshaw]", value: "PCV" },
+    { Heading: "GCV [Truck,mini truck]", value: "GCV" },
+    { Heading: "MISD [Ambulance, Elavator]", value: "MISD" },
   ];
 
   const [selectedOption, setselectedOption] = useState(option1);
@@ -25,7 +24,6 @@ export default function InsuranceInitialDetails() {
   const api = useApi();
 
   const onSubmit = async (data) => {
-    console.log(id);
 
     if (id !== "") {
       data.id = id;
@@ -35,7 +33,7 @@ export default function InsuranceInitialDetails() {
       data.detailedType = data.twoWheelerType + " , " + data.detailedType;
     }
 
-    const response = await api.post("/fill-initial-details", data);
+    const response = await api.post("/fill-initial-details", data, step);
     if (response.data.id !== "") {
       id = response.data.id;
       console.log(response.data.id);
@@ -46,10 +44,10 @@ export default function InsuranceInitialDetails() {
     if (data.insuranceType === "Non-Motor") {
       navigate(`/common-insurance2/${response.data.id}`);
     }
-    
-    if(data.segmentType === "Commercial") {
-       setselectedOption(option2);
-    }else{
+
+    if (data.segmentType === "Commercial") {
+      setselectedOption(option2);
+    } else {
       setselectedOption(option1);
     }
 
@@ -130,6 +128,6 @@ export default function InsuranceInitialDetails() {
         </div>
       </div>
 
-     </div>
+    </div>
   );
 }

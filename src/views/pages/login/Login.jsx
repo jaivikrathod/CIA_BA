@@ -28,7 +28,7 @@ export default function login() {
         }else{
           window.localStorage.setItem('id', response.data.id);
           window.localStorage.setItem('token', response.data.token);
-          dispatch({type: 'set', id: response.data.id, token: response.data.token, isAuthenticated: true});
+          dispatch({type: 'set', id: response.data.id, token: response.data.token, isAuthenticated: true, username: response.data.full_name, adminType: response.data.type});
           navigate('/dashboard');
         }
       } else {

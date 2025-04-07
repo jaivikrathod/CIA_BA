@@ -7,6 +7,8 @@ const initialState = {
   token: null,
   isAuthenticated: false,
   apiUrl:'http://localhost:3005',
+  username:'',
+  adminType:'',
 }
 
 const changeState = (state = initialState, { type, ...rest }) => {

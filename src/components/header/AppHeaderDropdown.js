@@ -22,11 +22,10 @@ import {
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
-import avatar8 from './../../assets/images/avatars/8.jpg'
-
-
+import { useSelector } from 'react-redux'
 const AppHeaderDropdown = () => {
-  
+  const username = useSelector((state) => state.username)
+
   const logout = () => {  
     localStorage.clear();
     window.location.href = "/";
@@ -36,8 +35,8 @@ const AppHeaderDropdown = () => {
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
          <img
-              src="https://ui-avatars.com/api/?name=Mihir+Rathod&background=random&bold=true"
-              alt="Admin Avatar"
+            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random&bold=true`}
+            alt="Admin Avatar"
               style={{
                 width: '35px',
                 height: '35px',
