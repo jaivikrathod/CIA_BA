@@ -1,133 +1,303 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
-import useApi from "../../api/axios"
+import useApi from "../../api/axios";
+import { useSelector } from "react-redux";
+import { ToastContainer, toast } from 'react-toastify';
 export default function InsuranceInitialDetails() {
   const navigate = useNavigate();
+  const userID  = useSelector((state) => state.id);
+   
   const [step, setStep] = useState(1);
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
+  const [formData, setFormData] = useState({
+    insuranceType: "",
+    segmentType: "",
+    twoWheelerType: "",
+    detailedType: ""
+  });
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting }, watch } = useForm();
   let { id } = useParams();
+
   const option1 = [
     { Heading: "SA OD", value: "SAOD" },
     { Heading: "Third Party", value: "ThirdParty" },
     { Heading: "Comprehensive", value: "COMPREHENSIVE" },
     { Heading: "New Vehicle", value: "NewVehicle" }
   ];
+
   const option2 = [
     { Heading: "PCV[Taxi, Rikshaw]", value: "PCV" },
     { Heading: "GCV [Truck,mini truck]", value: "GCV" },
     { Heading: "MISD [Ambulance, Elavator]", value: "MISD" },
   ];
 
-  const [selectedOption, setselectedOption] = useState(option1);
+  const optionNonMotor = [
+    { Heading: "Halth Insurance", value: "Health Insurance" },
+    { Heading: "Life Insurance", value: "Life Insurance" },
+    { Heading: "WC Insurance", value: "WC Insurance" },
+    { Heading: "PA cover", value: "PA cover" },
+    { Heading: "Travel Insurance", value: "Travel Insurance" },
+    { Heading: "Fire Insurance", value: "Fire Insurance" },
+    { Heading: "Marine Insurance", value: "Marine Insurance" },
+  ];
 
+  const optionMotor = [
+    { Heading: "Private Car", value: "Private Car" },
+    { Heading: "Two Wheeler", value: "Two Wheeler" },
+    { Heading: "Commercial", value: "Commercial" },
+  ]
+
+  const [selectedOption, setSelectedOption] = useState(option1);
   const api = useApi();
 
-  const onSubmit = async (data) => {
+  const insuranceType = watch("insuranceType");
+  const segmentType = watch("segmentType");
+  const twoWheelerType = watch("twoWheelerType");
+  const detailedType = watch("detailedType");
+  const [flag, setFlag] = useState(false);
 
-    if (id !== "") {
-      data.id = id;
-    }
-
-    if (data.detailedType) {
-      data.detailedType = data.twoWheelerType + " , " + data.detailedType;
-    }
-
-    const response = await api.post("/fill-initial-details", data, step);
-    if (response.data.id !== "") {
-      id = response.data.id;
-      console.log(response.data.id);
-    }
-
-    reset();
-
-    if (data.insuranceType === "Non-Motor") {
-      navigate(`/common-insurance2/${response.data.id}`);
-    }
-
-    if (data.segmentType === "Commercial") {
-      setselectedOption(option2);
+  useEffect(() => {
+    
+    if (segmentType === "Commercial") {
+      setSelectedOption(option2)
     } else {
-      setselectedOption(option1);
+      setSelectedOption(option1);
     }
 
+    if (insuranceType === "Non-Motor") {
+      setSelectedOption(optionNonMotor);
+      setFlag(true);
+    } else {
+      setSelectedOption(optionMotor)
+      setFlag(false);
+    }
+
+  }, [segmentType, insuranceType]);
+
+
+  const handleNext = async () => {
+    console.log(insuranceType,segmentType,twoWheelerType);
+    
+    if (flag && step == 2) {
+      let data = {
+        insuranceType: insuranceType,
+        segmentType: segmentType,
+        twoWheelerType: '-',
+        detailedType: '-',
+        customerID: id,
+        userID
+      }
+      try {
+        const response = await api.post("/fill-initial-details", data);   
+        if(response.data.success){
+          navigate(`/common-insurance2/${response.data.id}`);
+        }else{
+          toast.error("Error while filling initial details");
+        }
+      } catch (error) {
+        toast.error("Error while filling initial details");
+      }
+
+    }
     if (step < 3) {
       setStep(step + 1);
-    } else {
-      console.log("Final Submission Data:", data);
-      navigate(`/common-insurance1/${data.id}`);
-      reset();
+    }else{
+      let data = {
+        insuranceType: insuranceType,
+        segmentType: segmentType,
+        twoWheelerType: twoWheelerType,
+        detailedType: detailedType,
+        customerID: id,
+        userID
+      }
+      try {
+        const response = await api.post("/fill-initial-details", data);
+        if(response.data.success){
+          navigate(`/common-insurance1/${response.data.id}`);
+        }else{
+          toast.error("Error while filling initial details");
+        }
+      } catch (error) {
+        toast.error("Error while filling initial details");
+      }
     }
   };
 
   const handlePrev = () => {
-    if (step > 1) setStep(step - 1);
-    reset();
+    if (step > 1) {
+      setStep(step - 1);
+    }
   };
 
+  const steps = [
+    { number: 1, title: "Insurance Type" },
+    { number: 2, title: "Segment Type" },
+    { number: 3, title: "Vehicle Details" }
+  ];
 
   return (
-    <div className="container mt-5">
-      <h1 className="text-center fw-bold">General Questions</h1>
+    <div className="container-fluid py-5" style={{ backgroundColor: "#f8f9fa" }}>
+      <ToastContainer />
       <div className="row justify-content-center">
-        <div className="col-md-6">
-          <div className="card shadow-sm p-4">
-            <form onSubmit={handleSubmit(onSubmit)}>
-              {step === 1 && (
-                <div className="mb-3">
-                  <h5 className="fw-bold">Enter Insurance Type</h5>
-                  <select {...register("insuranceType", { required: true })} className="form-select">
-                    <option value="Motor">Motor</option>
-                    <option value="Non-Motor">Non-Motor</option>
-                  </select>
-                  {errors.insuranceType && <p className="text-danger mt-1">This field is required</p>}
-                </div>
-              )}
+        <div className="col-lg-8 col-md-10">
+          <div className="card border-0 shadow-sm">
+            <div className="card-body p-4 p-md-5">
+              <h2 className="text-center mb-4" style={{ color: "#2c3e50", fontWeight: "600" }}>
+                Insurance Details
+              </h2>
 
-              {step === 2 && (
-                <div className="mb-3">
-                  <h5 className="fw-bold">Enter Segment Type</h5>
-                  <select {...register("segmentType", { required: true })} className="form-select">
-                    <option value="Commercial">Commercial</option>
-                    <option value="Private">Private Car</option>
-                    <option value="TwoWheeler">Two Wheeler</option>
-                  </select>
-                  {errors.segmentType && <p className="text-danger mt-1">This field is required</p>}
-                </div>
-              )}
 
-              {step === 3 && (
-                <div className="mb-3">
-                  <h5 className="fw-bold">Enter Two Wheeler Type</h5>
-                  <select {...register("twoWheelerType", { required: true })} className="form-select">
-                    {selectedOption.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.Heading}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.twoWheelerType && <p className="text-danger mt-1">This field is required</p>}
-                  <input type="text" {...register("detailedType", { required: true })} className="form-control mt-3" placeholder="Enter detailed type" />
-                  {errors.detailedType && <p className="text-danger mt-1">This field is required</p>}
-                </div>
-              )}
 
-              {/* Navigation Buttons */}
-              <div className="d-flex justify-content-between mt-4">
-                {step > 1 && (
-                  <button type="button" onClick={handlePrev} className="btn btn-secondary">
-                    Previous
-                  </button>
+              <form onSubmit={handleSubmit(handleNext)} className="mt-4">
+                {step === 1 && (
+                  <div className="mb-4">
+                    <label className="form-label fw-semibold mb-3" style={{ color: "#2c3e50" }}>
+                      Select Insurance Type
+                    </label>
+                    <select
+                      {...register("insuranceType", { required: "Insurance type is required" })}
+                      className="form-select form-select-lg border-2"
+                      style={{
+                        padding: "0.75rem 1rem",
+                        borderRadius: "8px",
+                        borderColor: errors.insuranceType ? "#dc3545" : "#dee2e6"
+                      }}
+                    >
+                      <option value="">Choose insurance type</option>
+                      <option value="Motor">Motor</option>
+                      <option value="Non-Motor">Non-Motor</option>
+                    </select>
+                    {errors.insuranceType && (
+                      <div className="text-danger mt-2 small">{errors.insuranceType.message}</div>
+                    )}
+                  </div>
                 )}
-                <button type="submit" disabled={isSubmitting} className="btn btn-primary">
-                  {step < 3 ? "Next" : "Submit"}
-                </button>
-              </div>
-            </form>
+
+                {step === 2 && (
+                  <div className="mb-4">
+                    <label className="form-label fw-semibold mb-3" style={{ color: "#2c3e50" }}>
+                      Select Segment Type
+                    </label>
+                    <select
+                      {...register("segmentType", { required: "Segment type is required" })}
+                      className="form-select form-select-lg border-2"
+                      style={{
+                        padding: "0.75rem 1rem",
+                        borderRadius: "8px",
+                        borderColor: errors.segmentType ? "#dc3545" : "#dee2e6"
+                      }}
+                    >
+                      <option value="">Choose segment type</option>
+                      {selectedOption.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.Heading}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.segmentType && (
+                      <div className="text-danger mt-2 small">{errors.segmentType.message}</div>
+                    )}
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className="mb-4">
+                    <label className="form-label fw-semibold mb-3" style={{ color: "#2c3e50" }}>
+                      Select Vehicle Type
+                    </label>
+                    <select
+                      {...register("twoWheelerType", { required: "Vehicle type is required" })}
+                      className="form-select form-select-lg border-2 mb-3"
+                      style={{
+                        padding: "0.75rem 1rem",
+                        borderRadius: "8px",
+                        borderColor: errors.twoWheelerType ? "#dc3545" : "#dee2e6"
+                      }}
+                    >
+                      <option value="">Choose vehicle type</option>
+                      {selectedOption.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.Heading}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.twoWheelerType && (
+                      <div className="text-danger mt-2 small">{errors.twoWheelerType.message}</div>
+                    )}
+
+                    <div className="mt-4">
+                      <label className="form-label fw-semibold mb-3" style={{ color: "#2c3e50" }}>
+                        Detailed Type
+                      </label>
+                      <input
+                        type="text"
+                        {...register("detailedType", { required: "Detailed type is required" })}
+                        className="form-control form-control-lg border-2"
+                        placeholder="Enter detailed type"
+                        style={{
+                          padding: "0.75rem 1rem",
+                          borderRadius: "8px",
+                          borderColor: errors.detailedType ? "#dc3545" : "#dee2e6"
+                        }}
+                      />
+                      {errors.detailedType && (
+                        <div className="text-danger mt-2 small">{errors.detailedType.message}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="d-flex justify-content-between mt-5">
+                  {step > 1 && (
+                    <button
+                      type="button"
+                      onClick={handlePrev}
+                      className="btn btn-outline-secondary btn-lg px-4"
+                      style={{
+                        borderRadius: "8px",
+                        borderWidth: "2px",
+                        fontWeight: "500"
+                      }}
+                    >
+                      Previous
+                    </button>
+                  )}
+                  {step < 3 ? (
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="btn btn-primary btn-lg px-4 ms-auto"
+                      disabled={!watch(step === 1 ? "insuranceType" : step === 2 ? "segmentType" : "twoWheelerType")}
+                      style={{
+                        borderRadius: "8px",
+                        backgroundColor: "#3498db",
+                        border: "none",
+                        fontWeight: "500"
+                      }}
+                    >
+                      Next
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      className="btn btn-success btn-lg px-4 ms-auto"
+                      disabled={isSubmitting}
+                      style={{
+                        borderRadius: "8px",
+                        backgroundColor: "#2ecc71",
+                        border: "none",
+                        fontWeight: "500"
+                      }}
+                    >
+                      {isSubmitting ? "Submitting..." : "Submit"}
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
-
     </div>
   );
 }

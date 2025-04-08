@@ -47,16 +47,8 @@ const CustomerManagement = () => {
         }
     };
 
-    const addNewInsurance = async (customerID) => {
-
-        try {
-            const response = await api.post(`/create-insurance`, { customerID });
-            if (response.data.id) {
-                navigate(`/insurance-initial/${response.data.id}`)
-            }
-        } catch (error) {
-            toast.error('Error while creating Insurance');
-        }
+    const addNewInsurance = (customerID) => {
+        navigate(`/insurance-initial/${customerID}`)
     }
 
     const openUploadModal = (id) => {

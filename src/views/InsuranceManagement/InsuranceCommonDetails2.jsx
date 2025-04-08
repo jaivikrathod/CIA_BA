@@ -1,23 +1,26 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
-import axios from 'axios';
+import useApi from '../../api/axios';
 import 'react-toastify/dist/ReactToastify.css';
 import { useParams,useNavigate,useLocation  } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 export default function InsuranceCommonDetails2() {
     const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const api = "http://localhost:3005";
     const { id } = useParams();
     const location = useLocation();
     const type = location.state?.type || false;
+    const userID  = useSelector((state) => state.id);
+    const api = useApi();
 
     const onSubmit = async (data) => {
         try {
             data.id = id;
+            data.userID = userID;
             if(type) {
-                const response = await axios.post(`${api}/renew-insurance`, data);
+                const response = await api.post(`/renew-insurance`, data);
                 if (response.data.message) {
                     toast.success('Form submitted successfully!');
                     navigate(`/insurance`);
@@ -26,7 +29,7 @@ export default function InsuranceCommonDetails2() {
                     throw new Error('Submission failed');
                 }
             }else{   
-                const response = await axios.post(`${api}/common-general`, data);
+                const response = await api.post(`/common-general`, data);
                 if (response.data.message) {
                     toast.success('Form submitted successfully!');
                     navigate(`/insurance`);
