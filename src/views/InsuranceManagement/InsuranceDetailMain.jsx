@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import { FaEdit, FaSave, FaTimes, FaFilePdf, FaPlus } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import pdf2 from '../../assets/images/pdf2.png'
 import MediaUploadModal from '../UploadDoc/MediaUploadModal';
-
-const api = "http://localhost:3005";
+import useApi from '../../api/axios';
+import { useSelector } from 'react-redux';
 
 const InsuranceDetailMain = () => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [insuranceData, setInsuranceData] = useState([]);
+  const axios = useApi();
+  const api = useSelector((state) => state.apiUrl);
 
   const [showModal, setShowModal] = useState(false);
   const [uploadModal, setUploadModal] = useState({ show: false, id: null });
@@ -24,7 +25,7 @@ const InsuranceDetailMain = () => {
 
   const fetchInsuranceDetails = async () => {
     try {
-      const response = await axios.get(`${api}/particular-insurance`, {
+      const response = await axios.get(`/particular-insurance`, {
         params: { common_id: id }
       });
       setInsuranceData(response.data.data);
@@ -553,7 +554,7 @@ const InsuranceDetailMain = () => {
                 </div>
 
                 {/* Address Information Section */}
-                <div className="col-12 mb-4">
+                {/* <div className="col-12 mb-4">
                   <h4 className="border-bottom pb-2">Address Information</h4>
                   <div className="row">
                     <div className="col-md-6 mb-3">
@@ -575,7 +576,7 @@ const InsuranceDetailMain = () => {
                       />
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           ))}

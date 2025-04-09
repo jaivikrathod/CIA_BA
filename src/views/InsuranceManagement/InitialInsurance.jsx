@@ -48,6 +48,7 @@ export default function InsuranceInitialDetails() {
   ]
 
   const [selectedOption, setSelectedOption] = useState(option1);
+  const [selectedOption2, setSelectedOption2] = useState(option1);
   const api = useApi();
 
   const insuranceType = watch("insuranceType");
@@ -55,13 +56,13 @@ export default function InsuranceInitialDetails() {
   const twoWheelerType = watch("twoWheelerType");
   const detailedType = watch("detailedType");
   const [flag, setFlag] = useState(false);
-
+  
   useEffect(() => {
     
     if (segmentType === "Commercial") {
-      setSelectedOption(option2)
+      setSelectedOption2(option2)
     } else {
-      setSelectedOption(option1);
+      setSelectedOption2(option1);
     }
 
     if (insuranceType === "Non-Motor") {
@@ -76,7 +77,6 @@ export default function InsuranceInitialDetails() {
 
 
   const handleNext = async () => {
-    console.log(insuranceType,segmentType,twoWheelerType);
     
     if (flag && step == 2) {
       let data = {
@@ -215,7 +215,7 @@ export default function InsuranceInitialDetails() {
                       }}
                     >
                       <option value="">Choose vehicle type</option>
-                      {selectedOption.map((option) => (
+                      {selectedOption2.map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.Heading}
                         </option>

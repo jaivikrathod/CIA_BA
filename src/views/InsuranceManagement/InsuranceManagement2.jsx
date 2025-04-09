@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MediaUploadModal from '../UploadDoc/MediaUploadModal';
@@ -50,8 +50,8 @@ const InsuranceManagement2 = () => {
         }
     };
 
-    const renewInsurance = async (insuraceID) => {
-        navigate(`/common-insurance2/${insuraceID}`, { state: { type: true } });
+    const renewInsurance = async (insuraceID,common_id) => {
+        navigate(`/common-insurance2/${insuraceID}/${common_id}`, { state: { type: true } });
     }
 
     const openUploadModal = (id) => {
@@ -103,7 +103,7 @@ const InsuranceManagement2 = () => {
                                     <td>{insurance.full_name}</td>
                                     <td>{insurance.email}</td>
                                     <td>{insurance.insurance_type}</td>
-                                    <td>{insurance.insurance_Date}</td>
+                                    <td>{new Date(insurance.insurance_date).toLocaleDateString('en-GB')}</td> 
                                     <td> <button
                                         className="btn btn-link"
                                         onClick={() => getParticularInsurance(insurance.common_id)}
@@ -112,7 +112,7 @@ const InsuranceManagement2 = () => {
                                         <FaInfoCircle />
                                     </button>
                                         <button
-                                            onClick={() => renewInsurance(insurance.id)}
+                                            onClick={() => renewInsurance(insurance.id,insurance.common_id)}
                                             className="btn btn-link"
                                             title="Renew Insurance"
                                         >

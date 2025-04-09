@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import axios from "axios";
+import useApi from "../../api/axios";
 import { useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function InsuranceCommonDetails1() {
   const {
@@ -12,9 +13,10 @@ export default function InsuranceCommonDetails1() {
   } = useForm();
 
   const navigate = useNavigate();
-  const api = "http://localhost:3005";
+  const  axios  = useApi();
   const { id } = useParams();
   const [models, setModels] = useState([]);
+  const userid = useSelector((state)=>state.id);
 
   const cars = {
     manufacturers: [
@@ -46,8 +48,9 @@ export default function InsuranceCommonDetails1() {
 
   const onSubmit = async (data) => {
     data.id = id;
+    data.userid = userid;
     try {
-      const response = await axios.post(api + "/common-vehical", data);
+      const response = await axios.post("/common-vehical", data);
       if (response.data.message) {
         toast.success("Form submitted successfully!");
         navigate(`/common-insurance2/${data.id}`);

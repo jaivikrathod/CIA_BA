@@ -10,6 +10,7 @@ export default function InsuranceCommonDetails2() {
     const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const { id } = useParams();
+    const { common_id } = useParams();
     const location = useLocation();
     const type = location.state?.type || false;
     const userID  = useSelector((state) => state.id);
@@ -20,7 +21,8 @@ export default function InsuranceCommonDetails2() {
             data.id = id;
             data.userID = userID;
             if(type) {
-                const response = await api.post(`/renew-insurance`, data);
+                data.common_id = common_id;
+                const response = await api.post(`/common-general`, data);
                 if (response.data.message) {
                     toast.success('Form submitted successfully!');
                     navigate(`/insurance`);
