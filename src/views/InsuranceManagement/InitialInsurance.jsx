@@ -90,7 +90,7 @@ export default function InsuranceInitialDetails() {
       try {
         const response = await api.post("/fill-initial-details", data);   
         if(response.data.success){
-          navigate(`/common-insurance2/${response.data.id}`);
+          navigate(`/common-insurance2/${response.data.id}/null`);
         }else{
           toast.error("Error while filling initial details");
         }
