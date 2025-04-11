@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MediaUploadModal from '../UploadDoc/MediaUploadModal';
-import "../../scss/CustomerManagement.css";
+import "../../scss/customerManagement.css";
 import { FaInfoCircle, FaEdit, FaTrash, FaPlusSquare, FaUpload, FaEye, FaDownload } from "react-icons/fa";
 import pdfImage from "../../assets/images/pdf.jpg";
 import useApi from "../../api/axios";
