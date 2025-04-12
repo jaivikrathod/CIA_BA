@@ -1,6 +1,6 @@
 import React from 'react'
 import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
-import PrivateRoute from '../PrivateRoute'
+import PrivateRoute from '../privateRoute'
 const DefaultLayout = () => {
   return (
     <PrivateRoute>
