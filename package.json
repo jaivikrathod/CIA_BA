@@ -1,17 +1,17 @@
 {
-  "name": "@coreui/coreui-free-react-admin-template",
+  "name": "careinsuranceagency",
   "version": "5.2.0",
-  "description": "CoreUI Free React Admin Template",
+  "description": "careinsuranceagency admin panel",
   "homepage": "/",
   "bugs": {
-    "url": "https://github.com/coreui/coreui-free-react-admin-template/issues"
+    "url": "https://github.com/jaivikrathod/CIA_BA"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:coreui/coreui-free-react-admin-template.git"
+    "url": "https://github.com/jaivikrathod/CIA_BA"
   },
-  "license": "MIT",
-  "author": "The CoreUI Team (https://github.com/orgs/coreui/people)",
+  "license": "",
+  "author": "Jaivik Rathod",
   "scripts": {
     "build": "vite build",
     "lint": "eslint \"src/**/*.js\"",
