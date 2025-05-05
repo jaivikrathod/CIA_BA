@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -126,6 +125,8 @@ const UserManagement = () => {
 };
 
 const UserFormModal = ({ User, onClose }) => {
+    const api = useApi();
+    
     const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
         defaultValues: User || {}
     });
@@ -137,8 +138,8 @@ const UserFormModal = ({ User, onClose }) => {
     }, [User, setValue]);
 
     const onSubmit = async (data) => {
-        try {
-            const response = await axios.post(`${api}/user-create-edit`, data);
+        try {            
+            const response = await api.post(`/user-create-edit`, data);
             if (response.data.success) {
                 toast.success(response.data.message);
                 reset();

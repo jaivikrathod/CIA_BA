@@ -20,21 +20,51 @@ const CustomerManagement = () => {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [confirmDelete, setConfirmDelete] = useState({ show: false, id: null });
 
-    const fetchCustomers = async () => {
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filters, setFilters] = useState({
+        gender: "",
+        ageRange: ""
+    });
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const fetchCustomers = async (pageNum = 1, append = false) => {
         try {
-            const response = await api.post(`/customer-list`);
+            setIsLoading(true);
+            const response = await api.post(`/customer-list`, {
+                search: searchTerm,
+                gender: filters.gender,
+                ageRange: filters.ageRange,
+                minAge: filters.ageRange.split('-')[0] || '',
+                maxAge: filters.ageRange.split('-')[1] || '',
+                page: pageNum,
+                limit: 10
+            });
             if (response.data.data) {
-                setCustomers(response.data.data);
+                if (append) {
+                    setCustomers(prev => [...prev, ...response.data.data]);
+                } else {
+                    setCustomers(response.data.data);
+                }
+                setHasMore(response.data.pagination.isMoreData);
+            } else {
+                if (!append) {
+                    setCustomers([]);
+                }
+                setHasMore(false);
             }
         } catch (error) {
             toast.error('Failed to fetch customers');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchCustomers();
-    }, []);
-
+        setPage(1);
+        fetchCustomers(1, false);
+    }, [searchTerm, filters.gender, filters.ageRange]);
 
     const handleDeleteCustomer = async (id) => {
         try {
@@ -58,30 +88,10 @@ const CustomerManagement = () => {
         setUploadModal({ show: false, id: null });
     };
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filters, setFilters] = useState({
-        gender: "",
-        ageRange: ""
-    });
-
-    // Filter customers based on search and filters
-    const filteredCustomers = customers?.filter(customer => {
-        const matchesSearch = customer.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesGender = filters.gender ? customer.gender == filters.gender : true;
-        const matchesAge = filters.ageRange ? (
-            filters.ageRange === "0-18" ? customer.age <= 18 :
-                filters.ageRange === "19-35" ? customer.age > 18 && customer.age <= 35 :
-                    filters.ageRange === "36-60" ? customer.age > 35 && customer.age <= 60 :
-                        customer.age > 60
-        ) : true;
-        return matchesSearch && matchesGender && matchesAge;
-    });
-
     // Download CSV
     const downloadCSV = () => {
         const headers = ["Sr. No.", "Name", "Email", "Primary Mobile", "Age", "Gender", "Address"];
-        const rows = filteredCustomers.map((customer, index) => [
+        const rows = customers.map((customer, index) => [
             index + 1,
             customer.full_name,
             customer.email,
@@ -103,6 +113,11 @@ const CustomerManagement = () => {
         link.click();
     };
 
+    const handleLoadMore = () => {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchCustomers(nextPage, true);
+    };
 
     return (
         <div className="container">
@@ -117,55 +132,57 @@ const CustomerManagement = () => {
                     </button>
                 </div>
 
+                <div className="row mb-3">
+                    <div className="col-md-4 mb-2">
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Search by name or email"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <div className="col-md-3 mb-2">
+                        <select
+                            className="form-control"
+                            value={filters.gender}
+                            onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
+                        >
+                            <option value="">All Genders</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div className="col-md-3 mb-2">
+                        <select
+                            className="form-control"
+                            value={filters.ageRange}
+                            onChange={(e) => setFilters({ ...filters, ageRange: e.target.value })}
+                        >
+                            <option value="">All Ages</option>
+                            <option value="0-18">0-18</option>
+                            <option value="19-35">19-35</option>
+                            <option value="36-60">36-60</option>
+                            <option value="60-120">60+</option>
+                        </select>
+                    </div>
+                    <div className="col-md-2 mb-2">
+                        <button className="btn btn-success w-100" onClick={downloadCSV}>
+                            <FaDownload /> Download CSV
+                        </button>
+                    </div>
+                </div>
+
                 {customers.length === 0 ? (
                     <div className="alert alert-info text-center" role="alert">
                         No customers found. Please add a new customer.</div>
                 ) : (<>
                     {/* Search and Filter Section */}
-                    <div className="row mb-3">
-                        <div className="col-md-4 mb-2">
-                            <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Search by name or email"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <div className="col-md-3 mb-2">
-                            <select
-                                className="form-control"
-                                value={filters.gender}
-                                onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
-                            >
-                                <option value="">All Genders</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div className="col-md-3 mb-2">
-                            <select
-                                className="form-control"
-                                value={filters.ageRange}
-                                onChange={(e) => setFilters({ ...filters, ageRange: e.target.value })}
-                            >
-                                <option value="">All Ages</option>
-                                <option value="0-18">0-18</option>
-                                <option value="19-35">19-35</option>
-                                <option value="36-60">36-60</option>
-                                <option value="60+">60+</option>
-                            </select>
-                        </div>
-                        <div className="col-md-2 mb-2">
-                            <button className="btn btn-success w-100" onClick={downloadCSV}>
-                                <FaDownload /> Download CSV
-                            </button>
-                        </div>
-                    </div>
+
 
                     {/* Table Section */}
-                    <div className="table-responsive">
+                    <div className="table-responsive" style={{ maxHeight: '350px' }}>
                         <table className="table table-striped table-hover">
                             <thead className="thead-dark">
                                 <tr>
@@ -175,21 +192,21 @@ const CustomerManagement = () => {
                                     <th>Primary Mobile</th>
                                     <th>Age</th>
                                     <th>Gender</th>
-                                    <th>Address</th>
+                                    {/* <th>Address</th> */}
                                     <th>Actions</th>
                                     <th>Files & Details</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredCustomers.map((customer, index) => (
-                                    <tr key={customer.id} style={{verticalAlign: "middle"}}>
+                                {customers.map((customer, index) => (
+                                    <tr key={customer.id} style={{ verticalAlign: "middle" }}>
                                         <td>{index + 1}</td>
                                         <td>{customer.full_name}</td>
                                         <td>{customer.email}</td>
                                         <td>{customer.primary_mobile}</td>
                                         <td>{customer.age || 'N/A'}</td>
                                         <td>{customer.gender || 'N/A'}</td>
-                                        <td>{customer.full_address || 'N/A'}</td>
+                                        {/* <td>{customer.full_address || 'N/A'}</td> */}
                                         <td>
                                             <button
                                                 className="btn btn-link"
@@ -226,6 +243,20 @@ const CustomerManagement = () => {
                                 ))}
                             </tbody>
                         </table>
+                        {hasMore && customers.length > 0 && (
+                            <div className="load-more-container">
+                                <button 
+                                    className="btn btn-primary load-more-btn" 
+                                    onClick={handleLoadMore}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? (
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    ) : null}
+                                    Load More
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </>
                 )}
@@ -297,16 +328,16 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
     const onSubmit = async (data) => {
         try {
             const response = await api.post(`/customer-create-edit`, data);
-            if(response.data.success){
+            if (response.data.success) {
                 toast.success('Customer saved successfully!');
                 reset();
                 onClose();
-            }else{
+            } else {
                 toast.error(response.data.message);
             }
         } catch (error) {
             console.log(error);
-            
+
             toast.error(error);
         }
     };

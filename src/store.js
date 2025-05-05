@@ -6,8 +6,8 @@ const initialState = {
   id: null,
   token: null,
   isAuthenticated: false,
-  // apiUrl:'http://localhost:3005',
-  apiUrl:'https://13.60.49.174',
+  apiUrl:'http://localhost:3005',
+  // apiUrl:'https://13.60.49.174',
   
   username:'',
   adminType:'',
