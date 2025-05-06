@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback,useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MediaUploadModal from '../UploadDoc/MediaUploadModal';
+import LoadingComponent from '../../components/common/LoadingComponent';
 import "../../scss/customerManagement.css";
 import { FaInfoCircle, FaEdit, FaTrash, FaPlusSquare, FaUpload, FaEye, FaDownload } from "react-icons/fa";
 import pdfImage from "../../assets/images/pdf.jpg";
@@ -28,8 +29,9 @@ const CustomerManagement = () => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
+    const timerRef = useRef(null); // 🟢 store timer here
 
-    const fetchCustomers = async (pageNum = 1, append = false) => {
+    const fetchCustomers =  useCallback(async (pageNum = 1, append = false,limit=10) => {
         try {
             setIsLoading(true);
             const response = await api.post(`/customer-list`, {
@@ -39,7 +41,7 @@ const CustomerManagement = () => {
                 minAge: filters.ageRange.split('-')[0] || '',
                 maxAge: filters.ageRange.split('-')[1] || '',
                 page: pageNum,
-                limit: 10
+                limit: limit
             });
             if (response.data.data) {
                 if (append) {
@@ -57,14 +59,35 @@ const CustomerManagement = () => {
         } catch (error) {
             toast.error('Failed to fetch customers');
         } finally {
-            setIsLoading(false);
+                setTimeout(() => {    
+                    setIsLoading(false);
+                }, 500);
         }
+    },[searchTerm]);
+
+    // Debounced search function with 1 second delay
+    const debouncedSearch = useCallback((value) => {
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+        }
+    
+        timerRef.current = setTimeout(() => {
+          setPage(1); // assuming you have this state
+          fetchCustomers(1, false);
+        }, 1000);
+      }, [fetchCustomers]);
+
+    // Update search term and trigger debounced search
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        debouncedSearch(value);
     };
 
     useEffect(() => {
         setPage(1);
         fetchCustomers(1, false);
-    }, [searchTerm, filters.gender, filters.ageRange]);
+    }, [filters.gender, filters.ageRange]);
 
     const handleDeleteCustomer = async (id) => {
         try {
@@ -89,28 +112,51 @@ const CustomerManagement = () => {
     };
 
     // Download CSV
-    const downloadCSV = () => {
-        const headers = ["Sr. No.", "Name", "Email", "Primary Mobile", "Age", "Gender", "Address"];
-        const rows = customers.map((customer, index) => [
-            index + 1,
-            customer.full_name,
-            customer.email,
-            customer.primary_mobile,
-            customer.age || "N/A",
-            customer.gender || "N/A",
-            customer.full_address || "N/A"
-        ]);
+    const downloadCSV = async () => {
+        try {
+            setIsLoading(true);
+            const response = await api.post(`/customer-list`, {
+                search: searchTerm,
+                gender: filters.gender,
+                ageRange: filters.ageRange,
+                minAge: filters.ageRange.split('-')[0] || '',
+                maxAge: filters.ageRange.split('-')[1] || '',
+                page: 1,
+                limit: 0
+            });
+            
+            if (!response.data.data) {
+                toast.error('No customer data available');
+                return;
+            }
 
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += headers.join(",") + "\n";
-        rows.forEach(row => csvContent += row.join(",") + "\n");
+            const headers = ["Sr. No.", "Name", "Email", "Primary Mobile", "Age", "Gender", "Address"];
+            const rows = response.data.data.map((customer, index) => [
+                index + 1,
+                customer.full_name,
+                customer.email,
+                customer.primary_mobile,
+                customer.age || "N/A",
+                customer.gender || "N/A",
+                customer.full_address || "N/A"
+            ]);
 
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "customers.csv");
-        document.body.appendChild(link);
-        link.click();
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += headers.join(",") + "\n";
+            rows.forEach(row => csvContent += row.join(",") + "\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "customers.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            toast.error('Failed to download customer data');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleLoadMore = () => {
@@ -122,6 +168,7 @@ const CustomerManagement = () => {
     return (
         <div className="container">
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+            {isLoading && <LoadingComponent/>}
 
             <div className="container-fluid p-3">
                 {/* Header Section */}
@@ -139,7 +186,7 @@ const CustomerManagement = () => {
                             className="form-control"
                             placeholder="Search by name or email"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={handleSearchChange}
                         />
                     </div>
                     <div className="col-md-3 mb-2">
@@ -318,6 +365,7 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
     const apiUrl = useSelector((state) => state.apiUrl) + '/get-customer-uploads';
 
     const [selectedID, setselectedID] = useState(customer.id);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (customer) {
@@ -327,6 +375,7 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
 
     const onSubmit = async (data) => {
         try {
+            setIsSubmitting(true);
             const response = await api.post(`/customer-create-edit`, data);
             if (response.data.success) {
                 toast.success('Customer saved successfully!');
@@ -336,9 +385,9 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
                 toast.error(response.data.message);
             }
         } catch (error) {
-            console.log(error);
-
             toast.error(error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -364,6 +413,7 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
         <div className="modal fade show d-block" tabIndex="-1">
             <div className="modal-dialog modal-dialog-centered modal-lg">
                 <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'hidden' }}>
+                    {isSubmitting && <LoadingComponent />}
                     <div className="modal-header bg-dark text-white">
                         {isReadable && <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>}
                         {!isReadable && <><h5 className="modal-title">Customer Details</h5>

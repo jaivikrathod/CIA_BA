@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { Navigate } from "react-router-dom";
+import LoadingComponent from "./components/common/LoadingComponent";
 
 
 const PrivateRoute = ({ children }) => {
@@ -43,7 +44,7 @@ const PrivateRoute = ({ children }) => {
   }, []);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingComponent />;
   }
 
   return isAuthenticated ? children : <Navigate to="/login" replace />;
