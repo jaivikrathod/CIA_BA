@@ -49,7 +49,7 @@ const AgentManagement = () => {
 
     const downloadCSV = () => {
         const headers = ["Sr. No.", "Name", "Email", "Primary Mobile"];
-        const rows = filteredAgents.map((agent, index) => [
+        const rows = filteredAgents?.map((agent, index) => [
             index + 1,
             agent.full_name,
             agent.email,
