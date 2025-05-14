@@ -4,7 +4,6 @@ import InsuranceManagement2 from './views/InsuranceManagement/InsuranceManagemen
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const CustomerManagement = React.lazy(() => import('./views/CustomerManagement/CustomerManagement'))
 const UserManagement = React.lazy(() => import('./views/UserManagement/UserManagement'))
-// const InsuranceManagement = React.lazy(() => import('./views/InsuranceManagement/InsuranceManagement'))
 const InsuranceInitialDetails = React.lazy(() => import('./views/InsuranceManagement/InitialInsurance'))
 const InsuranceCommonDetails1 = React.lazy(() => import('./views/InsuranceManagement/InsuranceCommonDetails1'))
 const InsuranceCommonDetails2 = React.lazy(() => import('./views/InsuranceManagement/InsuranceCommonDetails2'))

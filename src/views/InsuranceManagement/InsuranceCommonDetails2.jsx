@@ -39,7 +39,7 @@ export default function InsuranceCommonDetails2() {
             data.id = id;
             data.userID = userID;
             if (type) {
-                data.common_id = common_id;
+                common_id ? data.common_id = common_id : data.common_id = null;
                 const response = await api.post(`/common-general`, data);
                 if (response.data.message) {
                     toast.success('Form submitted successfully!');
@@ -85,8 +85,9 @@ export default function InsuranceCommonDetails2() {
 
     return (
         <>
-            <form className="container mt-5" onSubmit={handleSubmit(onSubmit)}>
-                <div className="row g-3">
+            <form className="container" onSubmit={handleSubmit(onSubmit)}>
+                <div className="row g-3 ">
+                    <h3>Insurance Details</h3>
                     {formFields.map((field) => (
                         <div className="col-md-6" key={field.id}>
                             <label htmlFor={field.id} className="form-label">{field.label}</label>
@@ -103,7 +104,7 @@ export default function InsuranceCommonDetails2() {
                     ))}
                     
                     {/* Agent Selection Field */}
-                    <div className="col-md-6">
+                    <div className="col-md-6 insurance-common-2-main">
                         <label htmlFor="AGNTCODE" className="form-label">Agent</label>
                         <select
                             id="AGNTCODE"

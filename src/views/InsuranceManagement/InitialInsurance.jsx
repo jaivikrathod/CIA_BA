@@ -15,7 +15,7 @@ export default function InsuranceInitialDetails() {
     twoWheelerType: "",
     detailedType: ""
   });
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting }, watch } = useForm();
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting, touchedFields }, watch } = useForm();
   let { id } = useParams();
 
   const option1 = [
@@ -90,11 +90,13 @@ export default function InsuranceInitialDetails() {
       try {
         const response = await api.post("/fill-initial-details", data);   
         if(response.data.success){
-          navigate(`/common-insurance2/${response.data.id}/null`);
+          navigate(`/common-insurance2/${response.data.id}/0`);
         }else{
+          // location.reload();
           toast.error("Error while filling initial details");
         }
       } catch (error) {
+        // location.reload();
         toast.error("Error while filling initial details");
       }
 
@@ -136,30 +138,28 @@ export default function InsuranceInitialDetails() {
   ];
 
   return (
-    <div className="container-fluid py-5" style={{ backgroundColor: "#f8f9fa" }}>
+    <div className="container-fluid py-4" style={{ backgroundColor: "#f8f9fa" }}>
       <ToastContainer />
-      <div className="row justify-content-center">
-        <div className="col-lg-8 col-md-10">
+      <div className="initial-insurance">
+        <div className="col-lg-6 col-md-8">
           <div className="card border-0 shadow-sm">
-            <div className="card-body p-4 p-md-5">
+            <div className="card-body p-4">
               <h2 className="text-center mb-4" style={{ color: "#2c3e50", fontWeight: "600" }}>
                 Insurance Details
               </h2>
 
-
-
-              <form onSubmit={handleSubmit(handleNext)} className="mt-4">
+              <form onSubmit={handleSubmit(handleNext)} className="mt-3">
                 {step === 1 && (
-                  <div className="mb-4">
-                    <label className="form-label fw-semibold mb-3" style={{ color: "#2c3e50" }}>
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold mb-2" style={{ color: "#2c3e50" }}>
                       Select Insurance Type
                     </label>
                     <select
                       {...register("insuranceType", { required: "Insurance type is required" })}
-                      className="form-select form-select-lg border-2"
+                      className="form-select border-2"
                       style={{
-                        padding: "0.75rem 1rem",
-                        borderRadius: "8px",
+                        padding: "0.5rem 1rem",
+                        borderRadius: "6px",
                         borderColor: errors.insuranceType ? "#dc3545" : "#dee2e6"
                       }}
                     >
@@ -168,22 +168,22 @@ export default function InsuranceInitialDetails() {
                       <option value="Non-Motor">Non-Motor</option>
                     </select>
                     {errors.insuranceType && (
-                      <div className="text-danger mt-2 small">{errors.insuranceType.message}</div>
+                      <div className="text-danger mt-1 small">{errors.insuranceType.message}</div>
                     )}
                   </div>
                 )}
 
                 {step === 2 && (
-                  <div className="mb-4">
-                    <label className="form-label fw-semibold mb-3" style={{ color: "#2c3e50" }}>
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold mb-2" style={{ color: "#2c3e50" }}>
                       Select Segment Type
                     </label>
                     <select
                       {...register("segmentType", { required: "Segment type is required" })}
-                      className="form-select form-select-lg border-2"
+                      className="form-select border-2"
                       style={{
-                        padding: "0.75rem 1rem",
-                        borderRadius: "8px",
+                        padding: "0.5rem 1rem",
+                        borderRadius: "6px",
                         borderColor: errors.segmentType ? "#dc3545" : "#dee2e6"
                       }}
                     >
@@ -195,23 +195,23 @@ export default function InsuranceInitialDetails() {
                       ))}
                     </select>
                     {errors.segmentType && (
-                      <div className="text-danger mt-2 small">{errors.segmentType.message}</div>
+                      <div className="text-danger mt-1 small">{errors.segmentType.message}</div>
                     )}
                   </div>
                 )}
 
                 {step === 3 && (
-                  <div className="mb-4">
-                    <label className="form-label fw-semibold mb-3" style={{ color: "#2c3e50" }}>
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold mb-2" style={{ color: "#2c3e50" }}>
                       Select Vehicle Type
                     </label>
                     <select
                       {...register("twoWheelerType", { required: "Vehicle type is required" })}
-                      className="form-select form-select-lg border-2 mb-3"
+                      className="form-select border-2 mb-3"
                       style={{
-                        padding: "0.75rem 1rem",
-                        borderRadius: "8px",
-                        borderColor: errors.twoWheelerType ? "#dc3545" : "#dee2e6"
+                        padding: "0.5rem 1rem",
+                        borderRadius: "6px",
+                        borderColor: touchedFields.twoWheelerType && errors.twoWheelerType ? "#dc3545" : "#dee2e6"
                       }}
                     >
                       <option value="">Choose vehicle type</option>
@@ -221,40 +221,40 @@ export default function InsuranceInitialDetails() {
                         </option>
                       ))}
                     </select>
-                    {errors.twoWheelerType && (
-                      <div className="text-danger mt-2 small">{errors.twoWheelerType.message}</div>
+                    {touchedFields.twoWheelerType && errors.twoWheelerType && (
+                      <div className="text-danger mt-1 small">{errors.twoWheelerType.message}</div>
                     )}
 
-                    <div className="mt-4">
-                      <label className="form-label fw-semibold mb-3" style={{ color: "#2c3e50" }}>
+                    <div className="mt-3">
+                      <label className="form-label fw-semibold mb-2" style={{ color: "#2c3e50" }}>
                         Detailed Type
                       </label>
                       <input
                         type="text"
                         {...register("detailedType", { required: "Detailed type is required" })}
-                        className="form-control form-control-lg border-2"
+                        className="form-control border-2"
                         placeholder="Enter detailed type"
                         style={{
-                          padding: "0.75rem 1rem",
-                          borderRadius: "8px",
-                          borderColor: errors.detailedType ? "#dc3545" : "#dee2e6"
+                          padding: "0.5rem 1rem",
+                          borderRadius: "6px",
+                          borderColor: touchedFields.detailedType && errors.detailedType ? "#dc3545" : "#dee2e6"
                         }}
                       />
-                      {errors.detailedType && (
-                        <div className="text-danger mt-2 small">{errors.detailedType.message}</div>
+                      {touchedFields.detailedType && errors.detailedType && (
+                        <div className="text-danger mt-1 small">{errors.detailedType.message}</div>
                       )}
                     </div>
                   </div>
                 )}
 
-                <div className="d-flex justify-content-between mt-5">
+                <div className="d-flex justify-content-between mt-4">
                   {step > 1 && (
                     <button
                       type="button"
                       onClick={handlePrev}
-                      className="btn btn-outline-secondary btn-lg px-4"
+                      className="btn btn-outline-secondary px-4"
                       style={{
-                        borderRadius: "8px",
+                        borderRadius: "6px",
                         borderWidth: "2px",
                         fontWeight: "500"
                       }}
@@ -266,10 +266,10 @@ export default function InsuranceInitialDetails() {
                     <button
                       type="button"
                       onClick={handleNext}
-                      className="btn btn-primary btn-lg px-4 ms-auto"
+                      className="btn btn-primary px-4 ms-auto"
                       disabled={!watch(step === 1 ? "insuranceType" : step === 2 ? "segmentType" : "twoWheelerType")}
                       style={{
-                        borderRadius: "8px",
+                        borderRadius: "6px",
                         backgroundColor: "#3498db",
                         border: "none",
                         fontWeight: "500"
@@ -280,10 +280,10 @@ export default function InsuranceInitialDetails() {
                   ) : (
                     <button
                       type="submit"
-                      className="btn btn-success btn-lg px-4 ms-auto"
+                      className="btn btn-success px-4 ms-auto"
                       disabled={isSubmitting}
                       style={{
-                        borderRadius: "8px",
+                        borderRadius: "6px",
                         backgroundColor: "#2ecc71",
                         border: "none",
                         fontWeight: "500"

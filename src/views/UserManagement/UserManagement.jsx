@@ -48,47 +48,49 @@ const UserManagement = () => {
 
             {User.length === 0 ? (
                 <div className="alert alert-info text-center" role="alert">
-                    No customers found. Please add a new customer.</div>
+                    No users found. Please add a new user.</div>
             ) : (<>
-
-                <table className="table table-bordered table-striped">
-                    <thead className="thead-dark">
-                        <tr>
-                            <th>Sr.No</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Mobile</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {User.map((user, i) => (
-                            <tr key={user.id}>
-
-                                <td>{i + 1}</td>
-                                <td>{user.full_name}</td>
-                                <td>{user.email}</td>
-                                <td>{user.mobile}</td>
-                                <td>
-                                    <button
-                                        className="btn btn-link text-warning p-0 me-2"
-                                        onClick={() => setSelectedUser(user)}
-                                        title="Edit"
-                                    >
-                                        <i className="fas fa-edit"></i>
-                                    </button>
-                                    <button
-                                        className="btn btn-link text-danger p-0"
-                                        onClick={() => setConfirmDelete({ show: true, id: user.id })}
-                                        title="Delete"
-                                    >
-                                        <i className="fas fa-trash-alt"></i>
-                                    </button>
-                                </td>
+                <div className="table-responsive" style={{ maxHeight: '350px' }}>
+                    <table className="table table-striped table-hover">
+                        <thead className="thead-dark">
+                            <tr>
+                                <th>Sr. No.</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                <th>Type</th>
+                                <th>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {User.map((user, index) => (
+                                <tr key={user.id} style={{ verticalAlign: "middle" }}>
+                                    <td>{index + 1}</td>
+                                    <td>{user.full_name}</td>
+                                    <td>{user.email}</td>
+                                    <td>{user.mobile}</td>
+                                    <td>{user.type || 'N/A'}</td>
+                                    <td>
+                                        <button
+                                            className="btn btn-link"
+                                            onClick={() => setSelectedUser(user)}
+                                            title="Edit"
+                                        >
+                                            <i className="fas fa-edit"></i>
+                                        </button>
+                                        <button
+                                            className="btn btn-link text-danger"
+                                            onClick={() => setConfirmDelete({ show: true, id: user.id })}
+                                            title="Delete"
+                                        >
+                                            <i className="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </>)}
 
             {selectedUser !== null && (
@@ -187,8 +189,26 @@ const UserFormModal = ({ User, onClose }) => {
                                 <label className="form-label fw-bold">Mobile</label>
                                 <input
                                     type="text"
-                                    {...register("mobile", { required: "Mobile Number is required" })}
+                                    maxLength={10}
+                                    {...register("mobile", { 
+                                        required: "Mobile Number is required",
+                                        pattern: {
+                                            value: /^[0-9]{10}$/,
+                                            message: "Mobile number must be exactly 10 digits"
+                                        },
+                                        validate: value => {
+                                            if (value && !/^\d+$/.test(value)) {
+                                                return "Only numbers are allowed";
+                                            }
+                                            return true;
+                                        }
+                                    })}
                                     className="form-control"
+                                    onKeyPress={(e) => {
+                                        if (!/[0-9]/.test(e.key)) {
+                                            e.preventDefault();
+                                        }
+                                    }}
                                 />
                                 {errors.mobile && <small className="text-danger">{errors.mobile.message}</small>}
                             </div>

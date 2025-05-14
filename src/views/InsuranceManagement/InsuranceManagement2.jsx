@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate,useParams } from "react-router-dom";
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MediaUploadModal from '../UploadDoc/MediaUploadModal';
 import "../../scss/customerManagement.css";
-import { FaInfoCircle, FaUpload, FaSyncAlt } from "react-icons/fa";
+import { FaInfoCircle, FaUpload, FaSyncAlt, FaPlusSquare, FaDownload } from "react-icons/fa";
 import useApi from "../../api/axios";
+import LoadingComponent from "../../components/common/LoadingComponent";
+import { useSelector } from "react-redux";
 
 const InsuranceManagement2 = () => {
     const navigate = useNavigate();
@@ -13,30 +15,105 @@ const InsuranceManagement2 = () => {
     const [showModal, setShowModal] = useState(false);
     const [email, setEmail] = useState("");
     const [uploadModal, setUploadModal] = useState({ show: false, id: null });
+    const [isLoading, setIsLoading] = useState(false);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [admins, setAdmins] = useState([]);
+    const user_id = useSelector((state) => state.id);
+    const [filters, setFilters] = useState({
+        segment: "",
+        ageRange: "",
+        admin: "",
+    });
+    const timerRef = useRef(null);
 
     const api = useApi();
 
+    const fetchAdmins = async () => {
+        try {
+            const response = await api.post(`/user-list`);
+            if (response.data.data) {
+                setAdmins(response.data.data);
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
+        }
+    };
+
     useEffect(() => {
-        fetchInsurance();
+        fetchAdmins();
     }, []);
 
-    const fetchInsurance = async () => {
+    const fetchInsurance = useCallback(async (pageNum = 1, append = false, limit = 10) => {
         try {
-            const response = await api.post(`/insurance-list`);
-            setInsurance(response.data.data);
+            setIsLoading(true);
+            const response = await api.post(`/insurance-list`, {
+                search: searchTerm,
+                segment: filters.segment,
+                ageRange: filters.ageRange,
+                minAge: filters.ageRange.split('-')[0] || '',
+                maxAge: filters.ageRange.split('-')[1] || '',
+                admin: filters.admin,
+                page: pageNum,
+                limit: limit
+            });
+            if (response.data.data) {
+                if (append) {
+                    setInsurance(prev => [...prev, ...response.data.data]);
+                } else {
+                    setInsurance(response.data.data);
+                }
+                setHasMore(response.data.pagination.isMoreData);
+            } else {
+                if (!append) {
+                    setInsurance([]);
+                }
+                setHasMore(false);
+            }
         } catch (error) {
             toast.error("Failed to fetch insurance");
-            console.error("Failed to fetch insurance:", error);
+        } finally {
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 500);
         }
+    }, [searchTerm, filters.segment, filters.ageRange, filters.admin]);
+
+    // Debounced search function with 1 second delay
+    const debouncedSearch = useCallback((value) => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+        }
+
+        timerRef.current = setTimeout(() => {
+            setPage(1);
+            fetchInsurance(1, false);
+        }, 1000);
+    }, [fetchInsurance]);
+
+    // Update search term and trigger debounced search
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        debouncedSearch(value);
+    };
+
+    useEffect(() => {
+        setPage(1);
+        fetchInsurance(1, false);
+    }, [filters.segment, filters.ageRange, filters.admin]);
+
+    const handleLoadMore = () => {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchInsurance(nextPage, true);
     };
 
     const handleEmailSubmit = async (e) => {
         e.preventDefault();
-
         try {
             const response = await api.post(`/check-customer`, { email });
-            console.log(response);
-
             if (response.data.success) {
                 toast.success("Customer found!");
                 setShowModal(false);
@@ -46,11 +123,10 @@ const InsuranceManagement2 = () => {
             }
         } catch (error) {
             toast.error("Error checking customer.");
-            console.error("API Error:", error);
         }
     };
 
-    const renewInsurance = async (insuraceID,common_id) => {
+    const renewInsurance = async (insuraceID, common_id) => {
         navigate(`/common-insurance2/${insuraceID}/${common_id}`, { state: { type: true } });
     }
 
@@ -66,87 +142,210 @@ const InsuranceManagement2 = () => {
         navigate('/insurance-detail/' + common_id);
     }
 
+    const downloadCSV = async () => {
+        try {
+            setIsLoading(true);
+            const response = await api.post(`/insurance-list`, {
+                search: searchTerm,
+                segment: filters.segment,
+                ageRange: filters.ageRange,
+                minAge: filters.ageRange.split('-')[0] || '',
+                maxAge: filters.ageRange.split('-')[1] || '',
+                page: 1,
+                limit: 0
+            });
+
+            if (!response.data.data) {
+                toast.error('No insurance data available');
+                return;
+            }
+
+            const headers = ["Sr. No.", "Name", "Email", "Type", "Date"];
+            const rows = response.data.data.map((insurance, index) => [
+                index + 1,
+                insurance.full_name,
+                insurance.email,
+                insurance.insurance_type,
+                new Date(insurance.insurance_date).toLocaleDateString('en-GB')
+            ]);
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += headers.join(",") + "\n";
+            rows.forEach(row => csvContent += row.join(",") + "\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "insurance.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            toast.error('Failed to download insurance data');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
-        <div className="container mt-4">
+        <div className="container-fluid px-0" style={{ maxWidth: "100vw" }}>
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+            {isLoading && <LoadingComponent />}
 
-            {/* Page Title & Button */}
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2 className="fw-bold">Insurance Management</h2>
-                <button onClick={() => setShowModal(true)} className="btn btn-primary">
-                    <i className="fas fa-plus me-2"></i>New Insurance
-                </button>
-            </div>
-
-            {/* Responsive Table */}
-            {insurance.length === 0 ? (
-                <div className="alert alert-info text-center" role="alert">
-                    No Insurance found. Please add a new insurance.</div>
-            ) : (<>
-
-                <div className="table-responsive">
-                    <table className="table table-striped table-hover">
-                        <thead className="thead-dark">
-                            <tr>
-                                <th>Sr.No</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Type</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {insurance.map((insurance, item) => (
-                                <tr key={insurance.id}>
-                                    <td>{item + 1}</td>
-                                    <td>{insurance.full_name}</td>
-                                    <td>{insurance.email}</td>
-                                    <td>{insurance.insurance_type}</td>
-                                    <td>{new Date(insurance.insurance_date).toLocaleDateString('en-GB')}</td> 
-                                    <td> <button
-                                        className="btn btn-link"
-                                        onClick={() => getParticularInsurance(insurance.common_id)}
-                                        title="Info"
-                                    >
-                                        <FaInfoCircle />
-                                    </button>
-                                        <button
-                                            onClick={() => renewInsurance(insurance.id,insurance.common_id)}
-                                            className="btn btn-link"
-                                            title="Renew Insurance"
-                                        >
-                                            <FaSyncAlt />
-
-                                        </button>
-                                        <button
-                                            onClick={() => openUploadModal(insurance.id)}
-                                            className="btn btn-link"
-                                            title="Upload"
-                                        >
-                                            <FaUpload />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+            <div className="container-fluid p-3">
+                {/* Header Section */}
+                <div className="row mb-3">
+                    <div className="col-12">
+                        <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <h2 className="mb-0">Insurance Management</h2>
+                            <div className="d-flex gap-2 flex-wrap">
+                                <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+                                    <FaPlusSquare /> New Insurance
+                                </button>
+                                <button className="btn btn-success" onClick={downloadCSV}>
+                                    <FaDownload /> Download CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </>)}
 
+                {/* Filters Section */}
+                <div className="row mb-3">
+                    <div className="col-12">
+                        <div className="row g-2">
+                            <div className="col-md-3 col-sm-6">
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Search by name or email"
+                                    value={searchTerm}
+                                    onChange={handleSearchChange}
+                                />
+                            </div>
+                            <div className="col-md-3 col-sm-6">
+                                <select
+                                    className="form-control"
+                                    value={filters.admin}
+                                    onChange={(e) => setFilters({ ...filters, admin: e.target.value })}
+                                >
+                                    <option value="">All admins</option>
+                                    {admins.map((item) =>
+                                        item.id != user_id ? (
+                                            <option key={item.id} value={item.id}>
+                                                {item.full_name}
+                                            </option>
+                                        ) : null
+                                    )}
+                                    <option key={user_id} value={user_id}>Self</option>
+                                </select>
+                            </div>
+                            <div className="col-md-3 col-sm-6">
+                                <select
+                                    className="form-control"
+                                    value={filters.segment}
+                                    onChange={(e) => setFilters({ ...filters, segment: e.target.value })}
+                                >
+                                    <option value="">All Segments</option>
+                                    <option value="Motor">Motor</option>
+                                    <option value="Non-Motor">Non-Motor</option>
+                                </select>
+                            </div>
+                            <div className="col-md-3 col-sm-6">
+                                <select
+                                    className="form-control"
+                                    value={filters.ageRange}
+                                    onChange={(e) => setFilters({ ...filters, ageRange: e.target.value })}
+                                >
+                                    <option value="">All Ages</option>
+                                    <option value="0-18">0-18</option>
+                                    <option value="19-35">19-35</option>
+                                    <option value="36-60">36-60</option>
+                                    <option value="60-120">60+</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                {insurance.length === 0 ? (
+                    <div className="alert alert-info text-center" role="alert">
+                        No insurance found. Please add a new insurance.</div>
+                ) : (<>
+                    <div className="table-responsive" style={{ maxHeight: '350px' }}>
+                        <table className="table table-striped table-hover">
+                            <thead className="thead-dark">
+                                <tr>
+                                    <th>Sr. No.</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {insurance.map((insurance, index) => (
+                                    <tr key={insurance.id} style={{ verticalAlign: "middle" }}>
+                                        <td>{index + 1}</td>
+                                        <td>{insurance.full_name}</td>
+                                        <td>{insurance.email}</td>
+                                        <td>{insurance.insurance_type}</td>
+                                        <td>{new Date(insurance.insurance_date).toLocaleDateString('en-GB')}</td>
+                                        <td>
+                                            <button
+                                                className="btn btn-link"
+                                                onClick={() => getParticularInsurance(insurance.common_id)}
+                                                title="Info"
+                                            >
+                                                <FaInfoCircle />
+                                            </button>
+                                            <button
+                                                onClick={() => renewInsurance(insurance.id, insurance.common_id)}
+                                                className="btn btn-link"
+                                                title="Renew Insurance"
+                                            >
+                                                <FaSyncAlt />
+                                            </button>
+                                            <button
+                                                onClick={() => openUploadModal(insurance.id)}
+                                                className="btn btn-link"
+                                                title="Upload"
+                                            >
+                                                <FaUpload />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        {hasMore && insurance.length > 0 && (
+                            <div className="load-more-container">
+                                <button
+                                    className="btn btn-primary load-more-btn"
+                                    onClick={handleLoadMore}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? (
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    ) : null}
+                                    Load More
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </>)}
 
-            {/* Media Upload Modal */}
-            < MediaUploadModal
-                customerId={uploadModal.id}
-                show={uploadModal.show}
-                isCustomerDoc={false}
-                handleClose={closeUploadModal}
-            />
+                {/* Media Upload Modal */}
+                <MediaUploadModal
+                    customerId={uploadModal.id}
+                    show={uploadModal.show}
+                    isCustomerDoc={false}
+                    handleClose={closeUploadModal}
+                />
 
-            {/* Email Modal */}
-            {
-                showModal && (
+                {/* Email Modal */}
+                {showModal && (
                     <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
                         <div className="modal-dialog">
                             <div className="modal-content">
@@ -172,12 +371,10 @@ const InsuranceManagement2 = () => {
                             </div>
                         </div>
                     </div>
-                )
-            }
-        </div >
+                )}
+            </div>
+        </div>
     );
 };
-
-
 
 export default InsuranceManagement2;

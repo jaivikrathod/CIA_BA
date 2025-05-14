@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback,useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -15,6 +15,8 @@ const CustomerManagement = () => {
     const [isReadable, setisReadable] = useState(false);
     const [uploadModal, setUploadModal] = useState({ show: false, id: null });
     const api = useApi();
+    const [admins, setadmins] = useState([]);
+    const user_id = useSelector((state) => state.id);
 
     const navigate = useNavigate();
     const [customers, setCustomers] = useState([]);
@@ -24,14 +26,15 @@ const CustomerManagement = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filters, setFilters] = useState({
         gender: "",
-        ageRange: ""
+        ageRange: "",
+        admin: "",
     });
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const timerRef = useRef(null); // 🟢 store timer here
 
-    const fetchCustomers =  useCallback(async (pageNum = 1, append = false,limit=10) => {
+    const fetchCustomers = useCallback(async (pageNum = 1, append = false, limit = 10) => {
         try {
             setIsLoading(true);
             const response = await api.post(`/customer-list`, {
@@ -40,6 +43,7 @@ const CustomerManagement = () => {
                 ageRange: filters.ageRange,
                 minAge: filters.ageRange.split('-')[0] || '',
                 maxAge: filters.ageRange.split('-')[1] || '',
+                admin: filters.admin,
                 page: pageNum,
                 limit: limit
             });
@@ -59,23 +63,34 @@ const CustomerManagement = () => {
         } catch (error) {
             toast.error('Failed to fetch customers');
         } finally {
-                setTimeout(() => {    
-                    setIsLoading(false);
-                }, 500);
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 500);
         }
-    },[searchTerm]);
+    }, [searchTerm, filters.gender, filters.ageRange, filters.admin]);
+
+    const fetchadmins = async () => {
+        try {
+            const response = await api.post(`/user-list`);
+            if (response.data.data) {
+                setadmins(response.data.data);
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
+        }
+    };
 
     // Debounced search function with 1 second delay
     const debouncedSearch = useCallback((value) => {
         if (timerRef.current) {
-          clearTimeout(timerRef.current);
+            clearTimeout(timerRef.current);
         }
-    
+
         timerRef.current = setTimeout(() => {
-          setPage(1); // assuming you have this state
-          fetchCustomers(1, false);
+            setPage(1); // assuming you have this state
+            fetchCustomers(1, false);
         }, 1000);
-      }, [fetchCustomers]);
+    }, [fetchCustomers]);
 
     // Update search term and trigger debounced search
     const handleSearchChange = (e) => {
@@ -87,7 +102,8 @@ const CustomerManagement = () => {
     useEffect(() => {
         setPage(1);
         fetchCustomers(1, false);
-    }, [filters.gender, filters.ageRange]);
+        fetchadmins();
+    }, [filters.gender, filters.ageRange, filters.admin]);
 
     const handleDeleteCustomer = async (id) => {
         try {
@@ -124,7 +140,7 @@ const CustomerManagement = () => {
                 page: 1,
                 limit: 0
             });
-            
+
             if (!response.data.data) {
                 toast.error('No customer data available');
                 return;
@@ -166,58 +182,85 @@ const CustomerManagement = () => {
     };
 
     return (
-        <div className="container">
+        <div className="container-fluid px-0" style={{ maxWidth: "100vw" }}>
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
-            {isLoading && <LoadingComponent/>}
+            {isLoading && <LoadingComponent />}
 
             <div className="container-fluid p-3">
                 {/* Header Section */}
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h2>Customer Management</h2>
-                    <button className="btn btn-primary" onClick={() => { setSelectedCustomer({}), setisReadable(true) }}>
-                        <FaPlusSquare /> New Customer
-                    </button>
+                <div className="row mb-3">
+                    <div className="col-12">
+                        <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <h2 className="mb-0">Customer Management</h2>
+                            <div className="d-flex gap-2 flex-wrap">
+                                <button className="btn btn-primary" onClick={() => { setSelectedCustomer({}), setisReadable(true) }}>
+                                    <FaPlusSquare /> New Customer
+                                </button>
+                                <button className="btn btn-success" onClick={downloadCSV}>
+                                    <FaDownload /> Download CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
+                {/* Filters Section */}
                 <div className="row mb-3">
-                    <div className="col-md-4 mb-2">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search by name or email"
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                        />
-                    </div>
-                    <div className="col-md-3 mb-2">
-                        <select
-                            className="form-control"
-                            value={filters.gender}
-                            onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
-                        >
-                            <option value="">All Genders</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div className="col-md-3 mb-2">
-                        <select
-                            className="form-control"
-                            value={filters.ageRange}
-                            onChange={(e) => setFilters({ ...filters, ageRange: e.target.value })}
-                        >
-                            <option value="">All Ages</option>
-                            <option value="0-18">0-18</option>
-                            <option value="19-35">19-35</option>
-                            <option value="36-60">36-60</option>
-                            <option value="60-120">60+</option>
-                        </select>
-                    </div>
-                    <div className="col-md-2 mb-2">
-                        <button className="btn btn-success w-100" onClick={downloadCSV}>
-                            <FaDownload /> Download CSV
-                        </button>
+                    <div className="col-12">
+                        <div className="row g-2">
+                            {/* First Row of Filters */}
+                            <div className="col-md-4 col-sm-6">
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Search by name or email"
+                                    value={searchTerm}
+                                    onChange={handleSearchChange}
+                                />
+                            </div>
+                            <div className="col-md-3 col-sm-6">
+                                <select
+                                    className="form-control"
+                                    value={filters.admin}
+                                    onChange={(e) => setFilters({ ...filters, admin: e.target.value })}
+                                >
+                                    <option value="">All admins</option>
+                                    {admins.map((item) =>
+                                        item.id != user_id ? (
+                                            <option key={item.id} value={item.id}>
+                                                {item.full_name}
+                                            </option>
+                                        ) : null
+                                    )}
+                                    <option key={user_id} value={user_id}>Self</option>
+                                </select>
+                            </div>
+                            <div className="col-md-3 col-sm-6">
+                                <select
+                                    className="form-control"
+                                    value={filters.gender}
+                                    onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
+                                >
+                                    <option value="">All Genders</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div className="col-md-2 col-sm-6">
+                                <select
+                                    className="form-control"
+                                    value={filters.ageRange}
+                                    onChange={(e) => setFilters({ ...filters, ageRange: e.target.value })}
+                                >
+                                    <option value="">All Ages</option>
+                                    <option value="0-18">0-18</option>
+                                    <option value="19-35">19-35</option>
+                                    <option value="36-60">36-60</option>
+                                    <option value="60-120">60+</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -292,8 +335,8 @@ const CustomerManagement = () => {
                         </table>
                         {hasMore && customers.length > 0 && (
                             <div className="load-more-container">
-                                <button 
-                                    className="btn btn-primary load-more-btn" 
+                                <button
+                                    className="btn btn-primary load-more-btn"
                                     onClick={handleLoadMore}
                                     disabled={isLoading}
                                 >
