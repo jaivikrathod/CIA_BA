@@ -78,31 +78,31 @@ const AgentManagement = () => {
                         <FaPlusSquare /> New Agent
                     </button>
                 </div>
+                {/* <div className="row mb-3">
+                    <div className="col-md-4 mb-2">
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Search by name or email"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="col-md-2 mb-2">
+                        <button className="btn btn-success w-100" onClick={downloadCSV}>
+                            <FaDownload /> Download CSV
+                        </button>
+                    </div>
+                </div> */}
 
                 {agents.length === 0 ? (
                     <div className="alert alert-info text-center">No agents found. Please add a new agent.</div>
                 ) : (
                     <>
-                        <div className="row mb-3">
-                            <div className="col-md-4 mb-2">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="Search by name or email"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-                         
-                            <div className="col-md-2 mb-2">
-                                <button className="btn btn-success w-100" onClick={downloadCSV}>
-                                    <FaDownload /> Download CSV
-                                </button>
-                            </div>
-                        </div>
 
-                        <div className="table-responsive">
-                            <table className="table table-striped table-hover">
+                        <div  style={{ maxHeight: '70vh', overflowY: 'auto' }} className="table-responsive">
+                            <table className="table table-striped table-hover" >
                                 <thead className="thead-dark">
                                     <tr>
                                         <th>Sr. No.</th>

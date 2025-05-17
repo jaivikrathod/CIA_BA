@@ -45,11 +45,11 @@ const InsuranceManagement2 = () => {
         fetchAdmins();
     }, []);
 
-    const fetchInsurance = useCallback(async (pageNum = 1, append = false, limit = 10) => {
+    const fetchInsurance = useCallback(async (pageNum = 1, append = false, limit = 10,tempSearch='') => {
         try {
             setIsLoading(true);
             const response = await api.post(`/insurance-list`, {
-                search: searchTerm,
+                search: tempSearch,
                 segment: filters.segment,
                 ageRange: filters.ageRange,
                 minAge: filters.ageRange.split('-')[0] || '',
@@ -88,7 +88,7 @@ const InsuranceManagement2 = () => {
 
         timerRef.current = setTimeout(() => {
             setPage(1);
-            fetchInsurance(1, false);
+            fetchInsurance(1, false,10, value);
         }, 1000);
     }, [fetchInsurance]);
 

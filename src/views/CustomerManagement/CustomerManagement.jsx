@@ -34,11 +34,11 @@ const CustomerManagement = () => {
     const [isLoading, setIsLoading] = useState(false);
     const timerRef = useRef(null); // 🟢 store timer here
 
-    const fetchCustomers = useCallback(async (pageNum = 1, append = false, limit = 10) => {
+    const fetchCustomers = useCallback(async (pageNum = 1, append = false, limit = 10, tempSearch = '') => {
         try {
             setIsLoading(true);
             const response = await api.post(`/customer-list`, {
-                search: searchTerm,
+                search: tempSearch,
                 gender: filters.gender,
                 ageRange: filters.ageRange,
                 minAge: filters.ageRange.split('-')[0] || '',
@@ -80,23 +80,25 @@ const CustomerManagement = () => {
         }
     };
 
-    // Debounced search function with 1 second delay
     const debouncedSearch = useCallback((value) => {
         if (timerRef.current) {
             clearTimeout(timerRef.current);
         }
 
         timerRef.current = setTimeout(() => {
-            setPage(1); // assuming you have this state
-            fetchCustomers(1, false);
+            setPage(1);
+            fetchCustomers(1, false, 10, value);
         }, 1000);
     }, [fetchCustomers]);
 
-    // Update search term and trigger debounced search
     const handleSearchChange = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
-        debouncedSearch(value);
+        if (value) {
+            debouncedSearch(value);
+        } else {
+            debouncedSearch('');
+        }
     };
 
     useEffect(() => {
@@ -441,7 +443,6 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
                 setdocuments(documents.filter(doc => doc.name !== document));
                 toast.success('Document deleted successfully');
             } else {
-                console.log("djfhb");
                 toast.error('Error deleting document');
             }
         } catch (error) {
