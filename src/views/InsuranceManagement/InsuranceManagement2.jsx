@@ -47,7 +47,7 @@ const InsuranceManagement2 = () => {
 
     const fetchInsurance = useCallback(async (pageNum = 1, append = false, limit = 10,tempSearch='') => {
         try {
-            setIsLoading(true);
+            // setIsLoading(true);
             const response = await api.post(`/insurance-list`, {
                 search: tempSearch,
                 segment: filters.segment,
@@ -69,13 +69,13 @@ const InsuranceManagement2 = () => {
                 if (!append) {
                     setInsurance([]);
                 }
-                setHasMore(false);
+                // setHasMore(false);
             }
         } catch (error) {
             toast.error("Failed to fetch insurance");
         } finally {
             setTimeout(() => {
-                setIsLoading(false);
+                // setIsLoading(false);
             }, 500);
         }
     }, [searchTerm, filters.segment, filters.ageRange, filters.admin]);

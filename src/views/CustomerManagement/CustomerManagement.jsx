@@ -36,7 +36,6 @@ const CustomerManagement = () => {
 
     const fetchCustomers = useCallback(async (pageNum = 1, append = false, limit = 10, tempSearch = '') => {
         try {
-            setIsLoading(true);
             const response = await api.post(`/customer-list`, {
                 search: tempSearch,
                 gender: filters.gender,
@@ -62,10 +61,6 @@ const CustomerManagement = () => {
             }
         } catch (error) {
             toast.error('Failed to fetch customers');
-        } finally {
-            setTimeout(() => {
-                setIsLoading(false);
-            }, 500);
         }
     }, [searchTerm, filters.gender, filters.ageRange, filters.admin]);
 
