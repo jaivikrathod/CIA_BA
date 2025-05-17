@@ -9,12 +9,14 @@ const InsuranceCommonDetails1 = React.lazy(() => import('./views/InsuranceManage
 const InsuranceCommonDetails2 = React.lazy(() => import('./views/InsuranceManagement/InsuranceCommonDetails2'))
 const InsuranceDetailMain = React.lazy(() => import('./views/InsuranceManagement/InsuranceDetailMain'))
 const AgentManagement = React.lazy(() => import('./views/Agent/AgentManagement'))
+const EditProfile = React.lazy(()=>import('./views/UserManagement/EditProfile'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/customers', name: 'customers', element: CustomerManagement },
   { path: '/users', name: 'users', element: UserManagement },
+  { path: '/edit-profile', name: 'editprofile', element: EditProfile },
   { path: '/insurance', name: 'insurance', element: InsuranceManagement2 },
   { path: '/insurance-initial/:id',  element: InsuranceInitialDetails },
   { path: '/common-insurance1/:id',  element: InsuranceCommonDetails1 },
