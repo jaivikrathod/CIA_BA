@@ -7,6 +7,7 @@ import { useLoadingStore } from './api/axios'
 import './scss/style.scss'
 // We use those styles to show code examples, you should remove them in your application.
 import './scss/examples.scss'
+import ForgotPassword from './views/pages/login/ForgotPassword'
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
@@ -44,6 +45,7 @@ const App = () => {
       >
         <Routes>
           <Route exact path="/login" name="Login Page" element={<Login />} />
+          <Route exact path="/forgot-password" name="Forget Password" element={<ForgotPassword />} />
           <Route exact path="/change-password/:id" name="change password" element={<ChangePass />} />
           <Route path="*" name="Home" element={<DefaultLayout />} />
         </Routes>
