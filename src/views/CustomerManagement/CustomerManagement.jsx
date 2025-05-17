@@ -32,7 +32,7 @@ const CustomerManagement = () => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const timerRef = useRef(null); // 🟢 store timer here
+    const timerRef = useRef(null); 
 
     const fetchCustomers = useCallback(async (pageNum = 1, append = false, limit = 10, tempSearch = '') => {
         try {
