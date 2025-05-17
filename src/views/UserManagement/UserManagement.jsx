@@ -32,6 +32,18 @@ const UserManagement = () => {
         }
     };
 
+    const handleUserClick = (user) => {
+        setSelectedUser(user);
+    };
+
+    const handleDeleteClick = (id) => {
+        setConfirmDelete({ show: true, id });
+    };
+
+    const handleNewUserClick = () => {
+        setSelectedUser({});
+    };
+
     useEffect(() => {
         fetchUser();
     }, []);
@@ -41,7 +53,7 @@ const UserManagement = () => {
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h2>User Management</h2>
-                <button className="btn btn-primary" onClick={() => setSelectedUser({})}>
+                <button className="btn btn-primary" onClick={handleNewUserClick}>
                     <i className="fas fa-plus me-2"></i>New User
                 </button>
             </div>
@@ -73,14 +85,14 @@ const UserManagement = () => {
                                     <td>
                                         <button
                                             className="btn btn-link"
-                                            onClick={() => setSelectedUser(user)}
+                                            onClick={() => handleUserClick(user)}
                                             title="Edit"
                                         >
                                             <i className="fas fa-edit"></i>
                                         </button>
                                         <button
                                             className="btn btn-link text-danger"
-                                            onClick={() => setConfirmDelete({ show: true, id: user.id })}
+                                            onClick={() => handleDeleteClick(user.id)}
                                             title="Delete"
                                         >
                                             <i className="fas fa-trash-alt"></i>
@@ -94,33 +106,39 @@ const UserManagement = () => {
             </>)}
 
             {selectedUser !== null && (
-                <UserFormModal
-                    User={selectedUser}
-                    onClose={() => {
-                        setSelectedUser(null);
-                        fetchUser();
-                    }}
-                />
+                <>
+                    <div className="modal-backdrop fade show"></div>
+                    <UserFormModal
+                        User={selectedUser}
+                        onClose={() => {
+                            setSelectedUser(null);
+                            fetchUser();
+                        }}
+                    />
+                </>
             )}
 
             {confirmDelete.show && (
-                <div className="modal show d-block" tabIndex="-1">
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Confirm Deletion</h5>
-                                <button type="button" className="btn-close" onClick={() => setConfirmDelete({ show: false, id: null })}></button>
-                            </div>
-                            <div className="modal-body">
-                                <p>Are you sure you want to delete this User?</p>
-                            </div>
-                            <div className="modal-footer">
-                                <button className="btn btn-danger" onClick={() => handleDeleteUser(confirmDelete.id)}>Confirm</button>
-                                <button className="btn btn-secondary" onClick={() => setConfirmDelete({ show: false, id: null })}>Cancel</button>
+                <>
+                    <div className="modal-backdrop fade show"></div>
+                    <div className="modal fade show d-block" tabIndex="-1">
+                        <div className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Confirm Deletion</h5>
+                                    <button type="button" className="btn-close" onClick={() => setConfirmDelete({ show: false, id: null })}></button>
+                                </div>
+                                <div className="modal-body">
+                                    <p>Are you sure you want to delete this User?</p>
+                                </div>
+                                <div className="modal-footer">
+                                    <button className="btn btn-danger" onClick={() => handleDeleteUser(confirmDelete.id)}>Confirm</button>
+                                    <button className="btn btn-secondary" onClick={() => setConfirmDelete({ show: false, id: null })}>Cancel</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </>
             )}
         </div>
     );

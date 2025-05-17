@@ -21,6 +21,7 @@ const InsuranceManagement2 = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [admins, setAdmins] = useState([]);
     const user_id = useSelector((state) => state.id);
+    const adminType = useSelector((state) => state.adminType);
     const [filters, setFilters] = useState({
         segment: "",
         ageRange: "",
@@ -213,8 +214,8 @@ const InsuranceManagement2 = () => {
                 {/* Filters Section */}
                 <div className="row mb-3">
                     <div className="col-12">
-                        <div className="row g-2">
-                            <div className="col-md-3 col-sm-6">
+                        <div className="d-flex flex-wrap gap-2">
+                            <div className="flex-grow-1" style={{ minWidth: '200px' }}>
                                 <input
                                     type="text"
                                     className="form-control"
@@ -223,7 +224,8 @@ const InsuranceManagement2 = () => {
                                     onChange={handleSearchChange}
                                 />
                             </div>
-                            <div className="col-md-3 col-sm-6">
+                            {adminType == 'Admin' &&   
+                            <div className="flex-grow-1" style={{ minWidth: '200px' }}>
                                 <select
                                     className="form-control"
                                     value={filters.admin}
@@ -240,7 +242,8 @@ const InsuranceManagement2 = () => {
                                     <option key={user_id} value={user_id}>Self</option>
                                 </select>
                             </div>
-                            <div className="col-md-3 col-sm-6">
+                            }
+                            <div className="flex-grow-1" style={{ minWidth: '200px' }}>
                                 <select
                                     className="form-control"
                                     value={filters.segment}
@@ -251,7 +254,7 @@ const InsuranceManagement2 = () => {
                                     <option value="Non-Motor">Non-Motor</option>
                                 </select>
                             </div>
-                            <div className="col-md-3 col-sm-6">
+                            <div className="flex-grow-1" style={{ minWidth: '200px' }}>
                                 <select
                                     className="form-control"
                                     value={filters.ageRange}
@@ -269,10 +272,10 @@ const InsuranceManagement2 = () => {
                 </div>
 
                 {insurance.length === 0 ? (
-                    <div className="alert alert-info text-center" role="alert">
+                    <div className="alert alert-info text-center fade-in" role="alert">
                         No insurance found. Please add a new insurance.</div>
                 ) : (<>
-                    <div className="table-responsive" style={{ maxHeight: '350px' }}>
+                    <div className="table-responsive fade-in" style={{ maxHeight: '350px' }}>
                         <table className="table table-striped table-hover">
                             <thead className="thead-dark">
                                 <tr>
@@ -346,31 +349,34 @@ const InsuranceManagement2 = () => {
 
                 {/* Email Modal */}
                 {showModal && (
-                    <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-                        <div className="modal-dialog">
-                            <div className="modal-content">
-                                <div className="modal-header bg-dark text-white">
-                                    <h5 className="modal-title fw-bold">Enter Customer's Email</h5>
-                                    <button type="button" className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
-                                </div>
-                                <div className="modal-body">
-                                    <form onSubmit={handleEmailSubmit}>
-                                        <input
-                                            type="email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="Enter Email"
-                                            className="form-control mb-3"
-                                            required
-                                        />
-                                        <button type="submit" className="btn btn-primary w-100">
-                                            Submit
-                                        </button>
-                                    </form>
+                    <>
+                        <div className="modal-backdrop fade show"></div>
+                        <div className="modal fade show d-block" tabIndex="-1">
+                            <div className="modal-dialog">
+                                <div className="modal-content">
+                                    <div className="modal-header bg-dark text-white">
+                                        <h5 className="modal-title fw-bold">Enter Customer's Email</h5>
+                                        <button type="button" className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <form onSubmit={handleEmailSubmit}>
+                                            <input
+                                                type="email"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                placeholder="Enter Email"
+                                                className="form-control mb-3"
+                                                required
+                                            />
+                                            <button type="submit" className="btn btn-primary w-100">
+                                                Submit
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </>
                 )}
             </div>
         </div>

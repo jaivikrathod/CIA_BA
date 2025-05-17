@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import {
   CAvatar,
   CBadge,
@@ -47,10 +48,12 @@ const AppHeaderDropdown = () => {
             />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
-        <CDropdownItem href="#">
+        <Link to="/edit-profile" style={{ textDecoration: 'none' }}>
+        <CDropdownItem>
           <CIcon icon={cilUser} className="me-2" />
           Profile
         </CDropdownItem>
+        </Link>
         <CDropdownItem onClick={()=> logout()}>
           <CIcon icon={cilLockLocked} className="me-2" />
           Logout

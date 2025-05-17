@@ -77,58 +77,61 @@ const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key 
   };
 
   return (
-    <div className={`modal ${show ? "d-block" : "d-none"}`} tabIndex="-1">
-      <div className="modal-dialog">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">Upload Media</h5>
-            <button type="button" className="btn-close" onClick={handleClose}></button>
-          </div>
-          <div className="modal-body">
-            <div className="mb-3">
-              <label className="form-label">Select Document Type</label>
-              <select
-                className="form-select"
-                value={documentType}
-                onChange={(e) => setDocumentType(e.target.value)}
-              >
-                <option value="">Select</option>
-                {selectedDocType.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
+    <>
+      {show && <div className="modal-backdrop fade show"></div>}
+      <div className={`modal fade ${show ? "show d-block" : "d-none"}`} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Upload Media</h5>
+              <button type="button" className="btn-close" onClick={handleClose}></button>
+            </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <label className="form-label">Select Document Type</label>
+                <select
+                  className="form-select"
+                  value={documentType}
+                  onChange={(e) => setDocumentType(e.target.value)}
+                >
+                  <option value="">Select</option>
+                  {selectedDocType.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
 
-              {documentType === "other" && (
-                <div className="mb-3">
-                  <label className="form-label mt-3">Other Document Name</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={otherDocumentName}
-                    onChange={(e) => setOtherDocumentName(e.target.value)}
-                    placeholder="Enter document name"
-                  />
-                </div>
-              )}
+                {documentType === "other" && (
+                  <div className="mb-3">
+                    <label className="form-label mt-3">Other Document Name</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={otherDocumentName}
+                      onChange={(e) => setOtherDocumentName(e.target.value)}
+                      placeholder="Enter document name"
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Choose File</label>
+                <input type="file" className="form-control" onChange={handleFileChange} />
+              </div>
             </div>
-            <div className="mb-3">
-              <label className="form-label">Choose File</label>
-              <input type="file" className="form-control" onChange={handleFileChange} />
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={handleClose}>
+                Close
+              </button>
+              <button type="button" className="btn btn-primary" onClick={handleUpload}>
+                Upload
+              </button>
             </div>
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={handleClose}>
-              Close
-            </button>
-            <button type="button" className="btn btn-primary" onClick={handleUpload}>
-              Upload
-            </button>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

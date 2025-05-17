@@ -17,6 +17,7 @@ const CustomerManagement = () => {
     const api = useApi();
     const [admins, setadmins] = useState([]);
     const user_id = useSelector((state) => state.id);
+    const adminType = useSelector((state) => state.adminType);
 
     const navigate = useNavigate();
     const [customers, setCustomers] = useState([]);
@@ -204,9 +205,8 @@ const CustomerManagement = () => {
                 {/* Filters Section */}
                 <div className="row mb-3">
                     <div className="col-12">
-                        <div className="row g-2">
-                            {/* First Row of Filters */}
-                            <div className="col-md-4 col-sm-6">
+                        <div className="d-flex flex-wrap gap-2">
+                            <div className="flex-grow-1" style={{ minWidth: '200px' }}>
                                 <input
                                     type="text"
                                     className="form-control"
@@ -215,7 +215,8 @@ const CustomerManagement = () => {
                                     onChange={handleSearchChange}
                                 />
                             </div>
-                            <div className="col-md-3 col-sm-6">
+                         {adminType=="Admin" &&  
+                         <div className="flex-grow-1" style={{ minWidth: '200px' }}>
                                 <select
                                     className="form-control"
                                     value={filters.admin}
@@ -232,7 +233,8 @@ const CustomerManagement = () => {
                                     <option key={user_id} value={user_id}>Self</option>
                                 </select>
                             </div>
-                            <div className="col-md-3 col-sm-6">
+                          }
+                            <div className="flex-grow-1" style={{ minWidth: '200px' }}>
                                 <select
                                     className="form-control"
                                     value={filters.gender}
@@ -244,7 +246,7 @@ const CustomerManagement = () => {
                                     <option value="Other">Other</option>
                                 </select>
                             </div>
-                            <div className="col-md-2 col-sm-6">
+                            <div className="flex-grow-1" style={{ minWidth: '200px' }}>
                                 <select
                                     className="form-control"
                                     value={filters.ageRange}
@@ -262,14 +264,14 @@ const CustomerManagement = () => {
                 </div>
 
                 {customers.length === 0 ? (
-                    <div className="alert alert-info text-center" role="alert">
+                    <div className="alert alert-info text-center fade-in" role="alert">
                         No customers found. Please add a new customer.</div>
                 ) : (<>
                     {/* Search and Filter Section */}
 
 
                     {/* Table Section */}
-                    <div className="table-responsive" style={{ maxHeight: '350px' }}>
+                    <div className="table-responsive fade-in" style={{ maxHeight: '350px' }}>
                         <table className="table table-striped table-hover">
                             <thead className="thead-dark">
                                 <tr>
