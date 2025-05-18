@@ -112,7 +112,6 @@ const UserManagement = () => {
                         User={selectedUser}
                         onClose={() => {
                             setSelectedUser(null);
-                            fetchUser();
                         }}
                     />
                 </>
@@ -122,7 +121,7 @@ const UserManagement = () => {
                 <>
                     <div className="modal-backdrop fade show"></div>
                     <div className="modal fade show d-block" tabIndex="-1">
-                        <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-dialog">
                             <div className="modal-content">
                                 <div className="modal-header">
                                     <h5 className="modal-title">Confirm Deletion</h5>
@@ -163,7 +162,7 @@ const UserFormModal = ({ User, onClose }) => {
             if (response.data.success) {
                 toast.success(response.data.message);
                 reset();
-                onClose();
+                fetchUser();
             } else {
                 toast.error(response.data.message);
             }

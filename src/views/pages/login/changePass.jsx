@@ -1,15 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
+import useApi from '../../../api/axios';
+import './Login.css';
+import companyLogo from '../../../assets/care_insurance_logo.svg';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 export default function ChangePass() {
-  const { id } = useParams(); // Get ID from route
+  const { id } = useParams();
   const navigate = useNavigate();
-  const apiUrl = "http://localhost:3005";
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const api = useApi();
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors } } = useForm();
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   const onSubmit = async (data) => {
     if (data.password !== data.confirmPassword) {
@@ -17,13 +30,13 @@ export default function ChangePass() {
       return;
     }
 
-    if(data.password == "Password@123"){
+    if(data.password === "Password@123"){
       toast.error("New Password cannot be the default password");
       return;
     }
 
     try {
-      const response = await axios.post(`${apiUrl}/change-password/${id}`, {
+      const response = await api.post(`/change-password/${id}`, {
         password: data.password,
       });
 
@@ -34,42 +47,84 @@ export default function ChangePass() {
         toast.error("Failed to change password");
       }
     } catch (error) {
-      toast.error("An error occurred. Please try again.");
+      console.log(error);
+      toast.error(error.response?.data?.message || "An error occurred. Please try again.");
     }
   };
 
   return (
-    <div className="d-flex vh-100 align-items-center justify-content-center bg-light">
+    <div className="login-container">
       <Toaster position="top-right" reverseOrder={false} />
-      <div className="w-100" style={{ maxWidth: '400px' }}>
-        <div className="card shadow-sm p-4">
-          <h2 className="text-center mb-4">Change Password</h2>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="mb-3">
-              <label className="form-label">New Password</label>
-              <input
-                type="password"
-                className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                placeholder="Enter new password"
-                {...register('password', { required: 'Password is required' })}
-              />
-              {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label">Confirm Password</label>
-              <input
-                type="password"
-                className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
-                placeholder="Confirm new password"
-                {...register('confirmPassword', { required: 'Confirm Password is required' })}
-              />
-              {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword.message}</div>}
-            </div>
-
-            <button type="submit" className="btn btn-primary w-100">Change Password</button>
-          </form>
+      <div className="login-card">
+        <div className="login-header">
+          <img
+            src={companyLogo}
+            alt="Care Insurance Logo"
+            className="company-logo"
+          />
+          <h2>Change Password</h2>
+          <p>Enter your new password to continue</p>
         </div>
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="form-group">
+            <div className="flex items-center gap-2 mb-2" style={{display: 'flex', justifyContent: 'space-between'}}>
+              <label className="form-label m-0">New Password</label>
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className=""
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                tabIndex={-1}
+                style={{background: "white", color: 'black', border: 'none'}}
+              >
+                {showPassword ? <FiEyeOff size={18} className="mb-2" /> : <FiEye size={18} />}
+              </button>
+            </div>
+
+            <input
+              type={showPassword ? 'text' : 'password'}
+              className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+              placeholder="Enter new password"
+              {...register('password', {
+                required: 'Password is required',
+                minLength: { value: 6, message: 'Password must be at least 6 characters' }
+              })}
+            />
+            {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}
+          </div>
+
+          <div className="form-group">
+            <div className="flex items-center gap-2 mb-2" style={{display: 'flex', justifyContent: 'space-between'}}>
+              <label className="form-label m-0">Confirm Password</label>
+              <button
+                type="button"
+                onClick={toggleConfirmPasswordVisibility}
+                className=""
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                tabIndex={-1}
+                style={{background: "white", color: 'black', border: 'none'}}
+              >
+                {showConfirmPassword ? <FiEyeOff size={18} className="mb-2" /> : <FiEye size={18} />}
+              </button>
+            </div>
+
+            <input
+              type={showConfirmPassword ? 'text' : 'password'}
+              className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
+              placeholder="Confirm new password"
+              {...register('confirmPassword', {
+                required: 'Confirm Password is required',
+                minLength: { value: 6, message: 'Password must be at least 6 characters' }
+              })}
+            />
+            {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword.message}</div>}
+          </div>
+
+          <button type="submit" className="login-btn">
+            Change Password
+          </button>
+        </form>
       </div>
     </div>
   );

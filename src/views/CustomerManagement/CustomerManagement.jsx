@@ -33,7 +33,7 @@ const CustomerManagement = () => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const timerRef = useRef(null); 
+    const timerRef = useRef(null);
 
     const fetchCustomers = useCallback(async (pageNum = 1, append = false, limit = 10, tempSearch = '') => {
         try {
@@ -215,25 +215,25 @@ const CustomerManagement = () => {
                                     onChange={handleSearchChange}
                                 />
                             </div>
-                         {adminType=="Admin" &&  
-                         <div className="flex-grow-1" style={{ minWidth: '200px' }}>
-                                <select
-                                    className="form-control"
-                                    value={filters.admin}
-                                    onChange={(e) => setFilters({ ...filters, admin: e.target.value })}
-                                >
-                                    <option value="">All admins</option>
-                                    {admins.map((item) =>
-                                        item.id != user_id ? (
-                                            <option key={item.id} value={item.id}>
-                                                {item.full_name}
-                                            </option>
-                                        ) : null
-                                    )}
-                                    <option key={user_id} value={user_id}>Self</option>
-                                </select>
-                            </div>
-                          }
+                            {adminType == "Admin" &&
+                                <div className="flex-grow-1" style={{ minWidth: '200px' }}>
+                                    <select
+                                        className="form-control"
+                                        value={filters.admin}
+                                        onChange={(e) => setFilters({ ...filters, admin: e.target.value })}
+                                    >
+                                        <option value="">All admins</option>
+                                        {admins.map((item) =>
+                                            item.id != user_id ? (
+                                                <option key={item.id} value={item.id}>
+                                                    {item.full_name}
+                                                </option>
+                                            ) : null
+                                        )}
+                                        <option key={user_id} value={user_id}>Self</option>
+                                    </select>
+                                </div>
+                            }
                             <div className="flex-grow-1" style={{ minWidth: '200px' }}>
                                 <select
                                     className="form-control"
@@ -363,7 +363,6 @@ const CustomerManagement = () => {
             {selectedCustomer !== null && (
                 <CustomerForm customer={selectedCustomer} onClose={() => {
                     setSelectedCustomer(null);
-                    fetchCustomers();
                     setisReadable(false);
                 }} setisReadable={setisReadable} isReadable={isReadable}
                 />
@@ -371,27 +370,30 @@ const CustomerManagement = () => {
 
             {/* Delete Confirmation Modal */}
             {confirmDelete.show && (
-                <div className="modal fade show d-block" tabIndex="-1">
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Confirm Delete</h5>
-                                <button type="button" className="btn-close" onClick={() => setConfirmDelete({ show: false, id: null })}></button>
-                            </div>
-                            <div className="modal-body">
-                                <p>Are you sure you want to delete this customer?</p>
-                            </div>
-                            <div className="modal-footer">
-                                <button className="btn btn-danger" onClick={() => handleDeleteCustomer(confirmDelete.id)}>
-                                    Confirm
-                                </button>
-                                <button className="btn btn-secondary" onClick={() => setConfirmDelete({ show: false, id: null })}>
-                                    Cancel
-                                </button>
+                <>
+                    <div className="modal-backdrop fade show"></div>
+                    <div className="modal fade show d-block" tabIndex="-1">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Confirm Delete</h5>
+                                    <button type="button" className="btn-close" onClick={() => setConfirmDelete({ show: false, id: null })}></button>
+                                </div>
+                                <div className="modal-body">
+                                    <p>Are you sure you want to delete this customer?</p>
+                                </div>
+                                <div className="modal-footer">
+                                    <button className="btn btn-danger" onClick={() => handleDeleteCustomer(confirmDelete.id)}>
+                                        Confirm
+                                    </button>
+                                    <button className="btn btn-secondary" onClick={() => setConfirmDelete({ show: false, id: null })}>
+                                        Cancel
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </>
             )}
         </div>
     );
@@ -422,7 +424,7 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
             if (response.data.success) {
                 toast.success('Customer saved successfully!');
                 reset();
-                onClose();
+                fetchCustomers();
             } else {
                 toast.error(response.data.message);
             }
@@ -451,203 +453,207 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
 
 
     return (
-        <div className="modal fade show d-block" tabIndex="-1">
-            <div className="modal-dialog modal-dialog-centered modal-lg">
-                <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'hidden' }}>
-                    {isSubmitting && <LoadingComponent />}
-                    <div className="modal-header bg-dark text-white">
-                        {isReadable && <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>}
-                        {!isReadable && <><h5 className="modal-title">Customer Details</h5>
-                            <FaEdit className='ms-4' style={{ cursor: 'pointer' }} onClick={() => setisReadable(true)} /></>
-                        }
-                        <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
-                    </div>
-                    <div className="modal-body p-4" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
-                        <form onSubmit={handleSubmit(onSubmit)}>
-                            <div className="mb-4">
-                                <label className="form-label fw-bold">Full Name</label>
-                                <input
-                                    type="text"
-                                    {...register("full_name", {
-                                        required: "Full Name is required",
-                                        validate: value => {
-                                            const trimmed = value.trim();
-                                            const regex = /^[A-Za-z\s]+$/;
-                                            if (!regex.test(trimmed)) {
-                                                return "Only letters are allowed";
-                                            }
-                                            return true;
-                                        }
-                                    })}
-                                    className="form-control"
-                                    disabled={!isReadable}
-                                />
-                                {errors.full_name && <small className="text-danger">{errors.full_name.message}</small>}
-                            </div>
+        <>
+            <div className="modal-backdrop fade show"></div>
 
-
-                            <div className="mb-4">
-                                <label className="form-label fw-bold">Email</label>
-                                <input
-                                    type="email"
-                                    {...register("email", { required: "Email is required" })}
-                                    className="form-control"
-                                    disabled={!isReadable}
-                                />
-                                {errors.email && <small className="text-danger">{errors.email.message}</small>}
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="form-label fw-bold">Primary Mobile</label>
-                                <input
-                                    type="text"
-                                    maxLength={10}
-                                    {...register("primary_mobile", {
-                                        required: "Primary Mobile is required",
-                                        pattern: {
-                                            value: /^[0-9]{10}$/,
-                                            message: "Mobile number must be exactly 10 digits"
-                                        }
-                                    })}
-                                    className="form-control"
-                                    disabled={!isReadable}
-                                />
-                                {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
-                                {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="form-label fw-bold">Additional Mobile</label>
-                                <input
-                                    type="text"
-                                    maxLength={10}
-                                    {...register("additional_mobile", {
-                                        required: "Primary Mobile is required",
-                                        pattern: {
-                                            value: /^[0-9]{10}$/,
-                                            message: "Mobile number must be exactly 10 digits"
-                                        }
-                                    })}
-                                    className="form-control"
-                                    disabled={!isReadable}
-                                />
-                                {errors.additional_mobile && <small className="text-danger">{errors.additional_mobile.message}</small>}
-
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="form-label fw-bold">Date of birth</label>
-                                <input
-                                    type="date"
-                                    {...register("dob", {
-                                        required: "Date of birth is required",
-                                        validate: value => {
-                                            const selectedDate = new Date(value);
-                                            const today = new Date();
-                                            const maxDate = new Date();
-                                            maxDate.setFullYear(today.getFullYear() - 120);
-                                            return selectedDate >= maxDate || "DOB cannot be more than 120 years ago";
-                                        }
-                                    })}
-                                    className="form-control"
-                                    disabled={!isReadable}
-                                />
-                                {errors.dob && <small className="text-danger">{errors.dob.message}</small>}
-                            </div>
-
-
-                            <div className="mb-4">
-                                <label className="form-label fw-bold">Gender</label>
-                                <select disabled={!isReadable} {...register("gender", { required: "Gender is required" })} className="form-select">
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                </select>
-                                {errors.gender && <small className="text-danger">{errors.gender.message}</small>}
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="form-label fw-bold">State</label>
-                                <input
-                                    type="text"
-                                    {...register("state", { required: "State is required" })}
-                                    className="form-control"
-                                    disabled={!isReadable}
-                                />
-                                {errors.state && <small className="text-danger">{errors.state.message}</small>}
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="form-label fw-bold">City</label>
-                                <input
-                                    type="text"
-                                    {...register("city", { required: "City is required" })}
-                                    className="form-control"
-                                    disabled={!isReadable}
-                                />
-                                {errors.city && <small className="text-danger">{errors.city.message}</small>}
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="form-label fw-bold">Full Address</label>
-                                <textarea
-                                    {...register("full_address", { required: "Address is required" })}
-                                    className="form-control"
-                                    disabled={!isReadable}
-                                    rows="4"
-                                />
-                                {errors.full_address && <small className="text-danger">{errors.full_address.message}</small>}
-                            </div>
-
-
-                            <div className="mb-4 d-flex">
-                                {documents.map((doc, index) => (
-                                    <div key={index} className="position-relative ms-3">
-                                        {/* Document Image / PDF */}
-                                        <a href={`${apiUrl}/${doc.name}`} target="_blank" className="text-primary" style={{ textDecoration: "none", position: "relative", display: "inline-block" }}>
-                                            {doc.ext === ".pdf" ? (
-                                                <img src={pdfImage} style={{ width: "100px", height: "auto", display: "block" }} />
-                                            ) : (
-                                                <img src={`${apiUrl}/${doc.name}`} alt={doc.type} style={{ width: "100px", height: "auto", display: "block" }} />
-                                            )}
-
-                                            {isReadable && <button
-                                                className="position-absolute top-0 end-0 bg-danger text-white border-0 rounded-circle d-flex align-items-center justify-content-center"
-                                                style={{
-                                                    width: "22px",
-                                                    height: "22px",
-                                                    fontSize: "14px",
-                                                    cursor: "pointer",
-                                                    transform: "translate(50%, -50%)" /* Moves button slightly outside image */,
-                                                }}
-                                                onClick={() => deleteDocument(doc.name)}
-                                            >
-                                                ×
-                                            </button>
-                                            }
-                                        </a>
-
-                                        {/* Document Type Below */}
-                                        <div className="text-center mt-2">{doc.type}</div>
-                                    </div>
-
-                                ))}
-                            </div>
-
-                            {isReadable &&
-                                <div className="d-flex justify-content-end mt-4">
-                                    <button type="submit" className="btn btn-success px-4">
-                                        {customer.id ? 'Update' : 'Create'}
-                                    </button>
-                                    <button type='button' className='btn btn-danger ms-2' onClick={onClose}>
-                                        Cancel
-                                    </button>
-                                </div>
+            <div className="modal fade show d-block" tabIndex="-1">
+                <div className="modal-dialog modal-dialog-centered modal-lg">
+                    <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'hidden' }}>
+                        {isSubmitting && <LoadingComponent />}
+                        <div className="modal-header bg-dark text-white">
+                            {isReadable && <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>}
+                            {!isReadable && <><h5 className="modal-title">Customer Details</h5>
+                                <FaEdit className='ms-4' style={{ cursor: 'pointer' }} onClick={() => setisReadable(true)} /></>
                             }
-                        </form>
+                            <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
+                        </div>
+                        <div className="modal-body p-4" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+                            <form onSubmit={handleSubmit(onSubmit)}>
+                                <div className="mb-4">
+                                    <label className="form-label fw-bold">Full Name</label>
+                                    <input
+                                        type="text"
+                                        {...register("full_name", {
+                                            required: "Full Name is required",
+                                            validate: value => {
+                                                const trimmed = value.trim();
+                                                const regex = /^[A-Za-z\s]+$/;
+                                                if (!regex.test(trimmed)) {
+                                                    return "Only letters are allowed";
+                                                }
+                                                return true;
+                                            }
+                                        })}
+                                        className="form-control"
+                                        disabled={!isReadable}
+                                    />
+                                    {errors.full_name && <small className="text-danger">{errors.full_name.message}</small>}
+                                </div>
+
+
+                                <div className="mb-4">
+                                    <label className="form-label fw-bold">Email</label>
+                                    <input
+                                        type="email"
+                                        {...register("email", { required: "Email is required" })}
+                                        className="form-control"
+                                        disabled={!isReadable}
+                                    />
+                                    {errors.email && <small className="text-danger">{errors.email.message}</small>}
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="form-label fw-bold">Primary Mobile</label>
+                                    <input
+                                        type="text"
+                                        maxLength={10}
+                                        {...register("primary_mobile", {
+                                            required: "Primary Mobile is required",
+                                            pattern: {
+                                                value: /^[0-9]{10}$/,
+                                                message: "Mobile number must be exactly 10 digits"
+                                            }
+                                        })}
+                                        className="form-control"
+                                        disabled={!isReadable}
+                                    />
+                                    {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
+                                    {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="form-label fw-bold">Additional Mobile</label>
+                                    <input
+                                        type="text"
+                                        maxLength={10}
+                                        {...register("additional_mobile", {
+                                            required: "Primary Mobile is required",
+                                            pattern: {
+                                                value: /^[0-9]{10}$/,
+                                                message: "Mobile number must be exactly 10 digits"
+                                            }
+                                        })}
+                                        className="form-control"
+                                        disabled={!isReadable}
+                                    />
+                                    {errors.additional_mobile && <small className="text-danger">{errors.additional_mobile.message}</small>}
+
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="form-label fw-bold">Date of birth</label>
+                                    <input
+                                        type="date"
+                                        {...register("dob", {
+                                            required: "Date of birth is required",
+                                            validate: value => {
+                                                const selectedDate = new Date(value);
+                                                const today = new Date();
+                                                const maxDate = new Date();
+                                                maxDate.setFullYear(today.getFullYear() - 120);
+                                                return selectedDate >= maxDate || "DOB cannot be more than 120 years ago";
+                                            }
+                                        })}
+                                        className="form-control"
+                                        disabled={!isReadable}
+                                    />
+                                    {errors.dob && <small className="text-danger">{errors.dob.message}</small>}
+                                </div>
+
+
+                                <div className="mb-4">
+                                    <label className="form-label fw-bold">Gender</label>
+                                    <select disabled={!isReadable} {...register("gender", { required: "Gender is required" })} className="form-select">
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                    </select>
+                                    {errors.gender && <small className="text-danger">{errors.gender.message}</small>}
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="form-label fw-bold">State</label>
+                                    <input
+                                        type="text"
+                                        {...register("state", { required: "State is required" })}
+                                        className="form-control"
+                                        disabled={!isReadable}
+                                    />
+                                    {errors.state && <small className="text-danger">{errors.state.message}</small>}
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="form-label fw-bold">City</label>
+                                    <input
+                                        type="text"
+                                        {...register("city", { required: "City is required" })}
+                                        className="form-control"
+                                        disabled={!isReadable}
+                                    />
+                                    {errors.city && <small className="text-danger">{errors.city.message}</small>}
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="form-label fw-bold">Full Address</label>
+                                    <textarea
+                                        {...register("full_address", { required: "Address is required" })}
+                                        className="form-control"
+                                        disabled={!isReadable}
+                                        rows="4"
+                                    />
+                                    {errors.full_address && <small className="text-danger">{errors.full_address.message}</small>}
+                                </div>
+
+
+                                <div className="mb-4 d-flex">
+                                    {documents.map((doc, index) => (
+                                        <div key={index} className="position-relative ms-3">
+                                            {/* Document Image / PDF */}
+                                            <a href={`${apiUrl}/${doc.name}`} target="_blank" className="text-primary" style={{ textDecoration: "none", position: "relative", display: "inline-block" }}>
+                                                {doc.ext === ".pdf" ? (
+                                                    <img src={pdfImage} style={{ width: "100px", height: "auto", display: "block" }} />
+                                                ) : (
+                                                    <img src={`${apiUrl}/${doc.name}`} alt={doc.type} style={{ width: "100px", height: "auto", display: "block" }} />
+                                                )}
+
+                                                {isReadable && <button
+                                                    className="position-absolute top-0 end-0 bg-danger text-white border-0 rounded-circle d-flex align-items-center justify-content-center"
+                                                    style={{
+                                                        width: "22px",
+                                                        height: "22px",
+                                                        fontSize: "14px",
+                                                        cursor: "pointer",
+                                                        transform: "translate(50%, -50%)" /* Moves button slightly outside image */,
+                                                    }}
+                                                    onClick={() => deleteDocument(doc.name)}
+                                                >
+                                                    ×
+                                                </button>
+                                                }
+                                            </a>
+
+                                            {/* Document Type Below */}
+                                            <div className="text-center mt-2">{doc.type}</div>
+                                        </div>
+
+                                    ))}
+                                </div>
+
+                                {isReadable &&
+                                    <div className="d-flex justify-content-end mt-4">
+                                        <button type="submit" className="btn btn-success px-4">
+                                            {customer.id ? 'Update' : 'Create'}
+                                        </button>
+                                        <button type='button' className='btn btn-danger ms-2' onClick={onClose}>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                }
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

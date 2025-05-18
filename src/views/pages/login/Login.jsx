@@ -42,7 +42,7 @@ export default function Login() {
       }
     } catch (error) {
       console.log(error);
-      toast.error('An error occurred. Please try again.');
+      toast.error(error.response.data.message);
     }
   }
 

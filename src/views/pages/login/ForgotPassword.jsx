@@ -109,7 +109,7 @@ export default function ForgotPassword() {
                         className="login-btn"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting && !isotpSent ? 'Sending...' : 'Send OTP'}
+                        {!isotpSent && 'Send OTP'}
                         {isotpSent && 'Verify OTP'}
                     </button>
 

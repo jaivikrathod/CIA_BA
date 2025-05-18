@@ -101,7 +101,7 @@ const AgentManagement = () => {
                 ) : (
                     <>
 
-                        <div  style={{ maxHeight: '70vh', overflowY: 'auto' }} className="table-responsive">
+                        <div style={{ maxHeight: '70vh', overflowY: 'auto' }} className="table-responsive">
                             <table className="table table-striped table-hover" >
                                 <thead className="thead-dark">
                                     <tr>
@@ -150,23 +150,26 @@ const AgentManagement = () => {
             )}
 
             {confirmDelete.show && (
-                <div className="modal fade show d-block" tabIndex="-1">
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Confirm Delete</h5>
-                                <button type="button" className="btn-close" onClick={() => setConfirmDelete({ show: false, id: null })}></button>
-                            </div>
-                            <div className="modal-body">
-                                <p>Are you sure you want to delete this agent?</p>
-                            </div>
-                            <div className="modal-footer">
-                                <button className="btn btn-danger" onClick={() => handleDeleteAgent(confirmDelete.id)}>Confirm</button>
-                                <button className="btn btn-secondary" onClick={() => setConfirmDelete({ show: false, id: null })}>Cancel</button>
+                <>
+                    <div className="modal-backdrop fade show"></div>
+                    <div className="modal fade show d-block" tabIndex="-1">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Confirm Delete</h5>
+                                    <button type="button" className="btn-close" onClick={() => setConfirmDelete({ show: false, id: null })}></button>
+                                </div>
+                                <div className="modal-body">
+                                    <p>Are you sure you want to delete this agent?</p>
+                                </div>
+                                <div className="modal-footer">
+                                    <button className="btn btn-danger" onClick={() => handleDeleteAgent(confirmDelete.id)}>Confirm</button>
+                                    <button className="btn btn-secondary" onClick={() => setConfirmDelete({ show: false, id: null })}>Cancel</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </>
             )}
         </div>
     );
