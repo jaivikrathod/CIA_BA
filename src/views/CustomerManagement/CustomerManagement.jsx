@@ -380,7 +380,7 @@ const CustomerManagement = () => {
                                     <button type="button" className="btn-close" onClick={() => setConfirmDelete({ show: false, id: null })}></button>
                                 </div>
                                 <div className="modal-body">
-                                    <p>Are you sure you want to delete this customer?</p>
+                                    <p>By deleting this customer, all the related insurance will delete automatically so Are you sure you want to delete this customer?</p>
                                 </div>
                                 <div className="modal-footer">
                                     <button className="btn btn-danger" onClick={() => handleDeleteCustomer(confirmDelete.id)}>
