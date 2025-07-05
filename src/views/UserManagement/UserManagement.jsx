@@ -162,7 +162,7 @@ const UserFormModal = ({ User, onClose }) => {
             if (response.data.success) {
                 toast.success(response.data.message);
                 reset();
-                fetchUser();
+                // fetchUser();
             } else {
                 toast.error(response.data.message);
             }
@@ -221,11 +221,11 @@ const UserFormModal = ({ User, onClose }) => {
                                         }
                                     })}
                                     className="form-control"
-                                    onKeyPress={(e) => {
-                                        if (!/[0-9]/.test(e.key)) {
-                                            e.preventDefault();
-                                        }
-                                    }}
+                                    // onKeyPress={(e) => {
+                                    //     if (!/[0-9]/.test(e.key)) {
+                                    //         e.preventDefault();
+                                    //     }
+                                    // }}
                                 />
                                 {errors.mobile && <small className="text-danger">{errors.mobile.message}</small>}
                             </div>
