@@ -4,98 +4,100 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useApi from '../../api/axios';
 
-const UserManagement = () => {
-    const [User, setUser] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [showUserModal, setShowUserModal] = useState(false);
+const CarsManagement = () => {
+    const [cars, setCars] = useState([]);
+    const [selectedCar, setSelectedCar] = useState(null);
+    const [showCarModal, setShowCarModal] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState({ show: false, id: null });
     const api = useApi();
- 
-    const fetchUser = async () => {
+
+    const fetchCars = async () => {
         try {
-            const response = await api.post('/user-list');
-            setUser(response.data.data);
+            const response = await api.get('/cars');
+            setCars(response.data.data);
         } catch (error) {
-            toast.error('Failed to fetch User');
-            console.error('Failed to fetch User:', error);
+            toast.error('Failed to fetch cars');
+            console.error('Failed to fetch cars:', error);
         }
     };
 
-    const handleDeleteUser = async (id) => {
+    const handleDeleteCar = async (id) => {
         try {
-            const response = await api.post(`/user-delete`, { id });
+            const response = await api.delete(`/car`, { data: { id } });
             toast.success(response.data.message);
             setConfirmDelete({ show: false, id: null });
-            fetchUser();
+            fetchCars();
         } catch (error) {
-            toast.error('Error deleting User');
-            console.error('Error deleting User:', error);
+            toast.error('Error deleting car');
+            console.error('Error deleting car:', error);
         }
     };
 
-    const handleUserClick = (user) => {
-        setSelectedUser(user);
-        setShowUserModal(true);
+    const handleCarClick = (car) => {
+        setSelectedCar(car);
+        setShowCarModal(true);
     };
 
     const handleDeleteClick = (id) => {
         setConfirmDelete({ show: true, id });
     };
 
-    const handleNewUserClick = () => {
-        setSelectedUser({});
-        setShowUserModal(true);
+    const handleNewCarClick = () => {
+        setSelectedCar({});
+        setShowCarModal(true);
     };
 
     useEffect(() => {
-        fetchUser();
+        fetchCars();  
     }, []);
 
     return (
         <div className="container mt-4">
-            <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+            <ToastContainer position="top-right" a  utoClose={3000} hideProgressBar />
             <div className="d-flex justify-content-between align-items-center mb-3">
-                <h2>User Management</h2>
-                <button className="btn btn-primary" onClick={handleNewUserClick}>
-                    <i className="fas fa-plus me-2"></i>New User
+                <h2>Vehicle Management</h2>
+                <button className="btn btn-primary" onClick={handleNewCarClick}>
+                    <i className="fas fa-plus me-2"></i>New Vehicle
                 </button>
             </div>
 
-            {User.length === 0 ? (
+            {cars.length === 0 ? (
                 <div className="alert alert-info text-center" role="alert">
-                    No users found. Please add a new user.</div>
+                    No cars found. Please add a new car.</div>
             ) : (<>
                 <div style={{ maxHeight: '350px', overflowY: 'auto', width: '100%' }}>
                     <table className="table table-striped table-hover" style={{ marginBottom: 0 }}>
                         <thead className="thead-dark" style={{ position: 'sticky', top: 0, zIndex: 1, background: '#343a40' }}>
                             <tr>
                                 <th>Sr. No.</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Mobile</th>
+                                <th>Company Name</th>
                                 <th>Type</th>
+                                <th>Model Name</th>
+                                <th>Model Launch Year</th>
+                                <th>Other Detail</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {User.map((user, index) => (
-                                <tr key={user.id} style={{ verticalAlign: "middle" }}>
+                            {cars.map((car, index) => (
+                                <tr key={car.id} style={{ verticalAlign: "middle" }}>
                                     <td>{index + 1}</td>
-                                    <td>{user.full_name}</td>
-                                    <td>{user.email}</td>
-                                    <td>{user.mobile}</td>
-                                    <td>{user.type || 'N/A'}</td>
+                                    <td>{car.company_name}</td>
+                                    <td>{car.type}</td>
+                                    <td>{car.model_name}</td>
+                                    <td>{car.model_launch_year}</td>
+                                    <td>{car.other_detail || '-'}</td>
                                     <td>
                                         <button
                                             className="btn btn-link"
-                                            onClick={() => handleUserClick(user)}
+                                            onClick={() => handleCarClick(car)}
                                             title="Edit"
                                         >
                                             <i className="fas fa-edit"></i>
                                         </button>
                                         <button
                                             className="btn btn-link text-danger"
-                                            onClick={() => handleDeleteClick(user.id)}
+                                            onClick={() => handleDeleteClick(car.id)}
                                             title="Delete"
                                         >
                                             <i className="fas fa-trash-alt"></i>
@@ -108,15 +110,15 @@ const UserManagement = () => {
                 </div>
             </>)}
 
-            {showUserModal && (
-                <UserFormModal
-                    show={showUserModal}
-                    User={selectedUser}
+            {showCarModal && (
+                <CarFormModal
+                    show={showCarModal}
+                    car={selectedCar}
                     onClose={() => {
-                        setShowUserModal(false);
-                        setSelectedUser(null);
+                        setShowCarModal(false);
+                        setSelectedCar(null);
                     }}
-                    fetchUser={fetchUser}
+                    fetchCars={fetchCars}
                 />
             )}
 
@@ -124,24 +126,24 @@ const UserManagement = () => {
                 <DeleteConfirmModal
                     show={confirmDelete.show}
                     onClose={() => setConfirmDelete({ show: false, id: null })}
-                    onConfirm={() => handleDeleteUser(confirmDelete.id)}
+                    onConfirm={() => handleDeleteCar(confirmDelete.id)}
                 />
             )}
         </div>
     );
 };
 
-const UserFormModal = ({ show, User, onClose, fetchUser }) => {
+const CarFormModal = ({ show, car, onClose, fetchCars }) => {
     const api = useApi();
     const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
-        defaultValues: User || {}
+        defaultValues: car || {}
     });
 
     useEffect(() => {
-        if (User) {
-            Object.keys(User).forEach((field) => setValue(field, User[field]));
+        if (car) {
+            Object.keys(car).forEach((field) => setValue(field, car[field]));
         }
-    }, [User, setValue]);
+    }, [car, setValue]);
 
     useEffect(() => {
         if (!show) reset();
@@ -149,18 +151,32 @@ const UserFormModal = ({ show, User, onClose, fetchUser }) => {
 
     const onSubmit = async (data) => {
         try {
-            const response = await api.post(`/user-create-edit`, data);
-            if (response.data.success) {
-                toast.success(response.data.message);
-                reset();
-                onClose();
-                fetchUser();
+            if (car && car.id) {
+                // Update
+                const response = await api.put(`/car`, { ...data, id: car.id });
+                if (response.data.success) {
+                    toast.success(response.data.message);
+                    reset();
+                    onClose();
+                    fetchCars();
+                } else {
+                    toast.error(response.data.message);
+                }
             } else {
-                toast.error(response.data.message);
+                // Create
+                const response = await api.post(`/car`, data);
+                if (response.data.success) {
+                    toast.success(response.data.message);
+                    reset();
+                    onClose();
+                    fetchCars();
+                } else {
+                    toast.error(response.data.message);
+                }
             }
         } catch (error) {
-            toast.error(error?.response?.data?.message || 'Error saving User');
-            console.error('Error saving User:', error);
+            toast.error(error?.response?.data?.message || 'Error saving car');
+            console.error('Error saving car:', error);
         }
     };
 
@@ -170,65 +186,62 @@ const UserFormModal = ({ show, User, onClose, fetchUser }) => {
             <div className="modal-dialog modal-dialog-centered modal-lg">
                 <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
                     <div className="modal-header bg-dark text-white">
-                        <h5 className="modal-title">{User.id ? 'Edit User' : 'New User'}</h5>
+                        <h5 className="modal-title">{car.id ? 'Edit Car' : 'New Car'}</h5>
                         <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
                     </div>
                     <div className="modal-body p-4">
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <div className="mb-4">
-                                <label className="form-label fw-bold">Full Name</label>
+                                <label className="form-label fw-bold">Company Name</label>
                                 <input
                                     type="text"
-                                    {...register("full_name", { required: "Full Name is required" })}
+                                    {...register("company_name", { required: "Company Name is required" })}
                                     className="form-control"
                                 />
-                                {errors.full_name && <small className="text-danger">{errors.full_name.message}</small>}
+                                {errors.company_name && <small className="text-danger">{errors.company_name.message}</small>}
                             </div>
-
                             <div className="mb-4">
-                                <label className="form-label fw-bold">Email</label>
-                                <input
-                                    type="email"
-                                    {...register("email", { required: "Email is required" })}
-                                    className="form-control"
-                                />
-                                {errors.email && <small className="text-danger">{errors.email.message}</small>}
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="form-label fw-bold">Mobile</label>
+                                <label className="form-label fw-bold">Type</label>
                                 <input
                                     type="text"
-                                    maxLength={10}
-                                    {...register("mobile", { 
-                                        required: "Mobile Number is required",
-                                        pattern: {
-                                            value: /^[0-9]{10}$/,
-                                            message: "Mobile number must be exactly 10 digits"
-                                        },
-                                        validate: value => {
-                                            if (value && !/^\d+$/.test(value)) {
-                                                return "Only numbers are allowed";
-                                            }
-                                            return true;
-                                        }
+                                    {...register("type", { required: "Type is required" })}
+                                    className="form-control"
+                                />
+                                {errors.type && <small className="text-danger">{errors.type.message}</small>}
+                            </div>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">Model Name</label>
+                                <input
+                                    type="text"
+                                    {...register("model_name", { required: "Model Name is required" })}
+                                    className="form-control"
+                                />
+                                {errors.model_name && <small className="text-danger">{errors.model_name.message}</small>}
+                            </div>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">Model Launch Year</label>
+                                <input
+                                    type="number"
+                                    {...register("model_launch_year", {
+                                        required: "Model Launch Year is required",
+                                        min: { value: 1900, message: "Year must be >= 1900" },
+                                        max: { value: new Date().getFullYear(), message: `Year must be <= ${new Date().getFullYear()}` }
                                     })}
                                     className="form-control"
                                 />
-                                {errors.mobile && <small className="text-danger">{errors.mobile.message}</small>}
+                                {errors.model_launch_year && <small className="text-danger">{errors.model_launch_year.message}</small>}
                             </div>
-
                             <div className="mb-4">
-                                <label className="form-label fw-bold">Type</label>
-                                <select {...register("type")} className="form-select">
-                                    <option value="Admin">Admin</option>
-                                    <option value="Sub-admin">Sub-admin</option>
-                                </select>
+                                <label className="form-label fw-bold">Other Detail</label>
+                                <textarea
+                                    {...register("other_detail")}
+                                    className="form-control"
+                                    rows={2}
+                                />
                             </div>
-
                             <div className="d-flex justify-content-end mt-4">
                                 <button type="submit" className="btn btn-success px-4">
-                                    {User.id ? 'Update' : 'Create'}
+                                    {car.id ? 'Update' : 'Create'}
                                 </button>
                                 <button type="button" onClick={onClose} className="btn btn-secondary ms-2">Cancel</button>
                             </div>
@@ -251,7 +264,7 @@ const DeleteConfirmModal = ({ show, onClose, onConfirm }) => {
                         <button type="button" className="btn-close" onClick={onClose}></button>
                     </div>
                     <div className="modal-body">
-                        <p>Are you sure you want to delete this User?</p>
+                        <p>Are you sure you want to delete this car?</p>
                     </div>
                     <div className="modal-footer">
                         <button className="btn btn-danger" onClick={onConfirm}>Confirm</button>
@@ -263,4 +276,4 @@ const DeleteConfirmModal = ({ show, onClose, onConfirm }) => {
     );
 };
 
-export default UserManagement;
+export default CarsManagement;

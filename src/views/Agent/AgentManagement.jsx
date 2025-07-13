@@ -141,11 +141,11 @@ const AgentManagement = () => {
                     agent={selectedAgent}
                     onClose={() => {
                         setSelectedAgent(null);
-                        fetchAgents();
                         setisReadable(false);
                     }}
                     setisReadable={setisReadable}
                     isReadable={isReadable}
+                    fetchAgents={fetchAgents}
                 />
             )}
 
@@ -175,7 +175,7 @@ const AgentManagement = () => {
     );
 };
 
-const AgentForm = ({ agent, onClose, setisReadable, isReadable }) => {
+const AgentForm = ({ agent, onClose, setisReadable, isReadable,fetchAgents }) => {
     const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm();
     const api = useApi();
 
@@ -188,15 +188,20 @@ const AgentForm = ({ agent, onClose, setisReadable, isReadable }) => {
     const onSubmit = async (data) => {
         try {
             const response = await api.post(`/agent-create-edit`, data);
+            console.log(response);
+            
             if (response.data.success) {
                 toast.success("Agent saved successfully!");
                 reset();
                 onClose();
+                fetchAgents();
             } else {
                 toast.error(response.data.message || "Something went wrong");
             }
         } catch (error) {
-            toast.error("Error saving agent");
+            console.log(error);
+            
+            toast.error(error.response.data.message);
         }
     };
 

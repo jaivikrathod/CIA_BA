@@ -26,7 +26,7 @@ const PrivateRoute = ({ children }) => {
             }
           });
           if (response.data.success) {
-            dispatch({type: 'set', id:id,token:token,isAuthenticated: true, username: response.data.full_name, adminType: response.data.type});
+            dispatch({type: 'set', id:id,token:token,isAuthenticated: true, username: response.data.data.full_name, adminType: response.data.data.type});
           } else {
             dispatch({ type: 'clear_credentials' });
           }

@@ -73,7 +73,7 @@ const InsuranceManagement2 = () => {
                 // setHasMore(false);
             }
         } catch (error) {
-            toast.error("Failed to fetch insurance");
+            toast.error(error.response?.data?.message || "Failed to fetch insurance data");
         } finally {
             setTimeout(() => {
                 // setIsLoading(false);

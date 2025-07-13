@@ -28,13 +28,15 @@ export default function Login() {
   const onLogin = async (data) => {
     try {
       const response = await api.post("/login", data);
+      console.log(response.data);
+      
       if (response.data.success) {
         if (data.changePassword) {
-          navigate(`/change-password/${response.data.id}`);
+          navigate(`/change-password/${response.data.data.id}`);
         } else {
-          window.localStorage.setItem('id', response.data.id);
-          window.localStorage.setItem('token', response.data.token);
-          dispatch({ type: 'set', id: response.data.id, token: response.data.token, isAuthenticated: true, username: response.data.full_name, adminType: response.data.type });
+          window.localStorage.setItem('id', response.data.data.id);
+          window.localStorage.setItem('token', response.data.data.token);
+          dispatch({ type: 'set', id: response.data.data.id, token: response.data.data.token, isAuthenticated: true, username: response.data.data.full_name, adminType: response.data.data.type });
           navigate('/dashboard');
         }
       } else {
@@ -110,8 +112,7 @@ export default function Login() {
               className={`form-control ${errors.password ? 'is-invalid' : ''}`}
               placeholder="Enter your password"
               {...register('password', {
-                required: 'Password is required',
-                minLength: { value: 6, message: 'Password must be at least 6 characters' }
+                required: 'Password is required'
               })}
             />
 

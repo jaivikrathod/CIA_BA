@@ -5,7 +5,8 @@ import {
   cilUser,
   cilGroup,
   cilShieldAlt,
-  cilContact
+  cilContact,
+  cilTruck
 } from '@coreui/icons'
 import { CNavItem } from '@coreui/react'
 
@@ -44,6 +45,11 @@ const _nav = (admintype) => {
       name: 'Agents',
       to: '/agent',
       icon: <CIcon icon={cilContact} customClassName="nav-icon" style={{ height: '20px' }} />,
+    },{
+      component: CNavItem,
+      name: 'vehicle',
+      to: '/vehicle',
+      icon: <CIcon icon={cilTruck} customClassName="nav-icon" style={{ height: '20px' }} />,
     }
   ].filter(Boolean)
 }

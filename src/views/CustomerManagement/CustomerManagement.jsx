@@ -35,7 +35,7 @@ const CustomerManagement = () => {
     const [isLoading, setIsLoading] = useState(false);
     const timerRef = useRef(null);
 
-    const fetchCustomers = useCallback(async (pageNum = 1, append = false, limit = 10, tempSearch = '') => {
+    const fetchCustomers = useCallback(async (pageNum = 1, append = false, limit = 10, tempSearch = searchTerm) => {
         try {
             const response = await api.post(`/customer-list`, {
                 search: tempSearch,
@@ -100,8 +100,11 @@ const CustomerManagement = () => {
     useEffect(() => {
         setPage(1);
         fetchCustomers(1, false);
+    }, [filters.gender, filters.ageRange, filters.admin, searchTerm]);
+
+    useEffect(() => {
         fetchadmins();
-    }, [filters.gender, filters.ageRange, filters.admin]);
+    }, []);
 
     const handleDeleteCustomer = async (id) => {
         try {
@@ -173,10 +176,42 @@ const CustomerManagement = () => {
         }
     };
 
+    const calculateAge = (dob) => {
+        if (!dob) return "N/A";
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
     const handleLoadMore = () => {
         const nextPage = page + 1;
         setPage(nextPage);
         fetchCustomers(nextPage, true);
+    };
+
+    const addEditCustomer = (payload) => {
+        console.log(customers);
+
+        try {
+            if (payload.extras.isUpdate) {
+                setCustomers(prevCustomers =>
+                    prevCustomers.map(item =>
+                        item.id == payload.data.id ? payload.data : item
+                    )
+                );
+            } else {
+                setCustomers(prevCustomers => [...prevCustomers, payload.data]);
+            }
+            console.log(customers);
+
+        } catch (e) {
+            console.log(e);
+        }
     };
 
     return (
@@ -293,7 +328,7 @@ const CustomerManagement = () => {
                                         <td>{customer.full_name}</td>
                                         <td>{customer.email}</td>
                                         <td>{customer.primary_mobile}</td>
-                                        <td>{customer.age || 'N/A'}</td>
+                                        <td>{calculateAge(customer.dob)}</td>
                                         <td>{customer.gender || 'N/A'}</td>
                                         {/* <td>{customer.full_address || 'N/A'}</td> */}
                                         <td>
@@ -364,7 +399,8 @@ const CustomerManagement = () => {
                 <CustomerForm customer={selectedCustomer} onClose={() => {
                     setSelectedCustomer(null);
                     setisReadable(false);
-                }} setisReadable={setisReadable} isReadable={isReadable}
+
+                }} addEditCustomer={addEditCustomer} setisReadable={setisReadable} isReadable={isReadable}
                 />
             )}
 
@@ -401,7 +437,7 @@ const CustomerManagement = () => {
 
 
 // Customer Form Component
-const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
+const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCustomer }) => {
     const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
         defaultValues: customer || {}
     });
@@ -424,7 +460,8 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
             if (response.data.success) {
                 toast.success('Customer saved successfully!');
                 reset();
-                fetchCustomers();
+                addEditCustomer(response.data);
+                onClose();
             } else {
                 toast.error(response.data.message);
             }
@@ -508,16 +545,15 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable }) => {
                                         type="text"
                                         maxLength={10}
                                         {...register("primary_mobile", {
-                                            required: "Primary Mobile is required",
+                                            required: "Primary Mobile is required ",
                                             pattern: {
                                                 value: /^[0-9]{10}$/,
-                                                message: "Mobile number must be exactly 10 digits"
+                                                message: "Mobile number must be integer "
                                             }
                                         })}
                                         className="form-control"
                                         disabled={!isReadable}
                                     />
-                                    {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
                                     {errors.primary_mobile && <small className="text-danger">{errors.primary_mobile.message}</small>}
                                 </div>
 
