@@ -100,7 +100,7 @@ const CustomerManagement = () => {
     useEffect(() => {
         setPage(1);
         fetchCustomers(1, false);
-    }, [filters.gender, filters.ageRange, filters.admin, searchTerm]);
+    }, [filters.gender, filters.ageRange, filters.admin]);
 
     useEffect(() => {
         fetchadmins();
