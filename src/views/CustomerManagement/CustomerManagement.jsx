@@ -124,9 +124,6 @@ const CustomerManagement = () => {
     const openUploadModal = (id) => {
         setUploadModal({ show: true, id });
     };
-    const closeUploadModal = () => {
-        setUploadModal({ show: false, id: null });
-    };
 
     // Download CSV
     const downloadCSV = async () => {

@@ -19,20 +19,51 @@ export default function InsuranceCommonDetails1() {
   const axios = useApi();
   const { id } = useParams();
   const [models, setmodels] = useState([]);
+  const [manufacturers, setManufacturers] = useState([]);
+  const [vehicle, setvehicle] = useState([]); // default to empty array
   const user_id = useSelector((state)=>state.id);
 
   const manufacturer = watch("manufacturer");
   const model = watch("model");
 
-  // Effect to handle model options when manufacturer changes
-  useEffect(() => {
-    if (manufacturer) {
-      const selectedmanufacturer = cars.manufacturers.find(
-        (item) => item.name == manufacturer
-      );
-      setmodels(selectedmanufacturer ? selectedmanufacturer.vehicles : []);
+  // Fetch vehicle details and set manufacturers
+  const fetchVehicleDetails = async () => {
+    try {
+      const response = await axios.get('/cars');
+
+      if (response.data.success) {
+        
+        setvehicle(response.data.data);
+        // Extract unique manufacturers
+        const uniqueManufacturers = [
+          ...new Set(response.data.data.map((item) => item.company_name))
+        ];
+        setManufacturers(uniqueManufacturers);
+        console.log(uniqueManufacturers);
+        
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error fetching vehicles");
     }
-  }, [manufacturer]);
+  };
+
+  useEffect(() => {
+    fetchVehicleDetails(); 
+  }, []);
+
+  // Update models when manufacturer changes
+  useEffect(() => {
+    if (manufacturer && vehicle.length > 0) {
+      const filteredModels = vehicle
+        .filter((item) => item.company_name === manufacturer)
+        .map((item) => item.model_name);
+      setmodels(filteredModels);
+    } else {
+      setmodels([]);
+    }
+  }, [manufacturer, vehicle]);
 
   // Effect to handle model value after models are set
   useEffect(() => {
@@ -53,22 +84,12 @@ export default function InsuranceCommonDetails1() {
         const response = await axios.get(`/get-common-insurance/${id}`);
         if (response.data.success) {
           const data = response.data.data;
-          // First set the manufacturer to trigger models update
+          // Set manufacturer and model from fetched data
           if (data.manufacturer) {
             setValue('manufacturer', data.manufacturer);
-            // Wait for models to be set
-            const selectedmanufacturer = cars.manufacturers.find(
-              (item) => item.name == data.manufacturer
-            );
-            if (selectedmanufacturer) {
-              setmodels(selectedmanufacturer.vehicles);
-              // Then set the model after a small delay to ensure models are set
-              setTimeout(() => {
-                if (data.model) {
-                  setValue('model', data.model);
-                }
-              }, 100);
-            }
+          }
+          if (data.model) {
+            setValue('model', data.model);
           }
           // Set other form values
           reset(data);
@@ -81,37 +102,7 @@ export default function InsuranceCommonDetails1() {
     if (id) {
       fetchCommonInsuranceDetail();
     }
-  }, [id]);
-
-  const cars = {
-    manufacturers: [
-      {
-        name: "Toyota",
-        vehicles: ["Corolla", "Camry", "RAV4", "Fortuner"],
-      },
-      {
-        name: "Honda",
-        vehicles: ["Civic", "Accord", "Activa", "CBR 650R"],
-      },
-      {
-        name: "Bajaj",
-        vehicles: ["Pulsar", "Avenger", "Dominar 400", "CT 100"],
-      },
-      {
-        name: "Tesla",
-        vehicles: ["model S", "model 3", "model X", "model Y"],
-      },
-    ],
-  };
-
-  const handlemanufacturerChange = (manufacturer, model) => {
-    const selectedmanufacturer = cars.manufacturers.find(
-      (item) => item.name == manufacturer
-    );
-    setmodels(selectedmanufacturer ? selectedmanufacturer.vehicles : []);
-    // Clear model when manufacturer changes
-    setValue('model', '');
-  };
+  }, [id, reset, setValue]);
 
   const onSubmit = async (data) => {
     data.id = id;
@@ -176,9 +167,9 @@ export default function InsuranceCommonDetails1() {
             })}
           >
             <option value="">Select manufacturer</option>
-            {cars.manufacturers.map((item) => (
-              <option key={item.name} value={item.name}>
-                {item.name}
+            {manufacturers.map((name) => (
+              <option key={name} value={name}>
+                {name}
               </option>
             ))}
           </select>
@@ -234,7 +225,7 @@ export default function InsuranceCommonDetails1() {
 
         <div className="col-md-6">
           <label htmlFor="yom" className="form-label">
-            Year of Manufacture
+            Purchase year
           </label>
           <input
             type="number"
@@ -242,7 +233,7 @@ export default function InsuranceCommonDetails1() {
             className={`form-control ${errors.yom ? "is-invalid" : ""}`}
             placeholder="YYYY"
             {...register("yom", { 
-              required: "Year of Manufacture is required",
+              required: "Purchase year is required",
               min: {
                 value: 1900,
                 message: "Year cannot be before 1900"

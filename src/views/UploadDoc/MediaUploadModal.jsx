@@ -62,10 +62,9 @@ const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key 
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(response);
       
       if(response.data.success){
-        handleClose();
+        handleClose(response.data);
         toast.success('Document uploaded successfully!');
       }else{
         toast.error(response.data.message);

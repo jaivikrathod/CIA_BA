@@ -17,7 +17,6 @@ const InsuranceDetailMain = () => {
   const axios = useApi();
   const api = useSelector((state) => state.apiUrl);
 
-  const [showModal, setShowModal] = useState(false);
   const [uploadModal, setUploadModal] = useState({ show: false, id: null });
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
@@ -79,6 +78,7 @@ const InsuranceDetailMain = () => {
 
   const closeUploadModal = () => {
     setUploadModal({ show: false, id: null });
+    fetchInsuranceDetails();
   };
 
   return (
@@ -99,7 +99,7 @@ const InsuranceDetailMain = () => {
                 </button>
                 <button
                   className="btn btn-common btn-danger"
-                  onClick={handleCancel}
+                  onClick={() => handleCancel()}
                 >
                   <FaTimes className="me-2" /> Cancel
                 </button>
@@ -389,21 +389,12 @@ const InsuranceDetailMain = () => {
                         />
                       </div>
                       <div className="col-md-3 mb-3">
-                        <label className="form-label">Executive Name</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          disabled={!isEditing}
-                          {...register('exe_name')}
-                        />
-                      </div>
-                      <div className="col-md-3 mb-3">
                         <label className="form-label">Agent Code</label>
                         <input
                           type="text"
                           className="form-control"
                           disabled={!isEditing}
-                          {...register('agent_code')}
+                          {...register('agent_id')}
                         />
                       </div>
                     </div>
@@ -467,15 +458,7 @@ const InsuranceDetailMain = () => {
                           {...register('difference')}
                         />
                       </div>
-                      <div className="col-md-3 mb-3">
-                        <label className="form-label">Final Agent</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          disabled={!isEditing}
-                          {...register('final_agent')}
-                        />
-                      </div>
+                     
                       <div className="col-md-3 mb-3">
                         <label className="form-label">Net Income</label>
                         <input
@@ -516,7 +499,7 @@ const InsuranceDetailMain = () => {
                     <div className="d-flex gap-5 flex-wrap">
                       {insuranceData[activeTab].documents && JSON.parse(insuranceData[activeTab].documents).map((doc, docIndex) => (
                         <>
-                          <div key={docIndex} className="col-md-4 mb-3">
+                          <div key={docIndex} className="col-md-3 mb-3">
                             <div className="card h-100">
                               <div className="card-body">
                                 <div className="d-flex align-items-center" >
@@ -550,6 +533,7 @@ const InsuranceDetailMain = () => {
                                   </div>
                                 </div>
                                 <button
+                                type='button'
                                   className="btn btn-sm btn-outline-primary mt-2"
                                   onClick={() => handleDocumentClick(doc)}
                                 >

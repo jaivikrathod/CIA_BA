@@ -50,6 +50,11 @@ const _nav = (admintype) => {
       name: 'vehicle',
       to: '/vehicle',
       icon: <CIcon icon={cilTruck} customClassName="nav-icon" style={{ height: '20px' }} />,
+    },{
+      component: CNavItem,
+      name: 'Insurance Company',
+      to: '/insurance-companies',
+      icon: <CIcon icon={cilTruck} customClassName="nav-icon" style={{ height: '20px' }} />,
     }
   ].filter(Boolean)
 }
