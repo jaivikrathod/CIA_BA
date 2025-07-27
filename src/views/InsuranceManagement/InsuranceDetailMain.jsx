@@ -16,6 +16,9 @@ const InsuranceDetailMain = () => {
   const [insuranceData, setInsuranceData] = useState([]);
   const axios = useApi();
   const api = useSelector((state) => state.apiUrl);
+  const [isMotor, setisMotor] = useState();
+  const user_id = useSelector((state) => state.id);
+
 
   const [uploadModal, setUploadModal] = useState({ show: false, id: null });
 
@@ -37,6 +40,11 @@ const InsuranceDetailMain = () => {
         params: { common_id: id }
       });
       setInsuranceData(response.data.data);
+      if(response.data?.data[0].insurance_type =='Motor'){
+        setisMotor(true);
+      }else{
+        setisMotor(false);
+      }
     } catch (error) {
       toast.error("Failed to fetch insurance details");
     }
@@ -168,6 +176,7 @@ const InsuranceDetailMain = () => {
                   </div>
 
                   {/* Vehicle Information Section */}
+                 {isMotor &&(
                   <div className="col-12 mb-4">
                     <h4 className="border-bottom pb-2">Vehicle Information</h4>
                     <div className="row">
@@ -180,7 +189,7 @@ const InsuranceDetailMain = () => {
                           {...register('vehicle_number')}
                         />
                       </div>
-                      <div className="col-md-3 mb-3">
+                      {/* <div className="col-md-3 mb-3">
                         <label className="form-label">Product Base</label>
                         <input
                           type="text"
@@ -188,7 +197,7 @@ const InsuranceDetailMain = () => {
                           disabled={!isEditing}
                           {...register('product_base')}
                         />
-                      </div>
+                      </div> */}
                       <div className="col-md-3 mb-3">
                         <label className="form-label">Manufacturer</label>
                         <input
@@ -222,12 +231,13 @@ const InsuranceDetailMain = () => {
                           type="number"
                           className="form-control"
                           disabled={!isEditing}
-                          {...register('year_of_manufacture')}
+                          {...register('yom')}
                         />
                       </div>
                     </div>
                   </div>
-
+                  )}
+                
                   {/* Policy Details Section */}
                   <div className="col-12 mb-4">
                     <h4 className="border-bottom pb-2">Policy Details</h4>
@@ -379,6 +389,7 @@ const InsuranceDetailMain = () => {
                           {...register('payment_mode')}
                         />
                       </div>
+
                       <div className="col-md-3 mb-3">
                         <label className="form-label">Case Type</label>
                         <input
@@ -388,6 +399,7 @@ const InsuranceDetailMain = () => {
                           {...register('case_type')}
                         />
                       </div>
+                    {insuranceData[activeTab].case_type =='agent' && (
                       <div className="col-md-3 mb-3">
                         <label className="form-label">Agent Code</label>
                         <input
@@ -397,6 +409,21 @@ const InsuranceDetailMain = () => {
                           {...register('agent_id')}
                         />
                       </div>
+                      )}
+
+                    {insuranceData[activeTab].case_type =='office' && (
+                      <div className="col-md-3 mb-3">
+                        <label className="form-label">Employee</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          disabled={true}
+                          value={insuranceData[activeTab].user_id ==user_id ? 'Self' : insuranceData[activeTab].full_name}
+                          
+                        />
+                      </div>
+                      )}
+
                     </div>
                   </div>
 
