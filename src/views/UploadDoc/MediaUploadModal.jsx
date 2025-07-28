@@ -1,6 +1,7 @@
-import React, { useState,useEffect } from "react";
-import axios from "axios";
+import React, { useState,useEffect, use } from "react";
+import api from "../../api/axios";
 import { toast } from "react-toastify";
+import useApi from "../../api/axios";
 
 const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key }) => {
   const [documentType, setDocumentType] = useState("");
@@ -8,20 +9,22 @@ const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key 
   const [file, setFile] = useState(null);
   const [selectedDocType, setselectedDocType] = useState([]);
   const [route, setroute] = useState("");
+  const axios = useApi();
+
   const customerDocumentTypes = [
-    { label: "Adhar Card", value: "adhar" },
-    { label: "Pan Card", value: "pan" },
-    { label: "Driving license", value: "license"},
+    { label: "Adhar Card", value: "AdharCard" },
+    { label: "Pan Card", value: "PanCard" },
+    { label: "Driving license", value: "License"},
     { label: "Other", value: "other" },
   ];
 
   const insuranceDocumentTypes =[
-    { label: "Policy", value: "policy"},
-    { label: "Forms", value: "form" },
-    { label: "Receipt", value: "receipt"},
+    { label: "Policy", value: "Policy"},
+    { label: "Forms", value: "Forms" },
+    { label: "Receipt", value: "Receipt"},
     { label: "Other", value: "other" },
   ];
-  const api = "http://localhost:3005";
+  
 
 
   useEffect(() => {
@@ -54,7 +57,7 @@ const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key 
     formData.append("document_type", documentType === "other" ? otherDocumentName : documentType);
     formData.append("document", file);
     try {
-      const response = await axios.post(`${api}/${route}`, formData, {
+      const response = await axios.post(`/${route}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

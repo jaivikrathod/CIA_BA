@@ -13,3 +13,41 @@
 
 // If you want to add custom CSS you can put it here
 @import "custom";
+
+/* Webkit-based browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* Hide scroll buttons (arrows) completely */
+::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* Remove scrollbar corner */
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Firefox scrollbar styles */
+* {
+    scrollbar-width: thin;              /* Makes it thinner */
+    scrollbar-color: #888 #f1f1f1;      /* thumb and track colors */
+}

@@ -1,106 +1,137 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useSelector, useDispatch } from "react-redux";
+import './Login.css';
+import companyLogo from '../../../assets/care_insurance_logo.svg';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
+import useApi from '../../../api/axios';
 
-export default function login() {
-  const navigate = useNavigate();   
-  const apiUrl = "http://localhost:3005";
+export default function Login() {
+  const isAuthenticated = useSelector((state) => state.isAuthenticated);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
-    const checkAuth = async () => {
-      const id = window.localStorage.getItem("id");
-      const token = window.localStorage.getItem("token");
-
-      if (token) {
-        try {
-          const response = await axios.post(`${apiUrl}/verify-token`, { id, token });
-          if (response.data.success) {
-            navigate('/dashboard');
-          }
-        } catch (error) {
-          console.error("Error during token verification:", error);
-        }
-      }
-    };
-
-    checkAuth();
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
   }, []);
 
-  const { register, handleSubmit, formState: { errors } } = useForm();
-  const onLogin = async (data) => {
-    const api = "http://localhost:3005";
+  const api = useApi();
 
+  const { register, handleSubmit, formState: { errors } } = useForm();
+
+  const onLogin = async (data) => {
     try {
-      const response = await axios.post(api + "/login", data);
+      const response = await api.post("/login", data);
       if (response.data.success) {
-        console.log(response.data);
-        if(data.password == "Password@123"){
+        if (data.changePassword) {
           navigate(`/change-password/${response.data.id}`);
-        }else{
+        } else {
           window.localStorage.setItem('id', response.data.id);
           window.localStorage.setItem('token', response.data.token);
-          location.reload();
+          dispatch({ type: 'set', id: response.data.id, token: response.data.token, isAuthenticated: true, username: response.data.full_name, adminType: response.data.type });
+          navigate('/dashboard');
         }
       } else {
         toast.error('Login failed. Please check your credentials.');
       }
     } catch (error) {
+      console.log(error);
       toast.error('An error occurred. Please try again.');
     }
   }
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
-    <>
-      <div className="d-flex vh-100 align-items-center justify-content-center bg-light">
-        <Toaster position="top-right" reverseOrder={false} />
-        <div className="w-100" style={{ maxWidth: '400px' }}>
-          <div className="card shadow-sm p-4">
-            <h2 className="text-center mb-4">Welcome Back</h2>
-            <form onSubmit={handleSubmit(onLogin)}>
-              <div className="mb-3">
-                <label className="form-label">Email</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-primary text-white">
-                    <i className="bi bi-person"></i>
-                  </span>
-                  <input
-                    type="text"
-                    className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                    placeholder="Enter email"
-                    {...register('email', { required: 'Username/Email is required' })}
-                  />
-                  {errors.email && (
-                    <div className="invalid-feedback">{errors.email.message}</div>
-                  )}
-                </div>
-              </div>
-              <div className="mb-4">
-                <label className="form-label">Password</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-primary text-white">
-                    <i className="bi bi-lock"></i>
-                  </span>
-                  <input
-                    type="password"
-                    className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                    placeholder="Enter your password"
-                    {...register('password', { required: 'Password is required' })}
-                  />
-                  {errors.password && (
-                    <div className="invalid-feedback">{errors.password.message}</div>
-                  )}
-                </div>
-              </div>
-              <div>
-                <button type="submit" className="btn btn-primary w-100">
-                  Login
-                </button>
-              </div>
-            </form>
-          </div>
+    <div className="login-container">
+      <Toaster position="top-right" reverseOrder={false} />
+      <div className="login-card">
+        <div className="login-header">
+          <img
+            src={companyLogo}
+            alt="Care Insurance Logo"
+            className="company-logo"
+          />
+          <h2>Welcome Back</h2>
+          <p>Sign in to your account to continue</p>
         </div>
+
+        <form onSubmit={handleSubmit(onLogin)}>
+          {/* --- EMAIL ------------------------------------------------------ */}
+          <div className="form-group">
+            <label className="form-label">Email Address</label>
+
+            <div className="relative">      {/* relative wrapper for absolute icon */}
+              <i className="bi bi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+
+              <input
+                type="email"
+                className={`form-control pl-10 ${errors.email ? 'is-invalid' : ''}`}
+                placeholder="Enter your email"
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address'
+                  }
+                })}
+              />
+            </div>
+
+            {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
+          </div>
+
+          {/* PASSWORD FIELD WITH ICON NEXT TO LABEL */}
+          <div className="form-group">
+            <div className="flex items-center gap-2 mb-2" style={{display: 'flex', justifyContent: 'space-between'}}>
+              <label className="form-label m-0">Password</label>
+              <button
+                type="button"
+                 onClick={togglePasswordVisibility} 
+                className=""
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                tabIndex={-1}
+                style={{background: "white", color: 'black', border: 'none'}}
+              >
+                {showPassword ? <FiEyeOff size={18} className="mb-2" /> : <FiEye size={18} />}
+              </button>
+            </div>
+
+            <input
+              type={showPassword ? 'text' : 'password'}
+              className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+              placeholder="Enter your password"
+              {...register('password', {
+                required: 'Password is required',
+                minLength: { value: 6, message: 'Password must be at least 6 characters' }
+              })}
+            />
+
+            {errors.password && (
+              <div className="invalid-feedback">{errors.password.message}</div>
+            )}
+          </div>
+
+
+
+
+          <button type="submit" className="login-btn">
+            Sign In
+          </button>
+
+          <div className="forgot-password">
+            <Link to="/forgot-password">Forgot your password?</Link>
+          </div>
+        </form>
       </div>
-    </>
+    </div>
   )
 }

@@ -52,31 +52,17 @@ const AppHeader = () => {
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
         <CHeaderNav className="d-none d-md-flex">
-          <CNavItem>
-            <CNavLink to="/dashboard" as={NavLink}>
-              Dashboard
-            </CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink to="/users" as={NavLink}>
-              Users
-            </CNavLink>
-          </CNavItem>
-          {/* <CNavItem>
-            <CNavLink href="#">Settings</CNavLink>
-          </CNavItem> */}
+          <div>Care Insurance Agency</div>
         </CHeaderNav>
         <CHeaderNav className="ms-auto">
           <CNavItem>
             <CNavLink href="#">
-              <CIcon icon={cilBell} size="lg" />
+              <CIcon icon={cilBell} size="lg"  style={{marginTop:'2px'}}/>
             </CNavLink>
           </CNavItem>
-          <CNavItem>
-            <CNavLink href="#">
-              <CIcon icon={cilList} size="lg" />
-            </CNavLink>
-          </CNavItem>
+            <li className="nav-item py-1">
+            <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
+          </li>
           <CNavItem>
             <CNavLink href="#">
               <CIcon icon={cilEnvelopeOpen} size="lg" />
