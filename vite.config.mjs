@@ -5,7 +5,7 @@ import autoprefixer from 'autoprefixer'
 
 export default defineConfig(() => {
   return {
-    base: '/CIA_BA/',
+    base: '/',
     build: {
       outDir: 'build',
     },
