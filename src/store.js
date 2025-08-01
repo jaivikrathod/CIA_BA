@@ -7,7 +7,8 @@ const initialState = {
   token: null,
   isAuthenticated: false,
   // apiUrl:'http://localhost:3005',
-  apiUrl:'https://cia-bl.onrender.com',
+  apiUrl:'/api',
+  // apiUrl:'https://cia-bl.onrender.com',
   
   username:'',
   adminType:'',
