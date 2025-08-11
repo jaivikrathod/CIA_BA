@@ -18,13 +18,31 @@ const InsuranceDetailMain = () => {
   const api = useSelector((state) => state.apiUrl);
   const [isMotor, setisMotor] = useState();
   const user_id = useSelector((state) => state.id);
-
-
+  const [activeInsuranceId, setActiveInsuranceId] = useState(null);
+  const [InsuranceCommonId, setInsuranceCommonId] = useState();
+  const [vehicle, setvehicle] = useState([]); 
   const [uploadModal, setUploadModal] = useState({ show: false, id: null });
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue,     formState: { errors, isDirty, touchedFields },
+} = useForm();
+
+
+  const fetchVehicleDetails = async () => {
+    try {
+      const response = await axios.get('/cars');
+
+      if (response.data.success) {
+        setvehicle(response.data.data);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error fetching vehicles");
+    }
+  };
 
   useEffect(() => {
+    fetchVehicleDetails();
     fetchInsuranceDetails();
   }, []);
 
@@ -40,9 +58,11 @@ const InsuranceDetailMain = () => {
         params: { common_id: id }
       });
       setInsuranceData(response.data.data);
-      if(response.data?.data[0].insurance_type =='Motor'){
+      setActiveInsuranceId(response.data.data[0].id);
+      setInsuranceCommonId(response.data.data[0].insurance_id);
+      if (response.data?.data[0].insurance_type == 'Motor') {
         setisMotor(true);
-      }else{
+      } else {
         setisMotor(false);
       }
     } catch (error) {
@@ -52,14 +72,51 @@ const InsuranceDetailMain = () => {
 
   const handleSave = async (data) => {
     try {
-      // Assuming you have an endpoint to update insurance details
-      // await axios.put(`/update-insurance/${insuranceData[activeTab].id}`, data);
-      console.log(data);
-      
+
+      let payload = {};
+      payload.isMotor = isMotor;
+      payload.insurance_detail_id = activeInsuranceId;
+      payload.insurance_common_detail_id = InsuranceCommonId;
+      payload.segment = data.segment;
+      if (isMotor) {
+        payload.motor_details = {
+          "vehicle_number": data.vehicle_number,
+          "segment_vehicle_type": data.segment_vehicle_type,
+          "segment_vehicle_detail_type": data.segment_vehicle_detail_type,
+          "model": data.model,
+          "manufacturer": data.manufacturer,
+          "fuel_type": data.fuel_type,
+          "yom": data.yom,
+        }
+      }
+      payload.other_details = {
+        "insurance_date": data.insurance_date,
+        "idv": data.idv,
+        "currentncb": data.currentncb,
+        "insurance_company": data.insurance_company,
+        "policy_no": data.policy_no,
+        "od_premium": data.od_premium,
+        "tp_premium": data.tp_premium,
+        "package_premium": data.package_premium,
+        "gst": data.gst,
+        "premium": data.premium,
+        "collection_date": data.collection_date,
+        "case_type": data.case_type,
+        "payment_mode": data.payment_mode,
+        "policy_start_date": data.policy_start_date,
+        "policy_expiry_date": data.policy_expiry_date,
+        "agent_id": data.agent_id,
+        "payout_percent": data.payout_percent,
+        "amount": data.amount,
+      }
+
+      await axios.post(`/update-insurance`, { payload });
+
       toast.success('Insurance details updated successfully');
       setIsEditing(false);
       fetchInsuranceDetails();
     } catch (error) {
+      console.log(error);
       toast.error('Failed to update insurance details');
     }
   };
@@ -88,6 +145,24 @@ const InsuranceDetailMain = () => {
     setUploadModal({ show: false, id: null });
     fetchInsuranceDetails();
   };
+
+  const handleDelete = async (doc) => {
+    try {
+      const response = await axios.post('/delete-insurance-document', {
+        selectedID: activeInsuranceId,
+        document: doc.name,
+      });
+      if (response.data.success) {
+        toast.success('Document deleted successfully');
+        fetchInsuranceDetails();
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error('Failed to delete document');
+    }
+  }
 
   return (
     <>
@@ -128,9 +203,9 @@ const InsuranceDetailMain = () => {
             <li className="nav-item" key={insurance.id}>
               <button
                 className={`nav-link ${activeTab === index ? 'active' : ''}`}
-                onClick={() => setActiveTab(index)}
+                onClick={() => { setActiveTab(index); setActiveInsuranceId(insurance.id); }}
               >
-                Insurance {index + 1}
+                {insuranceData.length - 1 == index ? 'Initial' : 'Renewal ' + (index + 1)}
               </button>
             </li>
           ))}
@@ -150,7 +225,7 @@ const InsuranceDetailMain = () => {
                         <input
                           type="text"
                           className="form-control"
-                          disabled={!isEditing}
+                          disabled={true}
                           {...register('insurance_type')}
                         />
                       </div>
@@ -159,7 +234,7 @@ const InsuranceDetailMain = () => {
                         <input
                           type="text"
                           className="form-control"
-                          disabled={!isEditing}
+                          disabled={true}
                           {...register('business_type')}
                         />
                       </div>
@@ -176,20 +251,20 @@ const InsuranceDetailMain = () => {
                   </div>
 
                   {/* Vehicle Information Section */}
-                 {isMotor &&(
-                  <div className="col-12 mb-4">
-                    <h4 className="border-bottom pb-2">Vehicle Information</h4>
-                    <div className="row">
-                      <div className="col-md-3 mb-3">
-                        <label className="form-label">Vehicle Number</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          disabled={!isEditing}
-                          {...register('vehicle_number')}
-                        />
-                      </div>
-                      {/* <div className="col-md-3 mb-3">
+                  {isMotor && (
+                    <div className="col-12 mb-4">
+                      <h4 className="border-bottom pb-2">Vehicle Information</h4>
+                      <div className="row">
+                        <div className="col-md-3 mb-3">
+                          <label className="form-label">Vehicle Number</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            disabled={!isEditing}
+                            {...register('vehicle_number')}
+                          />
+                        </div>
+                        {/* <div className="col-md-3 mb-3">
                         <label className="form-label">Product Base</label>
                         <input
                           type="text"
@@ -198,46 +273,100 @@ const InsuranceDetailMain = () => {
                           {...register('product_base')}
                         />
                       </div> */}
-                      <div className="col-md-3 mb-3">
-                        <label className="form-label">Manufacturer</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          disabled={!isEditing}
-                          {...register('manufacturer')}
-                        />
-                      </div>
-                      <div className="col-md-3 mb-3">
-                        <label className="form-label">Model</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          disabled={!isEditing}
-                          {...register('model')}
-                        />
-                      </div>
-                      <div className="col-md-3 mb-3">
-                        <label className="form-label">Fuel Type</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          disabled={!isEditing}
-                          {...register('fuel_type')}
-                        />
-                      </div>
-                      <div className="col-md-3 mb-3">
-                        <label className="form-label">Year of Manufacture</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          disabled={!isEditing}
-                          {...register('yom')}
-                        />
+                        <div className="col-md-6">
+                          <label htmlFor="manufacturer" className="form-label">
+                            manufacturer
+                          </label>
+                          <select
+                            id="manufacturer"
+                            className={`form-select ${touchedFields.manufacturer && errors.manufacturer ? "is-invalid" : ""}`}
+                            {...register("manufacturer", {
+                              required: "manufacturer is required",
+                              onChange: (e) => {
+                                setValue("model", "");
+                              }
+                            })}
+                            disabled ={!isEditing}
+                          >
+                            <option value="">Select manufacturer</option>
+                            {manufacturers.map((name) => (
+                              <option key={name} value={name}>
+                                {name}
+                              </option>
+                            ))}
+                          </select>
+                          {touchedFields.manufacturer && errors.manufacturer && (
+                            <div className="invalid-feedback">{errors.manufacturer.message}</div>
+                          )}
+                        </div>
+
+                        <div className="col-md-6">
+                          <label htmlFor="model" className="form-label">
+                            Model
+                          </label>
+                          <select
+                            id="model"
+                            className={`form-select ${touchedFields.model && errors.model ? "is-invalid" : ""}`}
+                            {...register("model", {
+                              required: "model is required",
+                              validate: value => {
+                                if (!manufacturers) return "Please select a manufacturer first";
+                                return true;
+                              }
+                            })}
+                            disabled ={!isEditing}
+                          >
+                            <option value="">Select model</option>
+                            {models.map((model, index) => (
+                              <option key={index} value={model}>
+                                {model}
+                              </option>
+                            ))}
+                          </select>
+                          {touchedFields.model && errors.model && (
+                            <div className="invalid-feedback">{errors.model.message}</div>
+                          )}
+                        </div>
+                        <div className="col-md-3 mb-3">
+                          <label className="form-label">Fuel Type</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            disabled={!isEditing}
+                            {...register('fuel_type')}
+                          />
+                        </div>
+                        <div className="col-md-3 mb-3">
+                          <label className="form-label">Segment Vehicle Type</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            disabled={!isEditing}
+                            {...register('segment_vehicle_type')}
+                          />
+                        </div>
+                        <div className="col-md-3 mb-3">
+                          <label className="form-label">Segment Vehicle Detail Type</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            disabled={!isEditing}
+                            {...register('segment_vehicle_detail_type')}
+                          />
+                        </div>
+                        <div className="col-md-3 mb-3">
+                          <label className="form-label">Year of Manufacture</label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            disabled={!isEditing}
+                            {...register('yom')}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
                   )}
-                
+
                   {/* Policy Details Section */}
                   <div className="col-12 mb-4">
                     <h4 className="border-bottom pb-2">Policy Details</h4>
@@ -399,29 +528,29 @@ const InsuranceDetailMain = () => {
                           {...register('case_type')}
                         />
                       </div>
-                    {insuranceData[activeTab].case_type =='agent' && (
-                      <div className="col-md-3 mb-3">
-                        <label className="form-label">Agent Code</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          disabled={!isEditing}
-                          {...register('agent_id')}
-                        />
-                      </div>
+                      {insuranceData[activeTab].case_type == 'agent' && (
+                        <div className="col-md-3 mb-3">
+                          <label className="form-label">Agent Code</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            disabled={!isEditing}
+                            {...register('agent_id')}
+                          />
+                        </div>
                       )}
 
-                    {insuranceData[activeTab].case_type =='office' && (
-                      <div className="col-md-3 mb-3">
-                        <label className="form-label">Employee</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          disabled={true}
-                          value={insuranceData[activeTab].user_id ==user_id ? 'Self' : insuranceData[activeTab].full_name}
-                          
-                        />
-                      </div>
+                      {insuranceData[activeTab].case_type == 'office' && (
+                        <div className="col-md-3 mb-3">
+                          <label className="form-label">Employee</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            disabled={true}
+                            value={insuranceData[activeTab].user_id == user_id ? 'Self' : insuranceData[activeTab].full_name}
+
+                          />
+                        </div>
                       )}
 
                     </div>
@@ -458,7 +587,7 @@ const InsuranceDetailMain = () => {
                           {...register('tds')}
                         />
                       </div>
-                      <div className="col-md-3 mb-3">
+                      {/* <div className="col-md-3 mb-3">
                         <label className="form-label">TDS Amount</label>
                         <input
                           type="number"
@@ -494,8 +623,8 @@ const InsuranceDetailMain = () => {
                           disabled={!isEditing}
                           {...register('net_income')}
                         />
-                      </div>
-                      <div className="col-md-3 mb-3">
+                      </div> */}
+                      {/* <div className="col-md-3 mb-3">
                         <label className="form-label">Payment Received</label>
                         <input
                           type="number"
@@ -503,7 +632,7 @@ const InsuranceDetailMain = () => {
                           disabled={!isEditing}
                           {...register('payment_received')}
                         />
-                      </div>
+                      </div> */}
                     </div>
                   </div>
 
@@ -560,7 +689,7 @@ const InsuranceDetailMain = () => {
                                   </div>
                                 </div>
                                 <button
-                                type='button'
+                                  type='button'
                                   className="btn btn-sm btn-outline-primary mt-2"
                                   onClick={() => handleDocumentClick(doc)}
                                 >
@@ -570,6 +699,7 @@ const InsuranceDetailMain = () => {
                                   <div
                                     className="d-flex justify-content-center align-items-center rounded-circle bg-danger position-absolute"
                                     style={{ width: '20px', height: '20px', cursor: 'pointer', top: '-8px', right: '-10px' }}
+                                    onClick={() => handleDelete(doc)}
                                   >
                                     <FaTimes color="white" size={10} />
                                   </div>

@@ -48,10 +48,17 @@ const _nav = (admintype) => {
       icon: <CIcon icon={cilContact} customClassName="nav-icon" style={{ height: '20px' }} />,
     },{
       component: CNavItem,
-      name: 'vehicle',
-      to: '/vehicle',
+      name: 'Vehicle Company',
+      to: '/vehicle-company',
       icon: <CIcon icon={cilTruck} customClassName="nav-icon" style={{ height: '20px' }} />,
-    },{
+    },
+    {
+      component: CNavItem,
+      name: 'Vehicle Models',
+      to: '/vehicle-models',
+      icon: <CIcon icon={cilTruck} customClassName="nav-icon" style={{ height: '20px' }} />,
+    },
+    {
       component: CNavItem,
       name: 'Insurance Company',
       to: '/insurance-companies',

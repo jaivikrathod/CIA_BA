@@ -65,6 +65,9 @@ const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key 
       
       if(response.data.success){
         handleClose(response.data);
+        setFile(null);
+        setOtherDocumentName("");
+        setDocumentType("");
         toast.success('Document uploaded successfully!');
       }else{
         toast.error(response.data.message);

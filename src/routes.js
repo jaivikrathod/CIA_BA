@@ -12,7 +12,8 @@ const InsuranceDetailMain = React.lazy(() => import('./views/InsuranceManagement
 const uploadInsuranceDocument = React.lazy(()=>import('./views/InsuranceManagement/uploadInsuranceDoc'));
 const AgentManagement = React.lazy(() => import('./views/Agent/AgentManagement'))
 const EditProfile = React.lazy(()=>import('./views/UserManagement/EditProfile'))
-const Cars = React.lazy(()=>import('./views/Cars/CarsManagement'))
+const vehicleCompany = React.lazy(()=> import('./views/Vehicle/VehicleCompanyManagement'))
+const vehicleModel = React.lazy(()=> import('./views/Vehicle/VehicleModelManagement'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -28,7 +29,8 @@ const routes = [
   { path: '/upload-insurance-document/:id', element: uploadInsuranceDocument },
   
   { path: '/agent', name: 'agent', element: AgentManagement },
-  { path: '/vehicle', name: 'vehicle', element: Cars },
+  { path: '/vehicle-company', name: 'vehicle', element: vehicleCompany },
+  { path: '/vehicle-models', name: 'vehicle', element: vehicleModel },
   { path: '/insurance-companies', name: 'insuranceCompanies', element:InsuranceCompanyManagement },
 ]
 
