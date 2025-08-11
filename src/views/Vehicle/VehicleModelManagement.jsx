@@ -14,7 +14,7 @@ const VehicleModelManagement = () => {
 
     const fetchvehicle_model = async () => {
         try {
-            const response = await api.get('/vehicle_model');
+            const response = await api.get('/get-vehicle-models');
             setvehicle_model(response.data.data);
         } catch (error) {
             toast.error('Failed to fetch vehicle_model');
@@ -24,7 +24,7 @@ const VehicleModelManagement = () => {
      
     const fetcVehicleComapies = async ()=>{
         try {
-            const response = await api.get('/vehicle_model');
+            const response = await api.get('/get-vehicle-companies');
             setvehicleCompanies(response.data.data);
         } catch (error) {
             toast.error('Failed to fetch vehicle_comapanies');
@@ -34,10 +34,11 @@ const VehicleModelManagement = () => {
 
     const handleDeletevehicle = async (id) => {
         try {
-            const response = await api.delete(`/vehicle`, { data: { id } });
+            const response = await api.post(`/delete-vehicle-model`, { id });
             toast.success(response.data.message);
             setConfirmDelete({ show: false, id: null });
-            fetchvehicle_model();
+            setvehicle_model((prev)=>
+            prev.filter((item)=>item.id!=id));
         } catch (error) {
             toast.error('Error deleting vehicle');
             console.error('Error deleting vehicle:', error);
@@ -59,6 +60,7 @@ const VehicleModelManagement = () => {
     };
 
     useEffect(() => {
+        fetcVehicleComapies();
         fetchvehicle_model();  
     }, []);
 
@@ -66,15 +68,15 @@ const VehicleModelManagement = () => {
         <div className="container mt-4">
             <ToastContainer position="top-right" a  utoClose={3000} hideProgressBar />
             <div className="d-flex justify-content-between align-items-center mb-3">
-                <h2>Vehicle Management</h2>
+                <h2>Vehicle Model Management</h2>
                 <button className="btn btn-primary" onClick={handleNewvehicleClick}>
-                    <i className="fas fa-plus me-2"></i>New Vehicle
+                    <i className="fas fa-plus me-2"></i>New Vehicle Model
                 </button>
             </div>
 
             {vehicle_model.length === 0 ? (
                 <div className="alert alert-info text-center" role="alert">
-                    No vehicle_model found. Please add a new vehicle.</div>
+                    No Vehicle Model found. Please add a new vehicle.</div>
             ) : (<>
                 <div style={{ maxHeight: '350px', overflowY: 'auto', width: '100%' }}>
                     <table className="table table-striped table-hover" style={{ marginBottom: 0 }}>
@@ -93,7 +95,7 @@ const VehicleModelManagement = () => {
                             {vehicle_model.map((vehicle, index) => (
                                 <tr key={vehicle.id} style={{ verticalAlign: "middle" }}>
                                     <td>{index + 1}</td>
-                                    <td>{vehicle.company_name}</td>
+                                    <td>{vehicle.company.company_name}</td>
                                     <td>{vehicle.type}</td>
                                     <td>{vehicle.model_name}</td>
                                     <td>{vehicle.model_launch_year}</td>
@@ -122,7 +124,7 @@ const VehicleModelManagement = () => {
             </>)}
 
             {showvehicleModal && (
-                <vehicleFormModal
+                <VehicleFormModal
                     show={showvehicleModal}
                     vehicle={selectedvehicle}
                     onClose={() => {
@@ -130,6 +132,7 @@ const VehicleModelManagement = () => {
                         setSelectedvehicle(null);
                     }}
                     fetchvehicle_model={fetchvehicle_model}
+                    vehicleCompanies= {vehicleCompanies}
                 />
             )}
 
@@ -144,9 +147,9 @@ const VehicleModelManagement = () => {
     );
 };
 
-const vehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model }) => {
+const VehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model,vehicleCompanies }) => {
     const api = useApi();
-    const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue,watch, reset, formState: { errors } } = useForm({
         defaultValues: vehicle || {}
     });
 
@@ -160,11 +163,25 @@ const vehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model }) => {
         if (!show) reset();
     }, [show, reset]);
 
+    const Type = watch('type');
+
+    useEffect(() => {
+        console.log(Type);
+        
+        if(Type == 'Two Wheeler' || Type == 'Four Wheeler' || Type == 'Three Wheeler'){}else{
+            setValue('other_type',vehicle.type)
+            setValue('type','Other')
+        }
+    }, []);
+
     const onSubmit = async (data) => {
+        if(Type =='Other'){
+            data.type = data.other_type
+        }
         try {
             if (vehicle && vehicle.id) {
                 // Update
-                const response = await api.put(`/vehicle`, { ...data, id: vehicle.id });
+                const response = await api.post(`/update-vehicle-model`, { ...data, id: vehicle.id });
                 if (response.data.success) {
                     toast.success(response.data.message);
                     reset();
@@ -175,7 +192,7 @@ const vehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model }) => {
                 }
             } else {
                 // Create
-                const response = await api.post(`/vehicle`, data);
+                const response = await api.post(`/create-vehicle-model`, data);
                 if (response.data.success) {
                     toast.success(response.data.message);
                     reset();
@@ -204,7 +221,7 @@ const vehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model }) => {
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <div className="mb-4">
                                 <label className="form-label fw-bold">Company Name</label>
-                                <select name="" id="" {...register("company_name", { required: "Company Name is required" })}>
+                                <select className='form-control' name="" id="" {...register("company_id", { required: "Company Name is required" })}>
                                     <option value="">select company</option>
                                     {vehicleCompanies.map((item)=>(
                                         <>
@@ -216,11 +233,17 @@ const vehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model }) => {
                             </div>
                             <div className="mb-4">
                                 <label className="form-label fw-bold">Type</label>
-                                <input
+                                <select className='form-control mb-2'  name="" id="" {...register('type')}>
+                                    <option value="Two Wheeler">Two Wheeler</option>
+                                    <option value="Four Wheeler">Four Wheeler</option>
+                                    <option value="Three Wheeler">Three Wheeler</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                               {Type=='Other' && <input
                                     type="text"
-                                    {...register("type", { required: "Type is required" })}
+                                    {...register("other_type", { required: "Type is required" })}
                                     className="form-control"
-                                />
+                                />}
                                 {errors.type && <small className="text-danger">{errors.type.message}</small>}
                             </div>
                             <div className="mb-4">
