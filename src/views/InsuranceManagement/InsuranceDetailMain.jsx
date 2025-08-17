@@ -20,37 +20,200 @@ const InsuranceDetailMain = () => {
   const user_id = useSelector((state) => state.id);
   const [activeInsuranceId, setActiveInsuranceId] = useState(null);
   const [InsuranceCommonId, setInsuranceCommonId] = useState();
-  const [vehicle, setvehicle] = useState([]); 
+  const [vehicle, setvehicleCompany] = useState([]);
+  const [vehicleModel, setvehicleModel] = useState([]);
   const [uploadModal, setUploadModal] = useState({ show: false, id: null });
+  const [fetchedData, setFetchedData] = useState(null);
+  const [pendingModelValue, setPendingModelValue] = useState(null);
 
-  const { register, handleSubmit, reset, setValue,     formState: { errors, isDirty, touchedFields },
-} = useForm();
+  const adminType = useSelector((state) => state.adminType);
+
+  const [selectedOption2, setSelectedOption2] = useState([]);
+  const [selectedOption, setSelectedOption] = useState([]);
+
+  const [insuranceCompanies, setInsuranceCompanies] = useState([]);
+
+  const [User, setUser] = useState([]);
+  const [agents, setAgents] = useState([]);
+
+
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors, isDirty, touchedFields },
+  } = useForm();
+
+  const manufacturer = watch("manufacturer");
+  const model = watch("model");
+
+  const option1 = [
+    { Heading: "SA OD", value: "SAOD" },
+    { Heading: "Third Party", value: "ThirdParty" },
+    { Heading: "Comprehensive", value: "COMPREHENSIVE" },
+    { Heading: "New Vehicle", value: "NewVehicle" },
+  ];
+
+  const option2 = [
+    { Heading: "PCV[Taxi, Rikshaw]", value: "PCV" },
+    { Heading: "GCV [Truck,mini truck]", value: "GCV" },
+    { Heading: "MISD [Ambulance, Elavator]", value: "MISD" },
+  ];
+
+  const optionNonMotor = [
+    { Heading: "Health Insurance", value: "Health Insurance" },
+    { Heading: "Life Insurance", value: "Life Insurance" },
+    { Heading: "WC Insurance", value: "WC Insurance" },
+    { Heading: "PA cover", value: "PA cover" },
+    { Heading: "Travel Insurance", value: "Travel Insurance" },
+    { Heading: "Fire Insurance", value: "Fire Insurance" },
+    { Heading: "Marine Insurance", value: "Marine Insurance" },
+  ];
+
+  const optionMotor = [
+    { Heading: "Private Car", value: "Private Car" },
+    { Heading: "Two Wheeler", value: "Two Wheeler" },
+    { Heading: "Commercial", value: "Commercial" },
+  ];
+
+  const case_type = watch('case_type')
 
 
   const fetchVehicleDetails = async () => {
     try {
-      const response = await axios.get('/cars');
+      const response = await axios.get('/get-vehicle-companies');
 
       if (response.data.success) {
-        setvehicle(response.data.data);
+        setvehicleCompany(response.data.data);
       } else {
         toast.error(response.message);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error fetching vehicles");
+      toast.error(error.response?.data?.message || "Error fetching vehicle Company");
+    }
+  };
+
+  const fetchModelsAccordingToCompany = async () => {
+
+    try {
+      const manufacturerObj = JSON.parse(manufacturer);
+      const response = await axios.get('/get-vehicle-modelBycompany', { params: { id: manufacturerObj.id } });
+
+      if (response.data.success) {
+        console.log(response.data.data);
+
+        setvehicleModel(response.data.data);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error fetching vehicle Model");
+    }
+  }
+
+  const setFormValues = (data) => {
+
+    if (data.segment === "Commercial") {
+      setSelectedOption2(option2);
+    } else {
+      setSelectedOption2(option1);
+    }
+
+    if (data.manufacturer && vehicle.length > 0) {
+      const manufacturerValue = vehicle.find((item) => item.company_name == data.manufacturer);
+      if (manufacturerValue) {
+        setValue('manufacturer', JSON.stringify(manufacturerValue));
+        if (data.model) {
+          setPendingModelValue(data.model);
+        }
+      }
     }
   };
 
   useEffect(() => {
+    if (fetchedData && selectedOption2.length > 0) {
+      setValue('segment_vehicle_type', fetchedData.segment_vehicle_type)
+    }
+  }, [selectedOption2, fetchedData]);
+
+
+  useEffect(() => {
+    if (manufacturer && manufacturer !== "") {
+      try {
+        const manufacturerObj = JSON.parse(manufacturer);
+        if (manufacturerObj && manufacturerObj.id) {
+          fetchModelsAccordingToCompany();
+        }
+      } catch (error) {
+        console.error("Error parsing manufacturer:", error);
+      }
+    }
+
+  }, [manufacturer]);
+
+  useEffect(() => {
+    fetchInsuranceCompanies();
     fetchVehicleDetails();
     fetchInsuranceDetails();
+    getAgents();
+    fetchUser();
   }, []);
 
   useEffect(() => {
+    setValue('agent_id', null)
+  }, [case_type]);
+
+  useEffect(() => {
+    if (fetchedData) {
+      if (fetchedData.case_type == 'office') {
+        setValue('user_id', fetchedData.user_id);
+      } else {
+        setValue('agent_id', fetchedData.agent_id);
+      }
+    }
+  }, [fetchedData]);
+
+
+  const fetchUser = async () => {
+    try {
+      const response = await axios.post('/user-list');
+      setUser(response.data.data);
+    } catch (error) {
+      toast.error('Failed to fetch User');
+      console.error('Failed to fetch User:', error);
+    }
+  };
+
+  const getAgents = async () => {
+    try {
+      const response = await axios.get(`/agent-list`);
+      if (response.data.success) {
+        setAgents(response.data.data);
+      } else {
+        console.log("Error while fetching agents");
+      }
+    } catch (error) {
+      console.log(error.response.data.message);
+    }
+  }
+
+
+  useEffect(() => {
     if (insuranceData.length > 0) {
-      reset(insuranceData[activeTab]);
+      const data = insuranceData[activeTab];
+      reset(data);
+      setFetchedData(data);
     }
   }, [insuranceData, activeTab, reset]);
+
+  useEffect(() => {
+    if (vehicle.length > 0 && fetchedData) {
+      setFormValues(fetchedData);
+    }
+  }, [vehicle, fetchedData]);
+
+  useEffect(() => {
+    if (vehicleModel.length > 0 && pendingModelValue) {
+      setValue('model', pendingModelValue);
+      setPendingModelValue(null);
+    }
+  }, [vehicleModel, pendingModelValue]);
 
   const fetchInsuranceDetails = async () => {
     try {
@@ -62,13 +225,28 @@ const InsuranceDetailMain = () => {
       setInsuranceCommonId(response.data.data[0].insurance_id);
       if (response.data?.data[0].insurance_type == 'Motor') {
         setisMotor(true);
+        setSelectedOption(optionMotor);
       } else {
         setisMotor(false);
+        setSelectedOption(optionNonMotor);
       }
     } catch (error) {
       toast.error("Failed to fetch insurance details");
     }
   };
+
+  const fetchInsuranceCompanies = async () => {
+    try {
+      const response = await axios.get('/insurance-companies');
+      if (response.data.success) {
+        setInsuranceCompanies(response.data.data);
+      } else {
+        toast.error('Error while fetching Insurance Company');
+      }
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  }
 
   const handleSave = async (data) => {
     try {
@@ -79,12 +257,22 @@ const InsuranceDetailMain = () => {
       payload.insurance_common_detail_id = InsuranceCommonId;
       payload.segment = data.segment;
       if (isMotor) {
+        let manufacturer = data.manufacturer;
+        if (typeof data.manufacturer === 'string' && data.manufacturer.startsWith('{')) {
+          try {
+            manufacturer = JSON.parse(data.manufacturer);
+            manufacturer = manufacturer.company_name;
+          } catch (error) {
+            console.error("Error parsing manufacturer:", error);
+          }
+        }
+
         payload.motor_details = {
           "vehicle_number": data.vehicle_number,
           "segment_vehicle_type": data.segment_vehicle_type,
           "segment_vehicle_detail_type": data.segment_vehicle_detail_type,
           "model": data.model,
-          "manufacturer": data.manufacturer,
+          "manufacturer": manufacturer,
           "fuel_type": data.fuel_type,
           "yom": data.yom,
         }
@@ -106,6 +294,7 @@ const InsuranceDetailMain = () => {
         "policy_start_date": data.policy_start_date,
         "policy_expiry_date": data.policy_expiry_date,
         "agent_id": data.agent_id,
+        "user_id": data.user_id,
         "payout_percent": data.payout_percent,
         "amount": data.amount,
       }
@@ -238,7 +427,7 @@ const InsuranceDetailMain = () => {
                           {...register('business_type')}
                         />
                       </div>
-                      <div className="col-md-4 mb-3">
+                      {/* <div className="col-md-4 mb-3">
                         <label className="form-label">Segment</label>
                         <input
                           type="text"
@@ -246,6 +435,25 @@ const InsuranceDetailMain = () => {
                           disabled={!isEditing}
                           {...register('segment')}
                         />
+                      </div> */}
+
+                      <div className="col-md-4 mb-3">
+                        <label className="form-label fw-semibold">Select Segment Type</label>
+                        <select
+                          {...register("segment", { required: "Segment type is required" })}
+                          className="form-select border-2"
+                          disabled={!isEditing}
+                        >
+                          <option value="">Choose segment type</option>
+                          {selectedOption.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.Heading}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.segment && (
+                          <div className="text-danger mt-1 small">{errors.segment.message}</div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -273,25 +481,25 @@ const InsuranceDetailMain = () => {
                           {...register('product_base')}
                         />
                       </div> */}
-                        <div className="col-md-6">
+                        <div className="col-md-3">
                           <label htmlFor="manufacturer" className="form-label">
-                            manufacturer
+                            Manufacturer
                           </label>
                           <select
                             id="manufacturer"
                             className={`form-select ${touchedFields.manufacturer && errors.manufacturer ? "is-invalid" : ""}`}
                             {...register("manufacturer", {
-                              required: "manufacturer is required",
+                              required: "Manufacturer is required",
                               onChange: (e) => {
                                 setValue("model", "");
                               }
                             })}
-                            disabled ={!isEditing}
+                            disabled={!isEditing}
                           >
                             <option value="">Select manufacturer</option>
-                            {manufacturers.map((name) => (
-                              <option key={name} value={name}>
-                                {name}
+                            {vehicle.map((item) => (
+                              <option key={item.id} value={JSON.stringify(item)}>
+                                {item.company_name}
                               </option>
                             ))}
                           </select>
@@ -300,7 +508,7 @@ const InsuranceDetailMain = () => {
                           )}
                         </div>
 
-                        <div className="col-md-6">
+                        <div className="col-md-3">
                           <label htmlFor="model" className="form-label">
                             Model
                           </label>
@@ -308,16 +516,12 @@ const InsuranceDetailMain = () => {
                             id="model"
                             className={`form-select ${touchedFields.model && errors.model ? "is-invalid" : ""}`}
                             {...register("model", {
-                              required: "model is required",
-                              validate: value => {
-                                if (!manufacturers) return "Please select a manufacturer first";
-                                return true;
-                              }
+                              required: "Vehicle Model is required"
                             })}
-                            disabled ={!isEditing}
+                            disabled={!isEditing}
                           >
                             <option value="">Select model</option>
-                            {models.map((model, index) => (
+                            {vehicleModel?.map((model, index) => (
                               <option key={index} value={model}>
                                 {model}
                               </option>
@@ -327,7 +531,7 @@ const InsuranceDetailMain = () => {
                             <div className="invalid-feedback">{errors.model.message}</div>
                           )}
                         </div>
-                        <div className="col-md-3 mb-3">
+                        {/* <div className="col-md-3 mb-3">
                           <label className="form-label">Fuel Type</label>
                           <input
                             type="text"
@@ -335,15 +539,43 @@ const InsuranceDetailMain = () => {
                             disabled={!isEditing}
                             {...register('fuel_type')}
                           />
-                        </div>
-                        <div className="col-md-3 mb-3">
-                          <label className="form-label">Segment Vehicle Type</label>
-                          <input
-                            type="text"
-                            className="form-control"
+                        </div> */}
+                        <div className="col-md-3">
+                          <label htmlFor="fuel_type" className="form-label">
+                            Fuel Type
+                          </label>
+                          <select
+                            id="fuel_type"
+                            className={`form-select ${errors.fuel_type ? "is-invalid" : ""}`}
                             disabled={!isEditing}
-                            {...register('segment_vehicle_type')}
-                          />
+                            {...register("fuel_type", { required: "Fuel Type is required" })}
+                          >
+                            <option value="">Select Type</option>
+                            <option value="petrol">Petrol</option>
+                            <option value="diesel">Diesel</option>
+                            <option value="electric">Electric</option>
+                            <option value="hybrid">Hybrid</option>
+                          </select>
+                          {errors.fuel_type && <div className="invalid-feedback">{errors.fuel_type.message}</div>}
+                        </div>
+
+                        <div className="col-md-3 mb-3">
+                          <label className="form-label fw-semibold">Select Vehicle Type</label>
+                          <select
+                            {...register("segment_vehicle_type", { required: "Vehicle type is required" })}
+                            className="form-select border-2"
+                            disabled={!isEditing}
+                          >
+                            <option value="">Choose vehicle type</option>
+                            {selectedOption2.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.Heading}
+                              </option>
+                            ))}
+                          </select>
+                          {touchedFields.segment_vehicle_type && errors.segment_vehicle_type && (
+                            <div className="text-danger mt-1 small">{errors.segment_vehicle_type.message}</div>
+                          )}
                         </div>
                         <div className="col-md-3 mb-3">
                           <label className="form-label">Segment Vehicle Detail Type</label>
@@ -380,7 +612,7 @@ const InsuranceDetailMain = () => {
                           {...register('policy_no')}
                         />
                       </div>
-                      <div className="col-md-3 mb-3">
+                      {/* <div className="col-md-3 mb-3">
                         <label className="form-label">Insurance Company</label>
                         <input
                           type="text"
@@ -388,6 +620,26 @@ const InsuranceDetailMain = () => {
                           disabled={!isEditing}
                           {...register('insurance_company')}
                         />
+                      </div> */}
+
+                      <div className="col-md-3">
+                        <label htmlFor="insurance_company" className="form-label">Insurance Company</label>
+                        <select
+                          id="insurance_company"
+                          className={`form-select ${errors.insurance_company ? 'is-invalid' : ''}`}
+                          disabled={!isEditing}
+                          {...register("insurance_company", { required: "Insurance company is required" })}
+                        >
+                          <option value="">Select company</option>
+                          {insuranceCompanies.map((c) => (
+                            <option key={c.id} value={c.name}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.insurance_company && (
+                          <div className="invalid-feedback">{errors.insurance_company.message}</div>
+                        )}
                       </div>
                       <div className="col-md-3 mb-3">
                         <label className="form-label">IDV</label>
@@ -511,15 +763,29 @@ const InsuranceDetailMain = () => {
                     <div className="row">
                       <div className="col-md-3 mb-3">
                         <label className="form-label">Payment Mode</label>
-                        <input
+                        {/* <input
                           type="text"
                           className="form-control"
                           disabled={!isEditing}
                           {...register('payment_mode')}
-                        />
+                        /> */}
+                        <select
+                          id="payment_mode"
+                          className={`form-select ${errors.payment_mode ? 'is-invalid' : ''}`}
+                          disabled={!isEditing}
+                          {...register("payment_mode", { required: "Agent is required" })}
+                        >
+                          <option value="">Select Payment mode</option>
+                          <option value="online">Online</option>
+                          <option value="offline">Offline</option>
+                          <option value="offline">Not Paid Yet</option>
+                        </select>
+                        {errors.payment_mode && (
+                          <div className="invalid-feedback">{errors.payment_mode.message}</div>
+                        )}
                       </div>
 
-                      <div className="col-md-3 mb-3">
+                      {/* <div className="col-md-3 mb-3">
                         <label className="form-label">Case Type</label>
                         <input
                           type="text"
@@ -550,6 +816,71 @@ const InsuranceDetailMain = () => {
                             value={insuranceData[activeTab].user_id == user_id ? 'Self' : insuranceData[activeTab].full_name}
 
                           />
+                        </div>
+                      )} */}
+
+                      {/* Agent Selection Field */}
+                      {/* Case Type */}
+                      <div className="col-md-3">
+                        <label htmlFor="case_type" className="form-label">Case type</label>
+                        <select
+                          id="case_type"
+                          className={`form-select ${errors.case_type ? 'is-invalid' : ''}`}
+                          disabled={!isEditing}
+                          {...register("case_type", { required: "Case type is required" })}
+                        >
+                          <option value="">Select Case type</option>
+                          <option value="office">Office</option>
+                          <option value="agent">Agent</option>
+                        </select>
+                        {errors.case_type && (
+                          <div className="invalid-feedback">{errors.case_type.message}</div>
+                        )}
+                      </div>
+
+                      {/* Agent or Office Employee */}
+                      {case_type === 'agent' && (
+
+                        <div className="col-md-3">
+                          <label htmlFor="agent_id" className="form-label">Agent</label>
+                          <select
+                            id="agent_id"
+                            className={`form-select ${errors.agent_id ? 'is-invalid' : ''}`}
+                            disabled={!isEditing}
+                            {...register("agent_id", { required: "Agent is required" })}
+                          >
+                            <option value="">Select Agent</option>
+                            {agents.map((agent) => (
+                              <option key={agent.id} value={agent.id}>
+                                {agent.full_name}
+                              </option>
+                            ))}
+                          </select>
+                          {errors.agent_id && (
+                            <div className="invalid-feedback">{errors.agent_id.message}</div>
+                          )}
+                        </div>
+                      )}
+                      {case_type === 'office' && (
+                        <div className="col-md-3">
+                          <label htmlFor="user_id" className="form-label">Office Employee</label>
+                          <select
+                            id="user_id"
+                            className={`form-select ${errors.user_id ? 'is-invalid' : ''}`}
+                            disabled={!isEditing}
+                            {...register("user_id", { required: "Employee is required" })}
+                          >
+                            <option value="">Select Employee</option>
+                            {adminType === 'Admin' && User.map((item) => (
+                              <option key={item.id} value={item.id}>
+                                {item.full_name}
+                              </option>
+                            ))}
+                            <option value={user_id}>self</option>
+                          </select>
+                          {errors.user_id && (
+                            <div className="invalid-feedback">{errors.user_id.message}</div>
+                          )}
                         </div>
                       )}
 

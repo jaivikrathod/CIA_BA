@@ -18,7 +18,7 @@ export default function InsuranceCommonDetails2() {
   const api = useApi();
   const [comp, setcomp] = useState([]);
   const [User, setUser] = useState([]);
-  
+
 
 
   const adminType = useSelector((state) => state.adminType);
@@ -71,10 +71,10 @@ export default function InsuranceCommonDetails2() {
     try {
       data.insurance_id = id;
       data.user_id = data.emp_id ?? user_id;
-    
+
       if (type) {
         common_id ? data.common_id = common_id : data.common_id = null;
-        
+
         const response = await api.post(`/common-general`, data);
         if (response.data.message) {
           toast.success('Form submitted successfully!');
@@ -93,11 +93,11 @@ export default function InsuranceCommonDetails2() {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message ||error|| 'An error occurred while submitting the form.');
+      toast.error(error.response?.data?.message || error || 'An error occurred while submitting the form.');
     }
   };
 
-  
+
   const formFields = [
     { label: "Idv", type: "number", id: "idv", validation: { required: "idv is required" }, width: "col-md-3" },
     { label: "Current NCB (%)", type: "number", id: "currentncb", validation: { required: "Current NCB is required" }, width: "col-md-3" },
@@ -180,66 +180,66 @@ export default function InsuranceCommonDetails2() {
 
 
           {/* Agent Selection Field */}
-            {/* Case Type */}
+          {/* Case Type */}
+          <div className="col-md-3">
+            <label htmlFor="case_type" className="form-label">Case type</label>
+            <select
+              id="case_type"
+              className={`form-select ${errors.case_type ? 'is-invalid' : ''}`}
+              {...register("case_type", { required: "Case type is required" })}
+            >
+              <option value="">Select Case type</option>
+              <option value="office">Office</option>
+              <option value="agent">Agent</option>
+            </select>
+            {errors.case_type && (
+              <div className="invalid-feedback">{errors.case_type.message}</div>
+            )}
+          </div>
+
+          {/* Agent or Office Employee */}
+          {case_typeValue === 'agent' && (
+
             <div className="col-md-3">
-              <label htmlFor="case_type" className="form-label">Case type</label>
+              <label htmlFor="agent_id" className="form-label">Agent</label>
               <select
-                id="case_type"
-                className={`form-select ${errors.case_type ? 'is-invalid' : ''}`}
-                {...register("case_type", { required: "Case type is required" })}
+                id="agent_id"
+                className={`form-select ${errors.agent_id ? 'is-invalid' : ''}`}
+                {...register("agent_id", { required: "Agent is required" })}
               >
-                <option value="">Select Case type</option>
-                <option value="office">Office</option>
-                <option value="agent">Agent</option>
+                <option value="">Select Agent</option>
+                {agents.map((agent) => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.full_name}
+                  </option>
+                ))}
               </select>
-              {errors.case_type && (
-                <div className="invalid-feedback">{errors.case_type.message}</div>
+              {errors.agent_id && (
+                <div className="invalid-feedback">{errors.agent_id.message}</div>
               )}
             </div>
-
-            {/* Agent or Office Employee */}
-            {case_typeValue === 'agent' && (
-
-              <div className="col-md-3">
-                <label htmlFor="agent_id" className="form-label">Agent</label>
-                <select
-                  id="agent_id"
-                  className={`form-select ${errors.agent_id ? 'is-invalid' : ''}`}
-                  {...register("agent_id", { required: "Agent is required" })}
-                >
-                  <option value="">Select Agent</option>
-                  {agents.map((agent) => (
-                    <option key={agent.id} value={agent.id}>
-                      {agent.full_name}
-                    </option>
-                  ))}
-                </select>
-                {errors.agent_id && (
-                  <div className="invalid-feedback">{errors.agent_id.message}</div>
-                )}
-              </div>
-            )}
-            {case_typeValue === 'office' && (
-              <div className="col-md-3">
-                <label htmlFor="emp_id" className="form-label">Office Employee</label>
-                <select
-                  id="emp_id"
-                  className={`form-select ${errors.emp_id ? 'is-invalid' : ''}`}
-                  {...register("emp_id", { required: "Employee is required" })}
-                >
-                  <option value="">Select Employee</option>
-                  {adminType === 'admin' && User.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.full_name}
-                    </option>
-                  ))}
-                  <option value={user_id}>self</option>
-                </select>
-                {errors.emp_id && (
-                  <div className="invalid-feedback">{errors.emp_id.message}</div>
-                )}
-              </div>
-            )}
+          )}
+          {case_typeValue === 'office' && (
+            <div className="col-md-3">
+              <label htmlFor="user_id" className="form-label">Office Employee</label>
+              <select
+                id="user_id"
+                className={`form-select ${errors.emp_id ? 'is-invalid' : ''}`}
+                {...register("user_id", { required: "Employee is required" })}
+              >
+                <option value="">Select Employee</option>
+                {adminType === 'Admin' && User.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.full_name}
+                  </option>
+                ))}
+                <option value={user_id}>self</option>
+              </select>
+              {errors.user_id && (
+                <div className="invalid-feedback">{errors.emp_id.message}</div>
+              )}
+            </div>
+          )}
 
           {/* Insurance Company */}
           <div className="col-md-3">
@@ -260,51 +260,55 @@ export default function InsuranceCommonDetails2() {
               <div className="invalid-feedback">{errors.insurance_company.message}</div>
             )}
           </div>
+          {
+            !common_id && (
+              <div className="col-md-3">
+                <label htmlFor="business_type" className="form-label">Business Type</label>
+                <select
+                  id="business_type"
+                  className={`form-select ${errors.business_type ? 'is-invalid' : ''}`}
+                  {...register("business_type", { required: "Insurance company is required" })}
+                >
+                  <option value="">Select Business type</option>
+                  <option value="Fresh">Fresh</option>
+                  <option value="Renewal">Renewal</option>
+                </select>
+                {errors.business_type && (
+                  <div className="invalid-feedback">{errors.business_type.message}</div>
+                )}
+              </div>
+            )
+          }
 
-          <div className="col-md-3">
-            <label htmlFor="business_type" className="form-label">Business Type</label>
-            <select
-              id="business_type"
-              className={`form-select ${errors.business_type ? 'is-invalid' : ''}`}
-              {...register("business_type", { required: "Insurance company is required" })}
-            >
-              <option value="">Select Business type</option>
-              <option value="Fresh">Fresh</option>
-              <option value="Renewal">Renewal</option>
-            </select>
-            {errors.business_type && (
-              <div className="invalid-feedback">{errors.business_type.message}</div>
-            )}
-          </div>
 
           <div className="col-md-3 insurance-common-2-main">
-          <label htmlFor="agent_id" className="form-label">Payment Mode</label>
-          <select
-            id="payment_mode"
-            className={`form-select ${errors.payment_mode ? 'is-invalid' : ''}`}
-            {...register("payment_mode", { required: "Agent is required" })}
-          >
-            <option value="">Select Payment mode</option>
-            <option value="online">Online</option>
-            <option value="offline">Offline</option>
-            <option value="offline">Not Paid Yet</option>
-          </select>
-          {errors.payment_mode && (
-            <div className="invalid-feedback">{errors.payment_mode.message}</div>
-          )}
+            <label htmlFor="agent_id" className="form-label">Payment Mode</label>
+            <select
+              id="payment_mode"
+              className={`form-select ${errors.payment_mode ? 'is-invalid' : ''}`}
+              {...register("payment_mode", { required: "Agent is required" })}
+            >
+              <option value="">Select Payment mode</option>
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+              <option value="offline">Not Paid Yet</option>
+            </select>
+            {errors.payment_mode && (
+              <div className="invalid-feedback">{errors.payment_mode.message}</div>
+            )}
+          </div>
         </div>
-        </div>
 
 
-       
 
-       
 
-      <button type="submit" className="btn btn-primary mt-3">Submit</button>
-    </form >
+
+
+        <button type="submit" className="btn btn-primary mt-3">Submit</button>
+      </form >
       <ToastContainer />
 
-      
-        </>
-    );
+
+    </>
+  );
 }
