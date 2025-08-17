@@ -99,7 +99,7 @@ export default function InsuranceCommonDetails2() {
 
   
   const formFields = [
-    { label: "idv", type: "number", id: "idv", validation: { required: "idv is required" }, width: "col-md-3" },
+    { label: "Idv", type: "number", id: "idv", validation: { required: "idv is required" }, width: "col-md-3" },
     { label: "Current NCB (%)", type: "number", id: "currentncb", validation: { required: "Current NCB is required" }, width: "col-md-3" },
     { label: "Policy No", type: "text", id: "policy_no", validation: { required: "Policy No is required" }, width: "col-md-3" },
     { label: "OD Premium", type: "number", id: "od_premium", validation: { required: "OD Premium is required" }, width: "col-md-3" },
@@ -228,7 +228,7 @@ export default function InsuranceCommonDetails2() {
                   {...register("emp_id", { required: "Employee is required" })}
                 >
                   <option value="">Select Employee</option>
-                  {User.map((item) => (
+                  {adminType === 'admin' && User.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.full_name}
                     </option>

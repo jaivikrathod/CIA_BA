@@ -19,94 +19,116 @@ export default function InsuranceCommonDetails1() {
   const axios = useApi();
   const { id } = useParams();
   const [models, setmodels] = useState([]);
-  const [manufacturers, setManufacturers] = useState([]);
-  const [vehicle, setvehicle] = useState([]); // default to empty array
-  const user_id = useSelector((state)=>state.id);
+  const [vehicleCompany, setvehicleCompany] = useState([]);
+  const [vehicleModel, setvehicleModel] = useState([]);
+  const [fetchedData, setFetchedData] = useState(null);
+  const [pendingModelValue, setPendingModelValue] = useState(null);
+  const user_id = useSelector((state) => state.id);
 
   const manufacturer = watch("manufacturer");
   const model = watch("model");
 
-  // Fetch vehicle details and set manufacturers
+
   const fetchVehicleDetails = async () => {
     try {
-      const response = await axios.get('/cars');
+      const response = await axios.get('/get-vehicle-companies');
 
       if (response.data.success) {
-        
-        setvehicle(response.data.data);
-        // Extract unique manufacturers
-        const uniqueManufacturers = [
-          ...new Set(response.data.data.map((item) => item.company_name))
-        ];
-        setManufacturers(uniqueManufacturers);
-        console.log(uniqueManufacturers);
-        
+        setvehicleCompany(response.data.data);
       } else {
         toast.error(response.message);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error fetching vehicles");
+      toast.error(error.response?.data?.message || "Error fetching vehicle Company");
     }
   };
 
+
   useEffect(() => {
-    fetchVehicleDetails(); 
+    fetchInitialData();
   }, []);
 
-  // Update models when manufacturer changes
-  useEffect(() => {
-    if (manufacturer && vehicle.length > 0) {
-      const filteredModels = vehicle
-        .filter((item) => item.company_name === manufacturer)
-        .map((item) => item.model_name);
-      setmodels(filteredModels);
-    } else {
-      setmodels([]);
-    }
-  }, [manufacturer, vehicle]);
+  const fetchInitialData = async ()=>{
+     await fetchVehicleDetails();
+     await fetchCommonInsuranceDetail();
+  }
 
-  // Effect to handle model value after models are set
-  useEffect(() => {
-    const setModelValue = async () => {
-      if (models.length > 0 && model) {
-        const modelExists = models.includes(model);
-        if (!modelExists) {
-          setValue('model', '');
+  const fetchCommonInsuranceDetail = async () => {
+    try {
+      const response = await axios.get(`/get-common-insurance/${id}`);
+      if (response.data.success) {
+        const data = response.data.data;
+        setFetchedData(data);
+        reset(data);
+      }
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+    }
+  };
+
+  const setFormValues = (data) => {
+    if (data.manufacturer && vehicleCompany.length > 0) {
+      const manufacturerValue = vehicleCompany.find((item)=>item.company_name== data.manufacturer);          
+      if (manufacturerValue) {
+        setValue('manufacturer', JSON.stringify(manufacturerValue));
+        if (data.model) {
+          setPendingModelValue(data.model);
         }
       }
-    };
-    setModelValue();
-  }, [models, model]);
+    }
+  };
 
-  useEffect(() => {
-    const fetchCommonInsuranceDetail = async () => {
+  const fetchModelsAccordingToCompany = async () => {
+   
+    try {
+      const manufacturerObj = JSON.parse(manufacturer);
+      const response = await axios.get('/get-vehicle-modelBycompany', { params: { id: manufacturerObj.id } });
+
+      if (response.data.success) {
+        console.log(response.data.data);
+        
+        setvehicleModel(response.data.data);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error fetching vehicle Model");
+    }
+  }
+
+  useEffect(() => {   
+    if(manufacturer && manufacturer !== ""){
       try {
-        const response = await axios.get(`/get-common-insurance/${id}`);
-        if (response.data.success) {
-          const data = response.data.data;
-          // Set manufacturer and model from fetched data
-          if (data.manufacturer) {
-            setValue('manufacturer', data.manufacturer);
-          }
-          if (data.model) {
-            setValue('model', data.model);
-          }
-          // Set other form values
-          reset(data);
+        const manufacturerObj = JSON.parse(manufacturer);
+        if(manufacturerObj && manufacturerObj.id){ 
+          fetchModelsAccordingToCompany();
         }
       } catch (error) {
-        console.error("Error fetching initial data:", error);
+        console.error("Error parsing manufacturer:", error);
       }
-    };
-
-    if (id) {
-      fetchCommonInsuranceDetail();
     }
-  }, [id, reset, setValue]);
+
+  }, [manufacturer]);
+
+  useEffect(() => {
+    if (vehicleCompany.length > 0 && fetchedData) {
+      setFormValues(fetchedData);
+    }
+  }, [vehicleCompany, fetchedData]);
+
+
+  useEffect(() => {
+    if (vehicleModel.length > 0 && pendingModelValue) {
+      setValue('model', pendingModelValue);
+      setPendingModelValue(null);
+    }
+  }, [vehicleModel, pendingModelValue]);
 
   const onSubmit = async (data) => {
     data.id = id;
     data.user_id = user_id;
+    let manufacturer = JSON.parse(data.manufacturer);
+    data.manufacturer = manufacturer.company_name;
     try {
       const response = await axios.post("/common-vehical", data);
       if (response.data.message) {
@@ -141,7 +163,7 @@ export default function InsuranceCommonDetails1() {
             id="vehicle_number"
             className={`form-control ${errors.vehicle_number ? "is-invalid" : ""}`}
             placeholder="GJ01xxxx"
-            {...register("vehicle_number", { 
+            {...register("vehicle_number", {
               required: "Register No is required",
               pattern: {
                 value: /^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$/,
@@ -154,22 +176,22 @@ export default function InsuranceCommonDetails1() {
 
         <div className="col-md-6">
           <label htmlFor="manufacturer" className="form-label">
-            manufacturer
+            Manufacturer
           </label>
           <select
             id="manufacturer"
             className={`form-select ${touchedFields.manufacturer && errors.manufacturer ? "is-invalid" : ""}`}
-            {...register("manufacturer", { 
-              required: "manufacturer is required",
+            {...register("manufacturer", {
+              required: "Manufacturer is required",
               onChange: (e) => {
-                setValue("model", ""); // Reset model when manufacturer changes
+                setValue("model", "");
               }
             })}
           >
             <option value="">Select manufacturer</option>
-            {manufacturers.map((name) => (
-              <option key={name} value={name}>
-                {name}
+            {vehicleCompany.map((item) => (
+              <option key={item.id} value={JSON.stringify(item)}>
+                {item.company_name}
               </option>
             ))}
           </select>
@@ -185,16 +207,12 @@ export default function InsuranceCommonDetails1() {
           <select
             id="model"
             className={`form-select ${touchedFields.model && errors.model ? "is-invalid" : ""}`}
-            {...register("model", { 
-              required: "model is required",
-              validate: value => {
-                if (!manufacturer) return "Please select a manufacturer first";
-                return true;
-              }
+            {...register("model", {
+              required: "Vehicle Model is required"
             })}
           >
             <option value="">Select model</option>
-            {models.map((model, index) => (
+            {vehicleModel?.map((model, index) => (
               <option key={index} value={model}>
                 {model}
               </option>
@@ -232,7 +250,7 @@ export default function InsuranceCommonDetails1() {
             id="yom"
             className={`form-control ${errors.yom ? "is-invalid" : ""}`}
             placeholder="YYYY"
-            {...register("yom", { 
+            {...register("yom", {
               required: "Purchase year is required",
               min: {
                 value: 1900,

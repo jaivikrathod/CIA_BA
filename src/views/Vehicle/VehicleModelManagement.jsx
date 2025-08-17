@@ -61,7 +61,6 @@ const VehicleModelManagement = () => {
 
     useEffect(() => {
         fetcVehicleComapies();
-        fetchvehicle_model();  
     }, []);
 
     return (
