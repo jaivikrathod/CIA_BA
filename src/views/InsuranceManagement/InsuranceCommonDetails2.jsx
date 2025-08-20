@@ -261,7 +261,7 @@ export default function InsuranceCommonDetails2() {
             )}
           </div>
           {
-            !common_id && (
+            common_id ==0 && (
               <div className="col-md-3">
                 <label htmlFor="business_type" className="form-label">Business Type</label>
                 <select
