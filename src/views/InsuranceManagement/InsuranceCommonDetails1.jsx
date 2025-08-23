@@ -253,16 +253,16 @@ export default function InsuranceCommonDetails1() {
             {...register("yom", {
               required: "Purchase year is required",
               min: {
-                value: 1900,
-                message: "Year cannot be before 1900"
+                value: 1800,
+                message: "Year cannot be before 1800"
               },
               max: {
                 value: new Date().getFullYear(),
                 message: "Year cannot be in the future"
               },
               validate: value => {
-                if (value < 1900 || value > new Date().getFullYear()) {
-                  return "Please enter a valid year between 1900 and " + new Date().getFullYear();
+                if (value < 1800 || value > new Date().getFullYear()) {
+                  return "Please enter a valid year between 1800 and " + new Date().getFullYear();
                 }
                 return true;
               }

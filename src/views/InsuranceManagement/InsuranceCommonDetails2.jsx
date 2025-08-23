@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 export default function InsuranceCommonDetails2() {
   const navigate = useNavigate();
   const [agents, setAgents] = useState([]);
-  const { register, watch, setValue, handleSubmit, formState: { errors } } = useForm();
+  const { register, watch, setValue, handleSubmit, reset, formState: { errors } } = useForm();
   const { id } = useParams();
   const { common_id } = useParams();
   const location = useLocation();
@@ -18,6 +18,7 @@ export default function InsuranceCommonDetails2() {
   const api = useApi();
   const [comp, setcomp] = useState([]);
   const [User, setUser] = useState([]);
+  const [fetchedData, setFetchedData] = useState(null);
 
 
 
@@ -28,7 +29,27 @@ export default function InsuranceCommonDetails2() {
     getAgents();
     getCompanies();
     fetchUser();
-  }, []);
+    fetchdetails();
+  }, [id]);
+  
+  const fetchdetails = async ()=>{
+    try {
+      const response = await api.get(`/get-common-insurance2/${id}`);
+      if (response.data.success) {
+        const data = response.data.data;
+        setFetchedData(data);
+        // Reset form with fetched data
+        reset(data);
+        // Also set individual values to ensure all fields are populated
+        Object.keys(data).forEach(key => {
+          setValue(key, data[key]);
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+    }
+  }
+  
 
 
   const fetchUser = async () => {

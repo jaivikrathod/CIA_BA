@@ -192,23 +192,24 @@ const CustomerManagement = () => {
     };
 
     const addEditCustomer = (payload) => {
-        console.log(customers);
+        fetchCustomers(1,false);
+        // console.log(customers);
 
-        try {
-            if (payload.extras.isUpdate) {
-                setCustomers(prevCustomers =>
-                    prevCustomers.map(item =>
-                        item.id == payload.data.id ? payload.data : item
-                    )
-                );
-            } else {
-                setCustomers(prevCustomers => [...prevCustomers, payload.data]);
-            }
-            console.log(customers);
+        // try {
+        //     if (payload.extras.isUpdate) {
+        //         setCustomers(prevCustomers =>
+        //             prevCustomers.map(item =>
+        //                 item.id == payload.data.id ? payload.data : item
+        //             )
+        //         );
+        //     } else {
+        //         setCustomers(prevCustomers => [...prevCustomers, payload.data]);
+        //     }
+        //     console.log(customers);
 
-        } catch (e) {
-            console.log(e);
-        }
+        // } catch (e) {
+        //     console.log(e);
+        // }
     };
 
     return (
@@ -458,12 +459,13 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                 toast.success('Customer saved successfully!');
                 reset();
                 addEditCustomer(response.data);
+
                 onClose();
             } else {
                 toast.error(response.data.message);
             }
         } catch (error) {
-            toast.error(error);
+            toast.error(error.response.data.message);
         } finally {
             setIsSubmitting(false);
         }
