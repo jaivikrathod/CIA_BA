@@ -150,7 +150,7 @@ const CustomerManagement = () => {
                 customer.full_name,
                 customer.email,
                 customer.primary_mobile,
-                customer.age || "N/A",
+                calculateAge(customer.dob) || "N/A",
                 customer.gender || "N/A",
                 customer.full_address || "N/A"
             ]);
@@ -389,7 +389,7 @@ const CustomerManagement = () => {
                 customerId={uploadModal.id}
                 show={uploadModal.show}
                 isCustomerDoc={true}
-                handleClose={() => setUploadModal({ show: false, id: null })}
+                handleClose={() => {fetchCustomers(1,false); setUploadModal({ show: false, id: null })}}
             />
 
             {/* Customer Form Modal */}

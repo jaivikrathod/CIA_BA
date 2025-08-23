@@ -143,6 +143,10 @@ const InsuranceManagement2 = () => {
         navigate('/insurance-detail/' + common_id);
     }
 
+    const GetDate = (date)=>{
+        return new Date(date).toLocaleDateString('en-GB')
+    }
+
     const downloadCSV = async () => {
         try {
             setIsLoading(true);
@@ -161,13 +165,23 @@ const InsuranceManagement2 = () => {
                 return;
             }
 
-            const headers = ["Sr. No.", "Name", "Email", "Type", "Date"];
+            const headers = ["Sr. No.", "Name", "Email", "Type", 'Age',"Date","segment",'vehicle_number','insurance_type','segment_vehicle_type','segment_vehicle_detail_type','Vehicle Company name','Vehicle Model','fuel_type','Year of manufacturer'];
             const rows = response.data.data.map((insurance, index) => [
                 index + 1,
                 insurance.full_name,
                 insurance.email,
                 insurance.insurance_type,
-                new Date(insurance.insurance_date).toLocaleDateString('en-GB')
+                insurance.age,
+                GetDate(insurance.insurance_date),
+                insurance.segment,
+                insurance.vehicle_number,
+                insurance.insurance_type,
+                insurance.segment_vehicle_type,
+                insurance.segment_vehicle_detail_type,
+                insurance.manufacturer,
+                insurance.model,
+                insurance.fuel_type,
+                insurance.yom,
             ]);
 
             let csvContent = "data:text/csv;charset=utf-8,";
