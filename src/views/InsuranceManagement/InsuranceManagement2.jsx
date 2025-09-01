@@ -324,13 +324,13 @@ const InsuranceManagement2 = () => {
                                             >
                                                 <FaSyncAlt />
                                             </button>
-                                            <button
+                                            {/* <button
                                                 onClick={() => openUploadModal(insurance.id)}
                                                 className="btn btn-link"
                                                 title="Upload"
                                             >
                                                 <FaUpload />
-                                            </button>
+                                            </button> */}
                                         </td>
                                     </tr>
                                 ))}
