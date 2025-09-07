@@ -362,7 +362,7 @@ const InsuranceManagement2 = () => {
 
                     {adminType === 'Admin' && (
                         <select
-                            className="form-select form-select-sm"
+                            className="form-select"
                             style={{ width: 180 }}
                             value={filters.admin}
                             onChange={(e) => setFilters({ ...filters, admin: e.target.value })}
@@ -380,7 +380,7 @@ const InsuranceManagement2 = () => {
                     )}
 
                     <select
-                        className="form-select form-select-sm"
+                        className="form-select"
                         style={{ width: 150 }}
                         value={filters.segment}
                         onChange={(e) => setFilters({ ...filters, segment: e.target.value })}
@@ -391,7 +391,7 @@ const InsuranceManagement2 = () => {
                     </select>
 
                     <select
-                        className="form-select form-select-sm"
+                        className="form-select"
                         style={{ width: 140 }}
                         value={filters.ageRange}
                         onChange={(e) => setFilters({ ...filters, ageRange: e.target.value })}
@@ -404,7 +404,7 @@ const InsuranceManagement2 = () => {
                     </select>
 
                     <select
-                        className="form-select form-select-sm"
+                        className="form-select"
                         style={{ width: 160 }}
                         value={filters.dateRange}
                         onChange={(e) => handleDateRangeChange(e.target.value)}
