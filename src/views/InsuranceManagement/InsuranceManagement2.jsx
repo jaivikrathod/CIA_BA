@@ -26,6 +26,9 @@ const InsuranceManagement2 = () => {
         segment: "",
         ageRange: "",
         admin: "",
+        dateRange: "",
+        customFromDate: "",
+        customToDate: "",
     });
     const timerRef = useRef(null);
 
@@ -46,19 +49,23 @@ const InsuranceManagement2 = () => {
         fetchAdmins();
     }, []);
 
-    const fetchInsurance = useCallback(async (pageNum = 1, append = false, limit = 10,tempSearch='') => {
+    const fetchInsurance = useCallback(async (pageNum = 1, append = false, limit = 10, tempSearch = '', override = null) => {
         try {
             // setIsLoading(true);
-            const response = await api.post(`/insurance-list`, {
+            const payload = {
                 search: tempSearch,
-                segment: filters.segment,
-                ageRange: filters.ageRange,
-                minAge: filters.ageRange.split('-')[0] || '',
-                maxAge: filters.ageRange.split('-')[1] || '',
-                admin: filters.admin,
+                segment: override?.segment ?? filters.segment,
+                ageRange: override?.ageRange ?? filters.ageRange,
+                minAge: (override?.ageRange ?? filters.ageRange).split('-')[0] || '',
+                maxAge: (override?.ageRange ?? filters.ageRange).split('-')[1] || '',
+                admin: override?.admin ?? filters.admin,
+                dateRange: override?.dateRange ?? filters.dateRange,
+                fromDate: override?.fromDate ?? filters.customFromDate,
+                toDate: override?.toDate ?? filters.customToDate,
                 page: pageNum,
                 limit: limit
-            });
+            };
+            const response = await api.post(`/insurance-list`, payload);
             if (response.data.data) {
                 if (append) {
                     setInsurance(prev => [...prev, ...response.data.data]);
@@ -79,7 +86,7 @@ const InsuranceManagement2 = () => {
                 // setIsLoading(false);
             }, 500);
         }
-    }, [searchTerm, filters.segment, filters.ageRange, filters.admin]);
+    }, [searchTerm, filters.segment, filters.ageRange, filters.admin, filters.dateRange, filters.customFromDate, filters.customToDate]);
 
     // Debounced search function with 1 second delay
     const debouncedSearch = useCallback((value) => {
@@ -147,6 +154,118 @@ const InsuranceManagement2 = () => {
         return new Date(date).toLocaleDateString('en-GB')
     }
 
+    // Date filter utility functions
+    const getDateRange = (range) => {
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+        
+        switch (range) {
+            case 'thisMonth':
+                return {
+                    from: new Date(currentYear, currentMonth, 1).toISOString().split('T')[0],
+                    to: new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
+                };
+            case '2months':
+                return {
+                    from: new Date(currentYear, currentMonth - 1, 1).toISOString().split('T')[0],
+                    to: new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
+                };
+            case '3months':
+                return {
+                    from: new Date(currentYear, currentMonth - 2, 1).toISOString().split('T')[0],
+                    to: new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
+                };
+            case '4months':
+                return {
+                    from: new Date(currentYear, currentMonth - 3, 1).toISOString().split('T')[0],
+                    to: new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
+                };
+            case '5months':
+                return {
+                    from: new Date(currentYear, currentMonth - 4, 1).toISOString().split('T')[0],
+                    to: new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
+                };
+            case '6months':
+                return {
+                    from: new Date(currentYear, currentMonth - 5, 1).toISOString().split('T')[0],
+                    to: new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
+                };
+            case '1year':
+                return {
+                    from: new Date(currentYear - 1, currentMonth, 1).toISOString().split('T')[0],
+                    to: new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
+                };
+            default:
+                return { from: '', to: '' };
+        }
+    };
+
+    const handleDateRangeChange = (range) => {
+        if (range === 'custom') {
+            setFilters(prev => ({ 
+                ...prev, 
+                dateRange: range,
+                customFromDate: '',
+                customToDate: ''
+            }));
+        } else {
+            const dateRange = getDateRange(range);
+            setFilters(prev => ({ 
+                ...prev, 
+                dateRange: range,
+                customFromDate: dateRange.from,
+                customToDate: dateRange.to
+            }));
+        }
+    };
+
+    const handleCustomDateChange = (field, value) => {
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Prevent future dates
+        if (value > today) {
+            toast.error('Future dates are not allowed');
+            return;
+        }
+        
+        // Validate date range
+        if (field === 'customFromDate' && filters.customToDate && value > filters.customToDate) {
+            toast.error('From date cannot be greater than To date');
+            return;
+        }
+        
+        if (field === 'customToDate' && filters.customFromDate && value < filters.customFromDate) {
+            toast.error('To date cannot be less than From date');
+            return;
+        }
+        
+        setFilters(prev => ({ ...prev, [field]: value }));
+    };
+
+    const clearDateFilters = () => {
+        setFilters(prev => ({ 
+            ...prev, 
+            dateRange: '',
+            customFromDate: '',
+            customToDate: ''
+        }));
+    };
+
+    const handleApplyFilters = () => {
+        // Prevent applying invalid custom ranges
+        if (filters.dateRange === 'custom') {
+            if (!filters.customFromDate || !filters.customToDate) {
+                toast.error('Please select both From and To dates');
+                return;
+            }
+        }
+        setPage(1);
+        fetchInsurance(1, false, 10, searchTerm);
+    };
+
+    const isCustomDateIncomplete = filters.dateRange === 'custom' && (!filters.customFromDate || !filters.customToDate);
+
     const downloadCSV = async () => {
         try {
             setIsLoading(true);
@@ -156,6 +275,10 @@ const InsuranceManagement2 = () => {
                 ageRange: filters.ageRange,
                 minAge: filters.ageRange.split('-')[0] || '',
                 maxAge: filters.ageRange.split('-')[1] || '',
+                admin: filters.admin,
+                dateRange: filters.dateRange,
+                fromDate: filters.customFromDate,
+                toDate: filters.customToDate,
                 page: 1,
                 limit: 0
             });
@@ -225,64 +348,136 @@ const InsuranceManagement2 = () => {
                     </div>
                 </div>
 
-                {/* Filters Section */}
-                <div className="row mb-3">
-                    <div className="col-12">
-                        <div className="d-flex flex-wrap gap-2">
-                            <div className="flex-grow-1" style={{ minWidth: '200px' }}>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="Search by name or email"
-                                    value={searchTerm}
-                                    onChange={handleSearchChange}
-                                />
-                            </div>
-                            {adminType == 'Admin' &&   
-                            <div className="flex-grow-1" style={{ minWidth: '200px' }}>
-                                <select
-                                    className="form-control"
-                                    value={filters.admin}
-                                    onChange={(e) => setFilters({ ...filters, admin: e.target.value })}
-                                >
-                                    <option value="">All admins</option>
-                                    {admins.map((item) =>
-                                        item.id != user_id ? (
-                                            <option key={item.id} value={item.id}>
-                                                {item.full_name}
-                                            </option>
-                                        ) : null
-                                    )}
-                                    <option key={user_id} value={user_id}>Self</option>
-                                </select>
-                            </div>
-                            }
-                            <div className="flex-grow-1" style={{ minWidth: '200px' }}>
-                                <select
-                                    className="form-control"
-                                    value={filters.segment}
-                                    onChange={(e) => setFilters({ ...filters, segment: e.target.value })}
-                                >
-                                    <option value="">All Segments</option>
-                                    <option value="Motor">Motor</option>
-                                    <option value="Non-Motor">Non-Motor</option>
-                                </select>
-                            </div>
-                            <div className="flex-grow-1" style={{ minWidth: '200px' }}>
-                                <select
-                                    className="form-control"
-                                    value={filters.ageRange}
-                                    onChange={(e) => setFilters({ ...filters, ageRange: e.target.value })}
-                                >
-                                    <option value="">All Ages</option>
-                                    <option value="0-18">0-18</option>
-                                    <option value="19-35">19-35</option>
-                                    <option value="36-60">36-60</option>
-                                    <option value="60-120">60+</option>
-                                </select>
-                            </div>
-                        </div>
+                {/* Compact Filters Toolbar */}
+                <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
+                    <div className="input-group input-group-sm" style={{ maxWidth: 320 }}>
+                        <input
+                            type="text"
+                            className="form-control form-control-sm"
+                            placeholder="Search name or email"
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                        />
                     </div>
+
+                    {adminType === 'Admin' && (
+                        <select
+                            className="form-select form-select-sm"
+                            style={{ width: 180 }}
+                            value={filters.admin}
+                            onChange={(e) => setFilters({ ...filters, admin: e.target.value })}
+                        >
+                            <option value="">All admins</option>
+                            {admins.map((item) =>
+                                item.id !== user_id ? (
+                                    <option key={item.id} value={item.id}>
+                                        {item.full_name}
+                                    </option>
+                                ) : null
+                            )}
+                            <option key={user_id} value={user_id}>Self</option>
+                        </select>
+                    )}
+
+                    <select
+                        className="form-select form-select-sm"
+                        style={{ width: 150 }}
+                        value={filters.segment}
+                        onChange={(e) => setFilters({ ...filters, segment: e.target.value })}
+                    >
+                        <option value="">All Segments</option>
+                        <option value="Motor">Motor</option>
+                        <option value="Non-Motor">Non-Motor</option>
+                    </select>
+
+                    <select
+                        className="form-select form-select-sm"
+                        style={{ width: 140 }}
+                        value={filters.ageRange}
+                        onChange={(e) => setFilters({ ...filters, ageRange: e.target.value })}
+                    >
+                        <option value="">All Ages</option>
+                        <option value="0-18">0-18</option>
+                        <option value="19-35">19-35</option>
+                        <option value="36-60">36-60</option>
+                        <option value="60-120">60+</option>
+                    </select>
+
+                    <select
+                        className="form-select form-select-sm"
+                        style={{ width: 160 }}
+                        value={filters.dateRange}
+                        onChange={(e) => handleDateRangeChange(e.target.value)}
+                    >
+                        <option value="">All Time</option>
+                        <option value="thisMonth">This Month</option>
+                        <option value="2months">Last 2 Months</option>
+                        <option value="3months">Last 3 Months</option>
+                        <option value="4months">Last 4 Months</option>
+                        <option value="5months">Last 5 Months</option>
+                        <option value="6months">Last 6 Months</option>
+                        <option value="1year">Last 1 Year</option>
+                        <option value="custom">Custom</option>
+                    </select>
+
+                    {filters.dateRange === 'custom' && (
+                        <>
+                            <input
+                                type="date"
+                                className="form-control form-control-sm"
+                                style={{ width: 160 }}
+                                placeholder="From"
+                                value={filters.customFromDate}
+                                onChange={(e) => handleCustomDateChange('customFromDate', e.target.value)}
+                                max={new Date().toISOString().split('T')[0]}
+                            />
+                            <input
+                                type="date"
+                                className="form-control form-control-sm"
+                                style={{ width: 160 }}
+                                placeholder="To"
+                                value={filters.customToDate}
+                                onChange={(e) => handleCustomDateChange('customToDate', e.target.value)}
+                                max={new Date().toISOString().split('T')[0]}
+                                min={filters.customFromDate || undefined}
+                            />
+                        </>
+                    )}
+
+                    <button
+                        className="btn btn-primary btn-sm"
+                        onClick={handleApplyFilters}
+                        disabled={isCustomDateIncomplete}
+                    >
+                        <i className="fas fa-search me-1"></i>Search
+                    </button>
+                    {(filters.segment || filters.ageRange || filters.admin || filters.dateRange) && (
+                        <button
+                            className="btn btn-outline-secondary btn-sm"
+                            onClick={() => {
+                                const cleared = {
+                                    segment: "",
+                                    ageRange: "",
+                                    admin: "",
+                                    dateRange: "",
+                                    fromDate: "",
+                                    toDate: "",
+                                };
+                                setFilters({
+                                    segment: "",
+                                    ageRange: "",
+                                    admin: "",
+                                    dateRange: "",
+                                    customFromDate: "",
+                                    customToDate: "",
+                                });
+                                setPage(1);
+                                fetchInsurance(1, false, 10, '', cleared);
+                            }}
+                        >
+                            Clear
+                        </button>
+                    )}
                 </div>
 
                 {insurance.length === 0 ? (
@@ -295,8 +490,12 @@ const InsuranceManagement2 = () => {
                                 <tr>
                                     <th>Sr. No.</th>
                                     <th>Name</th>
-                                    <th>Email</th>
+                                    {/* <th>Email</th> */}
+                                    <th>Mobile</th>
+                                    <th>segment</th>
                                     <th>Type</th>
+                                    <th>Manufacturer</th>
+                                    <th>Model</th>
                                     <th>Date</th>
                                     <th>Actions</th>
                                 </tr>
@@ -306,8 +505,12 @@ const InsuranceManagement2 = () => {
                                     <tr key={insurance.id} style={{ verticalAlign: "middle" }}>
                                         <td>{index + 1}</td>
                                         <td>{insurance.full_name}</td>
-                                        <td>{insurance.email}</td>
-                                        <td>{insurance.insurance_type}</td>
+                                        <td>{insurance.primary_mobile}</td>
+                                        <td>{insurance.segment}</td>
+                                        {/* <td>{insurance.email}</td> */}
+                                        <td>{insurance.insurance_type ?? 'N/A'}</td>
+                                        <td>{insurance.manufacturer ?? 'N/A'}</td>
+                                        <td>{insurance.model ?? 'N/A'}</td>
                                         <td>{new Date(insurance.insurance_date).toLocaleDateString('en-GB')}</td>
                                         <td>
                                             <button
