@@ -6,7 +6,8 @@ import {
   cilGroup,
   cilShieldAlt,
   cilContact,
-  cilTruck,
+  cilCarAlt,
+  cilCog,
   cilIndustry
 } from '@coreui/icons'
 import { CNavItem } from '@coreui/react'
@@ -50,13 +51,13 @@ const _nav = (admintype) => {
       component: CNavItem,
       name: 'Vehicle Company',
       to: '/vehicle-company',
-      icon: <CIcon icon={cilTruck} customClassName="nav-icon" style={{ height: '20px' }} />,
+      icon: <CIcon icon={cilCog} customClassName="nav-icon" style={{ height: '20px' }} />,
     },
     {
       component: CNavItem,
       name: 'Vehicle Models',
       to: '/vehicle-models',
-      icon: <CIcon icon={cilTruck} customClassName="nav-icon" style={{ height: '20px' }} />,
+      icon: <CIcon icon={cilCarAlt} customClassName="nav-icon" style={{ height: '20px' }} />,
     },
     {
       component: CNavItem,

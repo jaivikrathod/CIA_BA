@@ -337,11 +337,11 @@ const InsuranceManagement2 = () => {
                         <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
                             <h2 className="mb-0">Insurance Management</h2>
                             <div className="d-flex gap-2 flex-wrap">
-                                <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-                                    <FaPlusSquare /> New Insurance
+                                <button className="btn btn-primary d-flex align-items-center gap-2" onClick={() => setShowModal(true)}>
+                                    <FaPlusSquare /> <span style={{"marginBottom":"1px"}}>New Insurance</span>
                                 </button>
-                                <button className="btn btn-success" onClick={downloadCSV}>
-                                    <FaDownload /> Download CSV
+                                <button className="btn btn-success d-flex align-items-center gap-2" onClick={downloadCSV}>
+                                    <FaDownload /> <span style={{"marginBottom":"2px"}}> Download CSV</span>
                                 </button>
                             </div>
                         </div>
@@ -445,15 +445,15 @@ const InsuranceManagement2 = () => {
                     )}
 
                     <button
-                        className="btn btn-primary btn-sm"
+                        className="btn btn-primary"
                         onClick={handleApplyFilters}
                         disabled={isCustomDateIncomplete}
                     >
-                        <i className="fas fa-search me-1"></i>Search
+                        Search
                     </button>
                     {(filters.segment || filters.ageRange || filters.admin || filters.dateRange) && (
                         <button
-                            className="btn btn-outline-secondary btn-sm"
+                            className="btn btn-outline-secondary"
                             onClick={() => {
                                 const cleared = {
                                     segment: "",
