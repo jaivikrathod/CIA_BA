@@ -175,6 +175,109 @@ const Dashboard = () => {
     fetchInsuranceCategory();
   };
 
+  // CSV Download functionality
+  const downloadCSV = async () => {
+    try {
+      // Build parameters for the insurance report API with detailed data
+      const params = buildParams();
+      params.detailed = true; // Request detailed data for CSV export
+
+      const response = await api.get('/get-insurance-report', { params });
+      
+      if (response.data.detailed_data && response.data.detailed_data.length > 0) {
+        // Convert data to CSV format
+        const csvData = convertToCSV(response.data.detailed_data);
+        
+        // Create and download file
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        
+        // Generate filename with current date and filters
+        const currentDate = new Date().toISOString().split('T')[0];
+        let filename = `insurance_data_${currentDate}`;
+        
+        if (selectedEntity) {
+          filename += `_${selectedEntity.type}_${selectedEntity.id}`;
+        }
+        if (preset && preset !== 'all') {
+          filename += `_${preset}`;
+        }
+        filename += '.csv';
+        
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        alert('No data available to download');
+      }
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Error downloading CSV file');
+    }
+  };
+
+  // Convert insurance data to CSV format
+  const convertToCSV = (data) => {
+    if (!data || data.length === 0) return '';
+    
+    // Define CSV headers
+    const headers = [
+      'Customer Name',
+      'Email',
+      'Mobile',
+      'Date of Birth',
+      'Age',
+      'Vehicle Number',
+      'Insurance Type',
+      'Segment',
+      'Manufacturer',
+      'Model',
+      'Fuel Type',
+      'Year of Manufacture',
+      'Policy Start Date',
+      'Policy Expiry Date',
+      'Insurance Date',
+      'Insurance Count',
+      'Premium Amount',
+      'Package Premium',
+      'Total Amount'
+    ];
+    
+    // Convert data to CSV rows
+    const csvRows = data.map(row => [
+      row.customer_name || '',
+      row.email || '',
+      row.mobile || '',
+      row.dob || '',
+      row.age || '',
+      row.vehicle_number || '',
+      row.insurance_type || '',
+      row.segment || '',
+      row.manufacturer || '',
+      row.model || '',
+      row.fuel_type || '',
+      row.yom || '',
+      row.policy_start_date || '',
+      row.policy_expiry_date || '',
+      row.insurance_date || '',
+      // row.insurance_count || '',
+      row.premium || '',
+      row.package_premium || '',
+      row.amount || ''
+    ]);
+    
+    // Combine headers and rows
+    const csvContent = [headers, ...csvRows]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+    
+    return csvContent;
+  };
+
   // Helpers for entity select
   const selectedValue = selectedEntity ? `${selectedEntity.type}-${selectedEntity.id}` : ''
   const handleEntityChange = (e) => {
@@ -272,7 +375,7 @@ const Dashboard = () => {
         <CCardBody>
 
           <CRow className="g-3 mb-3">
-            <CCol xs={12} md={6} lg={4}>
+            <CCol xs={12} md={6} lg={3}>
               <label className="form-label">Select User/Agent</label>
               <select className="form-select" value={selectedValue} onChange={handleEntityChange}>
                 <option value="">All</option>
@@ -289,7 +392,7 @@ const Dashboard = () => {
                 </optgroup>
               </select>
             </CCol>
-            <CCol xs={12} md={6} lg={3}>
+            <CCol xs={12} md={6} lg={2}>
               <label className="form-label">Date Range</label>
               <select className="form-select" value={preset} onChange={(e) => setPreset(e.target.value)}>
                 <option value="all">All Time</option>
@@ -301,6 +404,18 @@ const Dashboard = () => {
                 <option value="custom">Custom</option>
               </select>
             </CCol>
+            <CCol xs={12} md={6} lg={2}>
+              <label className="form-label">&nbsp;</label>
+              <button
+                type="button"
+                className="btn btn-success w-100"
+                onClick={downloadCSV}
+                style={{ minHeight: '38px' }}
+              >
+                <i className="cil-cloud-download me-1"></i>
+                Download CSV
+              </button>
+            </CCol>
             {preset === 'custom' && (
               <>
                 <CCol xs={12} md={6} lg={2}>
@@ -311,7 +426,7 @@ const Dashboard = () => {
                     value={customStart}
                     onChange={(e) => {
                       setCustomStart(e.target.value);
-                      setDateError(''); // Clear error when user changes date
+                      setDateError(''); 
                     }}
                   />
                 </CCol>
@@ -323,29 +438,28 @@ const Dashboard = () => {
                     value={customEnd}
                     onChange={(e) => {
                       setCustomEnd(e.target.value);
-                      setDateError(''); // Clear error when user changes date
+                      setDateError('');
                     }}
                   />
                 </CCol>
-                <CCol xs={12} md={6} lg={2}>
-                  <div className="d-flex gap-2">
+                <CCol xs={12} md={6} lg={1}>
+                  <label className="form-label">&nbsp;</label>
+                  <div className="d-flex gap-1">
                     <button
                       type="button"
                       className="btn btn-primary btn-sm"
                       onClick={handleConfirmSearch}
-                      style={{ minWidth: '80px' }}
+                      style={{ minWidth: '60px' }}
                     >
-                      <i className="cil-magnifying-glass me-1"></i>
-                      Search
+                      <i className="cil-magnifying-glass"></i>
                     </button>
                     <button
                       type="button"
                       className="btn btn-outline-secondary btn-sm"
                       onClick={handleClearFilter}
-                      style={{ minWidth: '80px' }}
+                      style={{ minWidth: '60px' }}
                     >
-                      <i className="cil-x me-1"></i>
-                      Clear
+                      <i className="cil-x"></i>
                     </button>
                   </div>
                 </CCol>
