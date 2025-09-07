@@ -42,7 +42,7 @@ const Dashboard = () => {
   const [customEnd, setCustomEnd] = useState('');
   const [dateError, setDateError] = useState('');
   const [counts, setCounts] = useState({ users: 0, customers: 0, insurance: 0, newCustomers: 0, agents: 0 });
-  const [insuranceData, setinsuranceData] = useState({packagePremium:0,premium:0,amount:0});
+  const [insuranceData, setinsuranceData] = useState({ packagePremium: 0, premium: 0, amount: 0 });
   const user_id = useSelector((state) => state.id);
   const adminType = useSelector((state) => state.adminType);
   const api = useApi()
@@ -91,7 +91,7 @@ const Dashboard = () => {
 
       if (response.data.insurance_data) {
         console.log(response.data.insurance_data);
-        
+
         setinsuranceData(response.data.insurance_data);
       }
     } catch (error) {
@@ -183,21 +183,21 @@ const Dashboard = () => {
       params.detailed = true; // Request detailed data for CSV export
 
       const response = await api.get('/get-insurance-report', { params });
-      
+
       if (response.data.detailed_data && response.data.detailed_data.length > 0) {
         // Convert data to CSV format
         const csvData = convertToCSV(response.data.detailed_data);
-        
+
         // Create and download file
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
         link.setAttribute('href', url);
-        
+
         // Generate filename with current date and filters
         const currentDate = new Date().toISOString().split('T')[0];
         let filename = `insurance_data_${currentDate}`;
-        
+
         if (selectedEntity) {
           filename += `_${selectedEntity.type}_${selectedEntity.id}`;
         }
@@ -205,7 +205,7 @@ const Dashboard = () => {
           filename += `_${preset}`;
         }
         filename += '.csv';
-        
+
         link.setAttribute('download', filename);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
@@ -223,7 +223,7 @@ const Dashboard = () => {
   // Convert insurance data to CSV format
   const convertToCSV = (data) => {
     if (!data || data.length === 0) return '';
-    
+
     // Define CSV headers
     const headers = [
       'Customer Name',
@@ -246,7 +246,7 @@ const Dashboard = () => {
       'Package Premium',
       'Total Amount'
     ];
-    
+
     // Convert data to CSV rows
     const csvRows = data.map(row => [
       row.customer_name || '',
@@ -269,12 +269,12 @@ const Dashboard = () => {
       row.package_premium || '',
       row.amount || ''
     ]);
-    
+
     // Combine headers and rows
     const csvContent = [headers, ...csvRows]
       .map(row => row.map(field => `"${field}"`).join(','))
       .join('\n');
-    
+
     return csvContent;
   };
 
@@ -404,18 +404,7 @@ const Dashboard = () => {
                 <option value="custom">Custom</option>
               </select>
             </CCol>
-            <CCol xs={12} md={6} lg={2}>
-              <label className="form-label">&nbsp;</label>
-              <button
-                type="button"
-                className="btn btn-success w-100"
-                onClick={downloadCSV}
-                style={{ minHeight: '38px' }}
-              >
-                <i className="cil-cloud-download me-1"></i>
-                Download CSV
-              </button>
-            </CCol>
+
             {preset === 'custom' && (
               <>
                 <CCol xs={12} md={6} lg={2}>
@@ -426,7 +415,7 @@ const Dashboard = () => {
                     value={customStart}
                     onChange={(e) => {
                       setCustomStart(e.target.value);
-                      setDateError(''); 
+                      setDateError('');
                     }}
                   />
                 </CCol>
@@ -442,30 +431,49 @@ const Dashboard = () => {
                     }}
                   />
                 </CCol>
-                <CCol xs={12} md={6} lg={1}>
-                  <label className="form-label">&nbsp;</label>
-                  <div className="d-flex gap-1">
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      onClick={handleConfirmSearch}
-                      style={{ minWidth: '60px' }}
-                    >
-                      <i className="cil-magnifying-glass"></i>
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-outline-secondary btn-sm"
-                      onClick={handleClearFilter}
-                      style={{ minWidth: '60px' }}
-                    >
-                      <i className="cil-x"></i>
-                    </button>
-                  </div>
-                </CCol>
               </>
             )}
+            <CCol xs={12} md={6} lg={2}>
+              <label className="form-label">&nbsp;</label>
+              <button
+                type="button"
+                className="btn btn-success w-100"
+                onClick={downloadCSV}
+                style={{ minHeight: '38px' }}
+              >
+                <i className="cil-cloud-download me-1"></i>
+                Download CSV
+              </button>
+            </CCol>
           </CRow>
+          {preset === 'custom' && (
+
+            <CRow className='mb-4'>
+              <CCol xs={12} md={6} lg={2}>
+                <div className="d-flex gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={handleConfirmSearch}
+                    style={{ minWidth: '80px' }}
+                  >
+                    <i className="cil-magnifying-glass me-1"></i>
+                    Search
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={handleClearFilter}
+                    style={{ minWidth: '80px' }}
+                  >
+                    <i className="cil-x me-1"></i>
+                    Clear
+                  </button>
+                </div>
+              </CCol>
+            </CRow>
+          )}
+
 
           {/* Error message display */}
           {dateError && (
@@ -490,7 +498,7 @@ const Dashboard = () => {
                         <div className="fw-bold fs-5">{counts.users}</div>
                       </div>
                       <span className="badge bg-success-subtle text-success">Total</span>
-                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -548,7 +556,7 @@ const Dashboard = () => {
                   <div className="card-body py-3 d-flex justify-content-between align-items-center">
                     <div>
                       <div className="text-muted small">Package Premium</div>
-                      <div className="fw-bold fs-5">{insuranceData.packagePremium}</div>
+                      <div className="fw-bold fs-5">₹ {insuranceData.packagePremium}</div>
                     </div>
                     <span className="badge bg-success-subtle text-success">Total</span>
                   </div>
@@ -560,7 +568,7 @@ const Dashboard = () => {
                   <div className="card-body py-3 d-flex justify-content-between align-items-center">
                     <div>
                       <div className="text-muted small">Premium</div>
-                      <div className="fw-bold fs-5">{insuranceData.premium}</div>
+                      <div className="fw-bold fs-5">₹ {insuranceData.premium}</div>
                     </div>
                     <span className="badge bg-success-subtle text-success">Total</span>
                   </div>
@@ -572,7 +580,7 @@ const Dashboard = () => {
                   <div className="card-body py-3 d-flex justify-content-between align-items-center">
                     <div>
                       <div className="text-muted small">Amount</div>
-                      <div className="fw-bold fs-5">{insuranceData.amount}</div>
+                      <div className="fw-bold fs-5">₹ {insuranceData.amount}</div>
                     </div>
                     <span className="badge bg-success-subtle text-success">Total</span>
                   </div>
