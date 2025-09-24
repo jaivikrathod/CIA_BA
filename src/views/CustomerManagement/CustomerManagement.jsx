@@ -305,7 +305,7 @@ const CustomerManagement = () => {
 
                     {/* Table Section */}
                     <div className="table-responsive fade-in" style={{ maxHeight: '350px' }}>
-                        <table className="table table-striped table-hover" style={{"fontSize":"16px"}}>
+                        <table className="table table-striped table-hover" style={{"fontSize":"14px"}}>
                             <thead className="thead-dark">
                                 <tr>
                                     <th>Sr. No.</th>

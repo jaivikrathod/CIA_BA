@@ -528,7 +528,7 @@ const InsuranceManagement2 = () => {
                         No insurance found. Please add a new insurance.</div>
                 ) : (<>
                     <div className="table-responsive fade-in" style={{ maxHeight: '350px' }}>
-                        <table className="table table-striped table-hover" style={{"fontSize":"16px"}}>
+                        <table className="table table-striped table-hover" style={{"fontSize":"14px"}}>
                             <thead className="thead-dark">
                                 <tr>
                                     <th>No</th>
@@ -540,7 +540,7 @@ const InsuranceManagement2 = () => {
                                     <th>Manufacturer</th>
                                     <th>Model</th>
                                     <th>Date</th>
-                                    <th style={{"minWidth":"100px"}}>Actions</th>
+                                    <th style={{"minWidth":"130px"}}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
