@@ -57,6 +57,8 @@ const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key,
     formData.append("document_type", documentType === "other" ? otherDocumentName : documentType);
     formData.append("document", file);
     if(id){
+      console.log("ohhh.");
+      
       formData.append("id",id)
     }
     try {

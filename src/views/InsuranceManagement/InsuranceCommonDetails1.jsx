@@ -165,10 +165,6 @@ export default function InsuranceCommonDetails1() {
             placeholder="GJ01xxxx"
             {...register("vehicle_number", {
               required: "Register No is required",
-              pattern: {
-                value: /^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$/,
-                message: "Invalid vehicle number format (e.g., GJ01AB1234)"
-              }
             })}
           />
           {errors.vehicle_number && <div className="invalid-feedback">{errors.vehicle_number.message}</div>}

@@ -142,10 +142,10 @@ export default function InsuranceCommonDetails2() {
     { label: "New Policy Start Date", type: "date", id: "policy_start_date", validation: { required: "Start Date is required" }, width: "col-md-3" },
     { label: "New Policy Expiry Date", type: "date", id: "policy_expiry_date", validation: { required: "Expiry Date is required" }, width: "col-md-3" },
     { label: "Payout Percent", type: "number", id: "payout_percent", validation: { required: "Payout Percent is required" }, adminOnly: true, width: "col-md-3" },
-    { label: "Amount", type: "number", id: "amount", validation: { required: "Amount is required" }, adminOnly: true, width: "col-md-3", disabled: true },
-    { label: "tds", type: "number", id: "tds", validation: { required: "tds is required" }, adminOnly: true, width: "col-md-3" },
-    { label: "commission percentage", type: "number", id: "commission_percentage", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
-    { label: "commission amount", type: "number", id: "commission_amount", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
+    { label: "Amount", type: "number", id: "amount", validation: { required: "Amount is required" }, adminOnly: false, width: "col-md-3", disabled: true },
+    { label: "tds", type: "number", id: "tds", validation: { required: "tds is required" }, adminOnly: false, width: "col-md-3" },
+    // { label: "commission percentage", type: "number", id: "commission_percentage", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
+    // { label: "commission amount", type: "number", id: "commission_amount", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
   ];
   const case_typeValue = (watch('case_type') || '').toLowerCase();
 
