@@ -436,7 +436,7 @@ const CustomerManagement = () => {
 
 // Customer Form Component
 const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCustomer }) => {
-    const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
+    const { register, handleSubmit,watch, setValue, reset, formState: { errors } } = useForm({
         defaultValues: customer || {}
     });
     const api = useApi();
@@ -450,6 +450,18 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
             Object.keys(customer).forEach((field) => setValue(field, customer[field]));
         }
     }, [customer, setValue]);
+
+    const [hideGender, sethideGender] = useState(false);
+
+    const type = watch('type');
+
+    useEffect(() => {
+        if(type == 'company'){
+            sethideGender(true);
+        }else{
+            sethideGender(false);
+        }
+    }, [type]);
 
     const onSubmit = async (data) => {
         try {
@@ -505,6 +517,16 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                         </div>
                         <div className="modal-body p-4" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
                             <form onSubmit={handleSubmit(onSubmit)}>
+
+                            <div className="mb-4">
+                                    <label className="form-label fw-bold">Type</label>
+                                    <select disabled={!isReadable} {...register("type", { required: "Type is required" })} className="form-select">
+                                        <option value="individual">Individual</option>
+                                        <option value="company">Company</option>
+                                    </select>
+                                    {errors.type && <small className="text-danger">{errors.type.message}</small>}
+                                </div>
+   
                                 <div className="mb-4">
                                     <label className="form-label fw-bold">Full Name</label>
                                     <input
@@ -531,7 +553,12 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                                     <label className="form-label fw-bold">Email</label>
                                     <input
                                         type="email"
-                                        {...register("email", { required: "Email is required" })}
+                                        {...register("email", {
+                                            pattern: {
+                                                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                                message: "Invalid email address"
+                                            }
+                                        })}
                                         className="form-control"
                                         disabled={!isReadable}
                                     />
@@ -562,7 +589,6 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                                         type="text"
                                         maxLength={10}
                                         {...register("additional_mobile", {
-                                            required: "Primary Mobile is required",
                                             pattern: {
                                                 value: /^[0-9]{10}$/,
                                                 message: "Mobile number must be exactly 10 digits"
@@ -574,6 +600,7 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                                     {errors.additional_mobile && <small className="text-danger">{errors.additional_mobile.message}</small>}
 
                                 </div>
+
 
                                 <div className="mb-4">
                                     <label className="form-label fw-bold">Date of birth</label>
@@ -594,9 +621,23 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                                     />
                                     {errors.dob && <small className="text-danger">{errors.dob.message}</small>}
                                 </div>
-
-
+                                
+                                
                                 <div className="mb-4">
+                                    <label className="form-label fw-bold">Incorporation Date</label>
+                                    <input
+                                        type="date"
+                                        {...register("date_of_incorporation", {
+                                            required: "Incorporation Date is required",
+                                        })}
+                                        className="form-control"
+                                        disabled={!isReadable}
+                                    />
+                                    {errors.date_of_incorporation && <small className="text-danger">{errors.dob.message}</small>}
+                                </div>
+
+
+                                {!hideGender &&  <div className="mb-4">
                                     <label className="form-label fw-bold">Gender</label>
                                     <select disabled={!isReadable} {...register("gender", { required: "Gender is required" })} className="form-select">
                                         <option value="male">Male</option>
@@ -604,7 +645,7 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                                     </select>
                                     {errors.gender && <small className="text-danger">{errors.gender.message}</small>}
                                 </div>
-
+                                }
                                 <div className="mb-4">
                                     <label className="form-label fw-bold">State</label>
                                     <input

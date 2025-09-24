@@ -555,6 +555,7 @@ const InsuranceDetailMain = () => {
                             <option value="diesel">Diesel</option>
                             <option value="electric">Electric</option>
                             <option value="hybrid">Hybrid</option>
+                            <option value="CNG">CNG</option>
                           </select>
                           {errors.fuel_type && <div className="invalid-feedback">{errors.fuel_type.message}</div>}
                         </div>
@@ -832,6 +833,7 @@ const InsuranceDetailMain = () => {
                           <option value="">Select Case type</option>
                           <option value="office">Office</option>
                           <option value="agent">Agent</option>
+                          <option value="self">Self</option>
                         </select>
                         {errors.case_type && (
                           <div className="invalid-feedback">{errors.case_type.message}</div>
@@ -1055,6 +1057,7 @@ const InsuranceDetailMain = () => {
         show={uploadModal.show}
         isCustomerDoc={false}
         handleClose={closeUploadModal}
+        id={activeInsuranceId}
       />
     </>
   );

@@ -3,7 +3,7 @@ import api from "../../api/axios";
 import { toast } from "react-toastify";
 import useApi from "../../api/axios";
 
-const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key }) => {
+const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key,id }) => {
   const [documentType, setDocumentType] = useState("");
   const [otherDocumentName, setOtherDocumentName] = useState("");
   const [file, setFile] = useState(null);
@@ -56,6 +56,9 @@ const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key 
     formData.append("customer_id", customerId);
     formData.append("document_type", documentType === "other" ? otherDocumentName : documentType);
     formData.append("document", file);
+    if(id){
+      formData.append("id",id)
+    }
     try {
       const response = await axios.post(`/${route}`, formData, {
         headers: {

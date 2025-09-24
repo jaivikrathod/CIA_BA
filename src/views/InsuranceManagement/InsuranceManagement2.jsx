@@ -4,7 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MediaUploadModal from '../UploadDoc/MediaUploadModal';
 import "../../scss/customerManagement.css";
-import { FaInfoCircle, FaUpload, FaSyncAlt, FaPlusSquare, FaDownload } from "react-icons/fa";
+import { FaInfoCircle, FaUpload, FaSyncAlt, FaPlusSquare, FaDownload, FaTrash } from "react-icons/fa";
 import useApi from "../../api/axios";
 import LoadingComponent from "../../components/common/LoadingComponent";
 import { useSelector } from "react-redux";
@@ -22,6 +22,7 @@ const InsuranceManagement2 = () => {
     const [admins, setAdmins] = useState([]);
     const user_id = useSelector((state) => state.id);
     const adminType = useSelector((state) => state.adminType);
+    const [confirmDelete, setConfirmDelete] = useState({ show: false, id: null });
     const [filters, setFilters] = useState({
         segment: "",
         ageRange: "",
@@ -325,7 +326,49 @@ const InsuranceManagement2 = () => {
         }
     };
 
+    const handleDeleteInsurance = async (id) => {
+        try {
+            const response = await api.post(`/delete-insurance-details`, { id });
+            if (response.data.success) {
+                toast.success('Insurance deleted successfully');
+                setConfirmDelete({ show: false, id: null });
+                fetchInsurance();
+            }
+        } catch (error) {
+            toast.error('Failed to delete insurance');
+        }
+    }
+
+    const handleConfirmDelete = (id) => {
+        setConfirmDelete({ show: true, id });
+    }
+
+    const DeleteConfirmModal = ({ show, onClose, onConfirm }) => {
+        if (!show) return null;
+        return (
+            <div className="modal fade show d-block" tabIndex="-1">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Confirm Deletion</h5>
+                            <button type="button" className="btn-close" onClick={onClose}></button>
+                        </div>
+                        <div className="modal-body">
+                            <p>Are you sure you want to delete this Insurance?</p>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn btn-danger" onClick={onConfirm}>Confirm</button>
+                            <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+    
+
     return (
+        <>
         <div className="container-fluid px-0" style={{ maxWidth: "100vw" }}>
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
             {isLoading && <LoadingComponent />}
@@ -527,6 +570,13 @@ const InsuranceManagement2 = () => {
                                             >
                                                 <FaSyncAlt />
                                             </button>
+                                            <button
+                                                onClick={() => handleConfirmDelete(insurance.id)}
+                                                className="btn btn-link text-danger"
+                                                title="Delete Insurance"
+                                            >
+                                                <FaTrash />
+                                            </button>
                                             {/* <button
                                                 onClick={() => openUploadModal(insurance.id)}
                                                 className="btn btn-link"
@@ -597,6 +647,14 @@ const InsuranceManagement2 = () => {
                 )}
             </div>
         </div>
+        {confirmDelete.show && (
+                <DeleteConfirmModal
+                    show={confirmDelete.show}
+                    onClose={() => setConfirmDelete({ show: false, id: null })}
+                    onConfirm={() => handleDeleteInsurance(confirmDelete.id)}
+                />
+            )}
+        </>
     );
 };
 

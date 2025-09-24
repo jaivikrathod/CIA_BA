@@ -237,6 +237,7 @@ export default function InsuranceCommonDetails1() {
             <option value="diesel">Diesel</option>
             <option value="electric">Electric</option>
             <option value="hybrid">Hybrid</option>
+            <option value="CNG">CNG</option>
           </select>
           {errors.fuel_type && <div className="invalid-feedback">{errors.fuel_type.message}</div>}
         </div>

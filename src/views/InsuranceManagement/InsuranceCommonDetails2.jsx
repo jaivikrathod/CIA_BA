@@ -144,6 +144,8 @@ export default function InsuranceCommonDetails2() {
     { label: "Payout Percent", type: "number", id: "payout_percent", validation: { required: "Payout Percent is required" }, adminOnly: true, width: "col-md-3" },
     { label: "Amount", type: "number", id: "amount", validation: { required: "Amount is required" }, adminOnly: true, width: "col-md-3", disabled: true },
     { label: "tds", type: "number", id: "tds", validation: { required: "tds is required" }, adminOnly: true, width: "col-md-3" },
+    { label: "commission percentage", type: "number", id: "commission_percentage", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
+    { label: "commission amount", type: "number", id: "commission_amount", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
   ];
   const case_typeValue = (watch('case_type') || '').toLowerCase();
 
@@ -159,6 +161,17 @@ export default function InsuranceCommonDetails2() {
   const package_premium = Number(watch('package_premium')) || 0;
   const premium = Number(watch('premium')) || 0;
   const payout_percent = Number(watch('payout_percent')) || 0;
+
+  const commission_percentage = Number(watch('commission_percentage')) || 0;
+
+  useEffect(() => {
+     if (premium && commission_percentage) {
+       const calculatedCommissionAmount = (premium * commission_percentage) / 100;
+       setValue('commission_amount', calculatedCommissionAmount);
+     } else {
+       setValue('commission_amount', null);
+     }
+  }, [commission_percentage]);
 
   // Auto-calculate package premium when OD or TP premium changes
   useEffect(() => {
@@ -262,6 +275,7 @@ export default function InsuranceCommonDetails2() {
               <option value="">Select Case type</option>
               <option value="office">Office</option>
               <option value="agent">Agent</option>
+              <option value="self">Self</option>
             </select>
             {errors.case_type && (
               <div className="invalid-feedback">{errors.case_type.message}</div>
