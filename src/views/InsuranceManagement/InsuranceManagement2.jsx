@@ -528,10 +528,10 @@ const InsuranceManagement2 = () => {
                         No insurance found. Please add a new insurance.</div>
                 ) : (<>
                     <div className="table-responsive fade-in" style={{ maxHeight: '350px' }}>
-                        <table className="table table-striped table-hover">
+                        <table className="table table-striped table-hover" style={{"fontSize":"16px"}}>
                             <thead className="thead-dark">
                                 <tr>
-                                    <th>Sr. No.</th>
+                                    <th>No</th>
                                     <th>Name</th>
                                     {/* <th>Email</th> */}
                                     <th>Mobile</th>
@@ -540,7 +540,7 @@ const InsuranceManagement2 = () => {
                                     <th>Manufacturer</th>
                                     <th>Model</th>
                                     <th>Date</th>
-                                    <th>Actions</th>
+                                    <th style={{"minWidth":"100px"}}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -555,27 +555,27 @@ const InsuranceManagement2 = () => {
                                         <td>{insurance.manufacturer ?? 'N/A'}</td>
                                         <td>{insurance.model ?? 'N/A'}</td>
                                         <td>{new Date(insurance.insurance_date).toLocaleDateString('en-GB')}</td>
-                                        <td>
-                                            <button
+                                        <td style={{"padding":"0px"}}>
+                                            <button 
                                                 className="btn btn-link"
                                                 onClick={() => getParticularInsurance(insurance.common_id)}
                                                 title="Info"
                                             >
-                                                <FaInfoCircle />
+                                                <FaInfoCircle size={14} />
                                             </button>
                                             <button
                                                 onClick={() => renewInsurance(insurance.id, insurance.common_id)}
                                                 className="btn btn-link"
                                                 title="Renew Insurance"
                                             >
-                                                <FaSyncAlt />
+                                                <FaSyncAlt size={14} />
                                             </button>
                                             <button
                                                 onClick={() => handleConfirmDelete(insurance.id)}
                                                 className="btn btn-link text-danger"
                                                 title="Delete Insurance"
                                             >
-                                                <FaTrash />
+                                                <FaTrash size={14}/>
                                             </button>
                                             {/* <button
                                                 onClick={() => openUploadModal(insurance.id)}

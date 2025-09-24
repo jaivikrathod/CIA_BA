@@ -305,7 +305,7 @@ const CustomerManagement = () => {
 
                     {/* Table Section */}
                     <div className="table-responsive fade-in" style={{ maxHeight: '350px' }}>
-                        <table className="table table-striped table-hover">
+                        <table className="table table-striped table-hover" style={{"fontSize":"16px"}}>
                             <thead className="thead-dark">
                                 <tr>
                                     <th>Sr. No.</th>
@@ -315,8 +315,8 @@ const CustomerManagement = () => {
                                     <th>Age</th>
                                     <th>Gender</th>
                                     {/* <th>Address</th> */}
-                                    <th>Actions</th>
-                                    <th>Files & Details</th>
+                                    <th style={{"minWidth":"100px"}}>Actions</th>
+                                    <th style={{"minWidth":"100px"}}>Files & Details</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -329,36 +329,36 @@ const CustomerManagement = () => {
                                         <td>{calculateAge(customer.dob)}</td>
                                         <td>{customer.gender || 'N/A'}</td>
                                         {/* <td>{customer.full_address || 'N/A'}</td> */}
-                                        <td>
+                                        <td style={{"padding":"0px"}}>
                                             <button
                                                 className="btn btn-link"
                                                 onClick={() => setSelectedCustomer(customer)}
                                                 title="Info"
                                             >
-                                                <FaInfoCircle />
+                                                <FaInfoCircle size={14} />
                                             </button>
                                             <button
                                                 className="btn btn-link text-danger"
                                                 onClick={() => setConfirmDelete({ show: true, id: customer.id })}
                                                 title="Delete"
                                             >
-                                                <FaTrash />
+                                                <FaTrash size={14} />
                                             </button>
                                         </td>
-                                        <td>
+                                        <td style={{"padding":"0px"}}>
                                             <button
                                                 className="btn btn-link text-info"
                                                 onClick={() => addNewInsurance(customer.id)}
                                                 title="Add Insurance"
                                             >
-                                                <FaPlusSquare />
+                                                <FaPlusSquare size={14} />
                                             </button>
                                             <button
                                                 className="btn btn-link text-primary"
                                                 onClick={() => openUploadModal(customer.id)}
                                                 title="Upload"
                                             >
-                                                <FaUpload />
+                                                <FaUpload size={14} />
                                             </button>
                                         </td>
                                     </tr>
