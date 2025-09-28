@@ -8,8 +8,10 @@ import {
   cilContact,
   cilCarAlt,
   cilCog,
-  cilIndustry
+  cilIndustry,
+  cilDollar
 } from '@coreui/icons'
+
 import { CNavItem } from '@coreui/react'
 
 const _nav = (admintype) => {
@@ -42,11 +44,11 @@ const _nav = (admintype) => {
       name: 'Insurance',
       to: '/insurance',
       icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" style={{ height: '20px' }} />,
-    },{
+    },admintype === 'Admin' && {
       component: CNavItem,
       name: 'Set Insurance Amount',
       to: '/pending-insurance-amount',
-      icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" style={{ height: '20px' }} />,
+      icon: <CIcon icon={cilDollar} customClassName="nav-icon" style={{ height: '20px' }} />,
     },{
       component: CNavItem,
       name: 'Agents',
