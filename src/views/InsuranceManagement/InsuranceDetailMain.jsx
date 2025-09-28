@@ -909,7 +909,7 @@ const InsuranceDetailMain = () => {
                         <input
                           type="number"
                           className="form-control"
-                          disabled={!isEditing}
+                          disabled={adminType === 'Sub-admin' || !isEditing}
                           {...register('payout_percent')}
                         />
                       </div>
@@ -918,7 +918,7 @@ const InsuranceDetailMain = () => {
                         <input
                           type="number"
                           className="form-control"
-                          disabled={!isEditing}
+                          disabled={adminType === 'Sub-admin' || !isEditing}
                           {...register('amount')}
                         />
                       </div>
