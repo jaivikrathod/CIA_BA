@@ -128,7 +128,7 @@ const InsuranceManagement2 = () => {
                 setShowModal(false);
                 navigate(`/insurance-initial/${response.data.id}`);
             } else {
-                toast.error("No customer found with this email.");
+                toast.error("No customer found with this email/mobile.");
             }
         } catch (error) {
             toast.error("Error checking customer.");
@@ -622,16 +622,16 @@ const InsuranceManagement2 = () => {
                             <div className="modal-dialog">
                                 <div className="modal-content">
                                     <div className="modal-header bg-dark text-white">
-                                        <h5 className="modal-title fw-bold">Enter Customer's Email</h5>
+                                        <h5 className="modal-title fw-bold">Enter Customer's Email/mobile</h5>
                                         <button type="button" className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
                                     </div>
                                     <div className="modal-body">
                                         <form onSubmit={handleEmailSubmit}>
                                             <input
-                                                type="email"
+                                                type="text"
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
-                                                placeholder="Enter Email"
+                                                placeholder="Enter Email/Mobile"
                                                 className="form-control mb-3"
                                                 required
                                             />

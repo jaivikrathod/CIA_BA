@@ -125,12 +125,23 @@ const InsuranceDetailMain = () => {
       }
     }
   };
+  const payout_percent = Number(watch('payout_percent')) || 0;
+  const od_premium = Number(watch('od_premium')) || 0;
 
   useEffect(() => {
     if (fetchedData && selectedOption2.length > 0) {
       setValue('segment_vehicle_type', fetchedData.segment_vehicle_type)
     }
   }, [selectedOption2, fetchedData]);
+
+  useEffect(() => {
+    if (od_premium && payout_percent) {
+      const calculatedAmount = (od_premium * payout_percent) / 100;
+      setValue('amount', calculatedAmount);
+    } else {
+      setValue('amount', null);
+    }
+  }, [od_premium, payout_percent, setValue]);
 
 
   useEffect(() => {

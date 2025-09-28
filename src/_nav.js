@@ -44,6 +44,11 @@ const _nav = (admintype) => {
       icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" style={{ height: '20px' }} />,
     },{
       component: CNavItem,
+      name: 'Set Insurance Amount',
+      to: '/pending-insurance-amount',
+      icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" style={{ height: '20px' }} />,
+    },{
+      component: CNavItem,
       name: 'Agents',
       to: '/agent',
       icon: <CIcon icon={cilContact} customClassName="nav-icon" style={{ height: '20px' }} />,

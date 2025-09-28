@@ -14,6 +14,7 @@ const AgentManagement = React.lazy(() => import('./views/Agent/AgentManagement')
 const EditProfile = React.lazy(()=>import('./views/UserManagement/EditProfile'))
 const vehicleCompany = React.lazy(()=> import('./views/Vehicle/VehicleCompanyManagement'))
 const vehicleModel = React.lazy(()=> import('./views/Vehicle/VehicleModelManagement'))
+const pendingInsuranceManagement = React.lazy(()=> import("./views/InsuranceManagement/PendingInsuranceManagement"));
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -22,6 +23,7 @@ const routes = [
   { path: '/users', name: 'users', element: UserManagement },
   { path: '/edit-profile', name: 'editprofile', element: EditProfile },
   { path: '/insurance', name: 'insurance', element: InsuranceManagement2 },
+  { path: '/pending-insurance-amount', name: 'pendinginsuranceamount', element: pendingInsuranceManagement},
   { path: '/insurance-initial/:id',  element: InsuranceInitialDetails },
   { path: '/common-insurance1/:id',  element: InsuranceCommonDetails1 },
   { path: '/common-insurance2/:id/:common_id',  element: InsuranceCommonDetails2 },
