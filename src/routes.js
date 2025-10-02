@@ -1,6 +1,7 @@
 import React from 'react'
 import InsuranceManagement2 from './views/InsuranceManagement/InsuranceManagement2'
 import InsuranceCompanyManagement from './views/InsuranceManagement/InsuranceCompanyManagement'
+import AgentCodeManagement from './views/Agent/AgentCodeManagement'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const CustomerManagement = React.lazy(() => import('./views/CustomerManagement/CustomerManagement'))
@@ -31,6 +32,8 @@ const routes = [
   { path: '/upload-insurance-document/:id', element: uploadInsuranceDocument },
   
   { path: '/agent', name: 'agent', element: AgentManagement },
+  { path: '/agent-codes', name: 'agentcode', element: AgentCodeManagement },
+
   { path: '/vehicle-company', name: 'vehicle', element: vehicleCompany },
   { path: '/vehicle-models', name: 'vehicle', element: vehicleModel },
   { path: '/insurance-companies', name: 'insuranceCompanies', element:InsuranceCompanyManagement },

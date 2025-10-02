@@ -56,6 +56,12 @@ const _nav = (admintype) => {
       icon: <CIcon icon={cilContact} customClassName="nav-icon" style={{ height: '20px' }} />,
     },{
       component: CNavItem,
+      name: 'Agents Code',
+      to: '/agent-codes',
+      icon: <CIcon icon={cilContact} customClassName="nav-icon" style={{ height: '20px' }} />,
+    },
+    {
+      component: CNavItem,
       name: 'Vehicle Make',
       to: '/vehicle-company',
       icon: <CIcon icon={cilCog} customClassName="nav-icon" style={{ height: '20px' }} />,
