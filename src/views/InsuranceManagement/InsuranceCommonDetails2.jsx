@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 export default function InsuranceCommonDetails2() {
   const navigate = useNavigate();
   const [agents, setAgents] = useState([]);
+  const [agentcode, setAgentcodes] = useState([]);
   const { register, watch, setValue, handleSubmit, reset, formState: { errors } } = useForm();
   const { id } = useParams();
   const { common_id } = useParams();
@@ -27,6 +28,7 @@ export default function InsuranceCommonDetails2() {
 
   useEffect(() => {
     getAgents();
+    getAgentscode();
     getCompanies();
     fetchUser();
     fetchdetails();
@@ -67,6 +69,20 @@ export default function InsuranceCommonDetails2() {
       const response = await api.get(`/agent-list`);
       if (response.data.success) {
         setAgents(response.data.data);
+      } else {
+        console.log("Error while fetching agents");
+      }
+    } catch (error) {
+      console.log(error.response.data.message);
+    }
+  }
+  const getAgentscode = async () => {
+    try {
+      const response = await api.get(`/agentcode-list`);
+      if (response.data.success) {
+        setAgentcodes(response.data.data);
+        console.log(response.data.data);
+        
       } else {
         console.log("Error while fetching agents");
       }
@@ -134,16 +150,19 @@ export default function InsuranceCommonDetails2() {
     { label: "Policy No", type: "text", id: "policy_no", validation: { required: "Policy No is required" }, width: "col-md-3" },
     { label: "OD Premium", type: "number", id: "od_premium", validation: { required: "OD Premium is required" }, width: "col-md-3" },
     { label: "TP Premium", type: "number", id: "tp_premium", validation: { required: "TP Premium is required" }, width: "col-md-3" },
-    { label: "Package Premium", type: "number", id: "package_premium", validation: { required: "Package Premium is required" }, width: "col-md-3", disabled: true },
+    { label: "Package Premium", type: "number", id: "package_premium", width: "col-md-3", disabled: true },
     { label: "Premium", type: "number", id: "premium", validation: { required: "Premium is required" }, width: "col-md-3" },
-    { label: "gst (Premium - Package Premium)", type: "number", id: "gst", validation: { required: "gst is required" }, disabled: true, width: "col-md-3" },
+    { label: "gst (Premium - Package Premium)", type: "number", id: "gst", disabled: true, width: "col-md-3" },
     { label: "Insurance Date", type: "date", id: "insurance_date", validation: { required: "Insurance Date is required" }, width: "col-md-3" },
     // { label: "Collection Date", type: "date", id: "collection_date", validation: { required: "Collection Date is required" }, width: "col-md-3" },
     { label: "New Policy Start Date", type: "date", id: "policy_start_date", validation: { required: "Start Date is required" }, width: "col-md-3" },
-    { label: "New Policy Expiry Date", type: "date", id: "policy_expiry_date", validation: { required: "Expiry Date is required" }, width: "col-md-3" },
+    { label: "New Policy Expiry Date", type: "date", id: "policy_expiry_date", width: "col-md-3" },
     { label: "Payout Percent", type: "number", id: "payout_percent", validation: { required: "Payout Percent is required" }, adminOnly: true, width: "col-md-3" },
-    { label: "Amount", type: "number", id: "amount", validation: { required: "Amount is required" }, adminOnly: true, width: "col-md-3", disabled: true },
-    { label: "tds", type: "number", id: "tds", validation: { required: "tds is required" }, adminOnly: false, width: "col-md-3" },
+    { label: "Amount", type: "number", id: "amount", adminOnly: true, width: "col-md-3", disabled: true },
+    { label: "Net Payout Percent", type: "number", id: "net_payout_percent", validation: { required: "Net Payout Percent is required" }, adminOnly: true, width: "col-md-3" },
+    { label: "Net Amount", type: "number", id: "net_amount", adminOnly: true, width: "col-md-3", disabled: true },
+    { label: "Net Income", type: "number", id: "net_income", adminOnly: true, width: "col-md-3", disabled: true },
+    // { label: "tds", type: "number", id: "tds", validation: { required: "tds is required" }, adminOnly: false, width: "col-md-3" },
     // { label: "commission percentage", type: "number", id: "commission_percentage", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
     // { label: "commission amount", type: "number", id: "commission_amount", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
   ];
@@ -181,7 +200,7 @@ export default function InsuranceCommonDetails2() {
     }
   }, [od_premium, tp_premium, setValue]);
 
-  // Auto-calculate amount when OD premium or payout percent changes
+
   useEffect(() => {
     if (od_premium && payout_percent) {
       const calculatedAmount = (od_premium * payout_percent) / 100;
@@ -190,6 +209,42 @@ export default function InsuranceCommonDetails2() {
       setValue('amount', null);
     }
   }, [od_premium, payout_percent, setValue]);
+
+  const netPayoutPerntage = Number(watch('net_payout_percent')) || 0;
+
+  useEffect(() => {
+    if (od_premium && netPayoutPerntage) {
+      const calculatedAmount = (od_premium * netPayoutPerntage) / 100;
+      setValue('net_amount', calculatedAmount);
+    }else{
+      setValue('net_amount', null);
+    }
+  }, [netPayoutPerntage, od_premium]);
+
+const amount = Number(watch('amount')) || 0;
+const net_amount = Number(watch('net_amount')) || 0;
+  useEffect(() => {
+     if(amount && net_amount){ 
+        const calculatedNetIncome = amount - net_amount;
+        setValue('net_income', calculatedNetIncome);
+     }else{
+      setValue('net_income', null);
+     }
+  }, [amount, net_amount]);
+
+  const newPoloicyStartDate = watch('policy_start_date');
+
+  useEffect(() => {
+    if (newPoloicyStartDate) {
+      const calculatedExpiryDate = new Date(newPoloicyStartDate);
+      calculatedExpiryDate.setFullYear(calculatedExpiryDate.getFullYear() + 1);
+      calculatedExpiryDate.setDate(calculatedExpiryDate.getDate() - 1);
+      const formattedExpiryDate = calculatedExpiryDate.toISOString().split('T')[0];
+      setValue('policy_expiry_date', formattedExpiryDate);
+    }else{
+      setValue('policy_expiry_date', null);
+    }
+  }, [newPoloicyStartDate, setValue]);
 
   // GST calculation
   useEffect(() => {
@@ -281,6 +336,8 @@ export default function InsuranceCommonDetails2() {
               <div className="invalid-feedback">{errors.case_type.message}</div>
             )}
           </div>
+          
+        
 
           {/* Agent or Office Employee */}
           {case_typeValue === 'agent' && (
@@ -325,6 +382,25 @@ export default function InsuranceCommonDetails2() {
               )}
             </div>
           )}
+
+          <div className="col-md-3">
+            <label htmlFor="agent_code" className="form-label">Agent Code</label>
+            <select
+              id="agent_code"
+              className={`form-select ${errors['agent_code'] ? 'is-invalid' : ''}`}
+              {...register('agent_code', { required: "Agent code is required" })}
+            >
+              <option value="">Select Code</option>
+              {agentcode?.map((option, idx) => (
+                <option key={idx} value={option.agent_name}>
+                  {option.agent_code}
+                </option>
+              ))}
+            </select>
+            {errors.agent_code && (
+              <div className="invalid-feedback">{errors.agent_code.message}</div>
+            )}
+          </div>
 
           {/* Insurance Company */}
           <div className="col-md-3">

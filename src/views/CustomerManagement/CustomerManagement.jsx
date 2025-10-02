@@ -451,15 +451,15 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
         }
     }, [customer, setValue]);
 
-    const [hideGender, sethideGender] = useState(false);
+    const [hideGenderAndDob, sethideGenderAndDob] = useState(false);
 
     const type = watch('type');
 
     useEffect(() => {
         if(type == 'company'){
-            sethideGender(true);
+            sethideGenderAndDob(true);
         }else{
-            sethideGender(false);
+            sethideGenderAndDob(false);
         }
     }, [type]);
 
@@ -601,7 +601,7 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
 
                                 </div>
 
-
+                          {!hideGenderAndDob &&
                                 <div className="mb-4">
                                     <label className="form-label fw-bold">Date of birth</label>
                                     <input
@@ -621,9 +621,9 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                                     />
                                     {errors.dob && <small className="text-danger">{errors.dob.message}</small>}
                                 </div>
+                        }
                                 
-                                
-                                <div className="mb-4">
+                               {hideGenderAndDob && <div className="mb-4">
                                     <label className="form-label fw-bold">Incorporation Date</label>
                                     <input
                                         type="date"
@@ -633,11 +633,11 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                                         className="form-control"
                                         disabled={!isReadable}
                                     />
-                                    {errors.date_of_incorporation && <small className="text-danger">{errors.dob.message}</small>}
+                                    {errors.date_of_incorporation && <small className="text-danger">{errors.date_of_incorporation.message}</small>}
                                 </div>
+                                  }
 
-
-                                {!hideGender &&  <div className="mb-4">
+                                {!hideGenderAndDob &&  <div className="mb-4">
                                     <label className="form-label fw-bold">Gender</label>
                                     <select disabled={!isReadable} {...register("gender", { required: "Gender is required" })} className="form-select">
                                         <option value="male">Male</option>

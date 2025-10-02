@@ -27,6 +27,7 @@ const InsuranceDetailMain = () => {
   const [pendingModelValue, setPendingModelValue] = useState(null);
 
   const adminType = useSelector((state) => state.adminType);
+  const [agentcode, setAgentcodes] = useState([]);
 
   const [selectedOption2, setSelectedOption2] = useState([]);
   const [selectedOption, setSelectedOption] = useState([]);
@@ -155,20 +156,73 @@ const InsuranceDetailMain = () => {
         console.error("Error parsing manufacturer:", error);
       }
     }
-
+    
   }, [manufacturer]);
-
+  
   useEffect(() => {
     fetchInsuranceCompanies();
     fetchVehicleDetails();
-    fetchInsuranceDetails();
     getAgents();
+    getAgentscode();
     fetchUser();
+    fetchInsuranceDetails();
   }, []);
 
+
+  const getAgentscode = async () => {
+    try {
+      const response = await axios.get(`/agentcode-list`);
+      if (response.data.success) {
+        setAgentcodes(response.data.data);
+        console.log(response.data.data);
+
+      } else {
+        console.log("Error while fetching agents");
+      }
+    } catch (error) {
+      console.log(error.response.data.message);
+    }
+  }
   useEffect(() => {
     setValue('agent_id', null)
   }, [case_type]);
+
+
+  const netPayoutPerntage = Number(watch('net_payout_percent')) || 0;
+
+  useEffect(() => {
+    if (od_premium && netPayoutPerntage) {
+      const calculatedAmount = (od_premium * netPayoutPerntage) / 100;
+      setValue('net_amount', calculatedAmount);
+    } else {
+      setValue('net_amount', null);
+    }
+  }, [netPayoutPerntage, od_premium]);
+
+  const amount = Number(watch('amount')) || 0;
+  const net_amount = Number(watch('net_amount')) || 0;
+  useEffect(() => {
+    if (amount && net_amount) {
+      const calculatedNetIncome = amount - net_amount;
+      setValue('net_income', calculatedNetIncome);
+    } else {
+      setValue('net_income', null);
+    }
+  }, [amount, net_amount]);
+
+  const newPoloicyStartDate = watch('policy_start_date');
+
+  useEffect(() => {
+    if (newPoloicyStartDate) {
+      const calculatedExpiryDate = new Date(newPoloicyStartDate);
+      calculatedExpiryDate.setFullYear(calculatedExpiryDate.getFullYear() + 1);
+      calculatedExpiryDate.setDate(calculatedExpiryDate.getDate() - 1);
+      const formattedExpiryDate = calculatedExpiryDate.toISOString().split('T')[0];
+      setValue('policy_expiry_date', formattedExpiryDate);
+    } else {
+      setValue('policy_expiry_date', null);
+    }
+  }, [newPoloicyStartDate, setValue]);
 
   useEffect(() => {
     if (fetchedData) {
@@ -308,6 +362,7 @@ const InsuranceDetailMain = () => {
         "user_id": data.user_id,
         "payout_percent": data.payout_percent,
         "amount": data.amount,
+        "agent_code": data.agent_code,
       }
 
       await axios.post(`/update-insurance`, { payload });
@@ -833,6 +888,28 @@ const InsuranceDetailMain = () => {
 
                       {/* Agent Selection Field */}
                       {/* Case Type */}
+
+
+                      <div className="col-md-3">
+                        <label htmlFor="agent_code" className="form-label">Agent Code</label>
+                        <select
+                          id="agent_code"
+                          className={`form-select ${errors['agent_code'] ? 'is-invalid' : ''}`}
+                          {...register('agent_code', { required: "Agent code is required" })}
+                          disabled={!isEditing}
+
+                        >
+                          <option value="">Select Code</option>
+                          {agentcode?.map((option, idx) => (
+                            <option key={idx} value={option.agent_name}>
+                              {option.agent_code}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.agent_code && (
+                          <div className="invalid-feedback">{errors.agent_code.message}</div>
+                        )}
+                      </div>
                       <div className="col-md-3">
                         <label htmlFor="case_type" className="form-label">Case type</label>
                         <select
@@ -922,7 +999,34 @@ const InsuranceDetailMain = () => {
                           {...register('amount')}
                         />
                       </div>
+                        <div className="col-md-3 mb-3">
+                        <label className="form-label">Net Payout Percent</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          disabled={adminType === 'Sub-admin' || !isEditing}
+                          {...register('net_payout_percent')}
+                        />
+                      </div>
                       <div className="col-md-3 mb-3">
+                        <label className="form-label">Net Amount</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          disabled={adminType === 'Sub-admin' || !isEditing}
+                          {...register('net_amount')}
+                        />
+                      </div>
+                      <div className="col-md-3 mb-3">
+                        <label className="form-label">Net Income</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          disabled={adminType === 'Sub-admin' || !isEditing}
+                          {...register('net_income')}
+                        />
+                      </div>
+                      {/* <div className="col-md-3 mb-3">
                         <label className="form-label">TDS</label>
                         <input
                           type="number"
@@ -930,7 +1034,7 @@ const InsuranceDetailMain = () => {
                           disabled={!isEditing}
                           {...register('tds')}
                         />
-                      </div>
+                      </div> */}
                       {/* <div className="col-md-3 mb-3">
                         <label className="form-label">TDS Amount</label>
                         <input
