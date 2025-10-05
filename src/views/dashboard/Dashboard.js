@@ -398,17 +398,21 @@ const Dashboard = () => {
             <CCol xs={12} md={6} lg={3}>
               <label className="form-label">Select User/Agent</label>
               <select className="form-select" value={selectedValue} onChange={handleEntityChange}>
-                  <option value={`user-${user_id}`}>Self</option>
-                <optgroup label="Users">
-                  {(users || []).map((u) => (
-                    <option key={`user-${u.id}`} value={`user-${u.id}`}>{`${u.full_name}`}</option>
-                  ))}
-                </optgroup>
-                <optgroup label="Agents">
-                  {(agents || []).map((a) => (
-                    <option key={`agent-${a.id}`} value={`agent-${a.id}`}>{`${a.full_name}`}</option>
-                  ))}
-                </optgroup>
+                <option value={`user-${user_id}`}>Self</option>
+                {adminType == 'Admin' && (
+                  <>
+                    <optgroup label="Users">
+                      {(users || []).map((u) => (
+                        <option key={`user-${u.id}`} value={`user-${u.id}`}>{`${u.full_name}`}</option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Agents">
+                      {(agents || []).map((a) => (
+                        <option key={`agent-${a.id}`} value={`agent-${a.id}`}>{`${a.full_name}`}</option>
+                      ))}
+                    </optgroup>
+                  </>
+                )}
               </select>
             </CCol>
             <CCol xs={12} md={6} lg={2}>
