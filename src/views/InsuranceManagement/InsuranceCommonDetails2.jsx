@@ -393,7 +393,7 @@ const net_amount = Number(watch('net_amount')) || 0;
               <option value="">Select Code</option>
               {agentcode?.map((option, idx) => (
                 <option key={idx} value={option.agent_name}>
-                  {option.agent_code}
+                  {option.agent_name}
                 </option>
               ))}
             </select>

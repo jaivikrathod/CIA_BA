@@ -42,7 +42,18 @@ const Dashboard = () => {
   const [customEnd, setCustomEnd] = useState('');
   const [dateError, setDateError] = useState('');
   const [counts, setCounts] = useState({ users: 0, customers: 0, insurance: 0, newCustomers: 0, agents: 0 });
-  const [insuranceData, setinsuranceData] = useState({ packagePremium: 0, premium: 0, amount: 0 });
+  const [insuranceData, setinsuranceData] = useState({
+    od_premium: 0,
+    tp_premium: 0,
+    packagePremium: 0,
+    premium: 0,
+    gst: 0,
+    // payout_percent: 0,
+    // net_payout_percent: 0,
+    amount: 0,
+    net_amount: 0,
+    net_income: 0
+  });
   const user_id = useSelector((state) => state.id);
   const adminType = useSelector((state) => state.adminType);
   const api = useApi()
@@ -241,10 +252,14 @@ const Dashboard = () => {
       'Policy Start Date',
       'Policy Expiry Date',
       'Insurance Date',
-      'Insurance Count',
-      'Premium Amount',
+      'OD  Premium',
+      'TP  Premium',
       'Package Premium',
-      'Total Amount'
+      'Premium',
+      'Gst',
+      'Amount',
+      'Net Amount',
+      'Net Income'
     ];
 
     // Convert data to CSV rows
@@ -265,9 +280,14 @@ const Dashboard = () => {
       row.policy_expiry_date || '',
       row.insurance_date || '',
       // row.insurance_count || '',
+      row.od_premium || '',
+      row.tp_premium || '',
+      row.packagePremium || '',
       row.premium || '',
-      row.package_premium || '',
-      row.amount || ''
+      row.gst || '',
+      row.amount || '',
+      row.net_amount || '',
+      row.net_income || ''
     ]);
 
     // Combine headers and rows
@@ -550,6 +570,33 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
+               <div className="col-6 col-xl-4 col-xxl-3">
+
+                <div className="card shadow-sm border-0 h-100">
+                  <div className="card-body py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div className="text-muted small">OD Premium</div>
+                      <div className="fw-bold fs-5">₹ {insuranceData.od_premium}</div>
+                    </div>
+                    <span className="badge bg-success-subtle text-success">Total</span>
+                  </div>
+                </div>
+              </div>
+              
+               <div className="col-6 col-xl-4 col-xxl-3">
+
+                <div className="card shadow-sm border-0 h-100">
+                  <div className="card-body py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div className="text-muted small">TP Premium</div>
+                      <div className="fw-bold fs-5">₹ {insuranceData.tp_premium}</div>
+                    </div>
+                    <span className="badge bg-success-subtle text-success">Total</span>
+                  </div>
+                </div>
+              </div>
+
+
               <div className="col-6 col-xl-4 col-xxl-3">
 
                 <div className="card shadow-sm border-0 h-100">
@@ -574,6 +621,21 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
+
+              <div className="col-6 col-xl-4 col-xxl-3">
+
+                <div className="card shadow-sm border-0 h-100">
+                  <div className="card-body py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div className="text-muted small">GST</div>
+                      <div className="fw-bold fs-5">₹ {insuranceData.gst}</div>
+                    </div>
+                    <span className="badge bg-success-subtle text-success">Total</span>
+                  </div>
+                </div>
+              </div>
+              
+
               <div className="col-6 col-xl-4 col-xxl-3">
 
                 <div className="card shadow-sm border-0 h-100">
@@ -581,6 +643,32 @@ const Dashboard = () => {
                     <div>
                       <div className="text-muted small">Amount</div>
                       <div className="fw-bold fs-5">₹ {insuranceData.amount}</div>
+                    </div>
+                    <span className="badge bg-success-subtle text-success">Total</span>
+                  </div>
+                </div>
+              </div>
+              
+               <div className="col-6 col-xl-4 col-xxl-3">
+
+                <div className="card shadow-sm border-0 h-100">
+                  <div className="card-body py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div className="text-muted small">Net Amount</div>
+                      <div className="fw-bold fs-5">₹ {insuranceData.net_amount}</div>
+                    </div>
+                    <span className="badge bg-success-subtle text-success">Total</span>
+                  </div>
+                </div>
+              </div>
+              
+               <div className="col-6 col-xl-4 col-xxl-3">
+
+                <div className="card shadow-sm border-0 h-100">
+                  <div className="card-body py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div className="text-muted small">Net Income</div>
+                      <div className="fw-bold fs-5">₹ {insuranceData.net_income}</div>
                     </div>
                     <span className="badge bg-success-subtle text-success">Total</span>
                   </div>

@@ -159,14 +159,25 @@ const InsuranceDetailMain = () => {
     
   }, [manufacturer]);
   
-  useEffect(() => {
-    fetchInsuranceCompanies();
-    fetchVehicleDetails();
-    getAgents();
-    getAgentscode();
-    fetchUser();
-    fetchInsuranceDetails();
-  }, []);
+ useEffect(() => {
+  const init = async () => {
+    try {
+      await Promise.all([
+        fetchInsuranceCompanies(),
+        fetchVehicleDetails(),
+        getAgents(),
+        getAgentscode(),
+        fetchUser(),
+      ]);
+      await fetchInsuranceDetails();
+    } catch (error) {
+      console.error("Error while initializing:", error);
+    }
+  };
+
+  init();
+}, []);
+
 
 
   const getAgentscode = async () => {
@@ -363,6 +374,9 @@ const InsuranceDetailMain = () => {
         "payout_percent": data.payout_percent,
         "amount": data.amount,
         "agent_code": data.agent_code,
+        "net_payout_percent": data.net_payout_percent,
+        "net_amount": data.net_amount,
+        "net_income": data.net_income,
       }
 
       await axios.post(`/update-insurance`, { payload });
@@ -902,7 +916,7 @@ const InsuranceDetailMain = () => {
                           <option value="">Select Code</option>
                           {agentcode?.map((option, idx) => (
                             <option key={idx} value={option.agent_name}>
-                              {option.agent_code}
+                              {option.agent_name}
                             </option>
                           ))}
                         </select>

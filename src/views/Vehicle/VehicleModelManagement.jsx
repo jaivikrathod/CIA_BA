@@ -1,28 +1,46 @@
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { set, useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useApi from '../../api/axios';
 
 const VehicleModelManagement = () => {
     const [vehicle_model, setvehicle_model] = useState([]);
+    const [temp_vehicle_model, setTempvehicle_model] = useState([]);
+
     const [selectedvehicle, setSelectedvehicle] = useState(null);
     const [showvehicleModal, setShowvehicleModal] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState({ show: false, id: null });
     const [vehicleCompanies, setvehicleCompanies] = useState([]);
     const api = useApi();
+    const [searchTerm, setSearchTerm] = useState("");
+    
 
     const fetchvehicle_model = async () => {
         try {
             const response = await api.get('/get-vehicle-models');
             setvehicle_model(response.data.data);
+            setTempvehicle_model(response.data.data);
         } catch (error) {
             toast.error('Failed to fetch vehicle_model');
             console.error('Failed to fetch vehicle_model:', error);
         }
     };
-     
-    const fetcVehicleComapies = async ()=>{
+
+    const searchData = async (searchTerm) => {
+        if (searchTerm) {
+            const filteredData = vehicle_model.filter((item) => {
+                const modelNameMatch = item.model_name.toLowerCase().includes(searchTerm.toLowerCase());
+                const companyNameMatch = item.company.company_name.toLowerCase().includes(searchTerm.toLowerCase());
+                return modelNameMatch || companyNameMatch;
+        });
+            setvehicle_model(filteredData);
+        } else {
+            setvehicle_model(temp_vehicle_model);
+        }
+    }
+
+    const fetcVehicleComapies = async () => {
         try {
             const response = await api.get('/get-vehicle-companies');
             setvehicleCompanies(response.data.data);
@@ -37,8 +55,8 @@ const VehicleModelManagement = () => {
             const response = await api.post(`/delete-vehicle-model`, { id });
             toast.success(response.data.message);
             setConfirmDelete({ show: false, id: null });
-            setvehicle_model((prev)=>
-            prev.filter((item)=>item.id!=id));
+            setvehicle_model((prev) =>
+                prev.filter((item) => item.id != id));
         } catch (error) {
             toast.error('Error deleting vehicle');
             console.error('Error deleting vehicle:', error);
@@ -66,9 +84,12 @@ const VehicleModelManagement = () => {
 
     return (
         <div className="container mt-4">
-            <ToastContainer position="top-right" a  utoClose={3000} hideProgressBar />
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h2>Vehicle Model Management</h2>
+            <ToastContainer position="top-right" a utoClose={3000} hideProgressBar />
+            <div className="d-flex justify-content-between align-items-center mb-3" style={{ width: '100%' }}>
+                <div className='d-flex gap-4' style={{width: '80%'}}>
+                    <h2>Vehicle Model Management</h2>
+                    <div className="input-group input-group-sm" style={{ maxWidth: 320 }}> <input type="text" className="form-control form-control-sm" placeholder="Enter Model name or company" onChange={(e)=>searchData(e.target.value)}/> </div>
+                </div>
                 <button className="btn btn-primary" onClick={handleNewvehicleClick}>
                     <i className="fas fa-plus me-2"></i>New Vehicle Model
                 </button>
@@ -132,7 +153,7 @@ const VehicleModelManagement = () => {
                         setSelectedvehicle(null);
                     }}
                     fetchvehicle_model={fetchvehicle_model}
-                    vehicleCompanies= {vehicleCompanies}
+                    vehicleCompanies={vehicleCompanies}
                 />
             )}
 
@@ -147,9 +168,9 @@ const VehicleModelManagement = () => {
     );
 };
 
-const VehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model,vehicleCompanies }) => {
+const VehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model, vehicleCompanies }) => {
     const api = useApi();
-    const { register, handleSubmit, setValue,watch, reset, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm({
         defaultValues: vehicle || {}
     });
 
@@ -167,15 +188,15 @@ const VehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model,vehicleCo
 
     useEffect(() => {
         console.log(Type);
-        
-        if(Type == 'Two Wheeler' || Type == 'Four Wheeler' || Type == 'Three Wheeler'){}else{
-            setValue('other_type',vehicle.type)
-            setValue('type','Other')
+
+        if (Type == 'Two Wheeler' || Type == 'Four Wheeler' || Type == 'Three Wheeler') { } else {
+            setValue('other_type', vehicle.type)
+            setValue('type', 'Other')
         }
     }, []);
 
     const onSubmit = async (data) => {
-        if(Type =='Other'){
+        if (Type == 'Other') {
             data.type = data.other_type
         }
         try {
@@ -223,9 +244,9 @@ const VehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model,vehicleCo
                                 <label className="form-label fw-bold">Company Name</label>
                                 <select className='form-control' name="" id="" {...register("company_id", { required: "Company Name is required" })}>
                                     <option value="">select company</option>
-                                    {vehicleCompanies.map((item)=>(
+                                    {vehicleCompanies.map((item) => (
                                         <>
-                                        <option value={item.id}>{item.company_name}</option>
+                                            <option value={item.id}>{item.company_name}</option>
                                         </>
                                     ))}
                                 </select>
@@ -233,13 +254,13 @@ const VehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model,vehicleCo
                             </div>
                             <div className="mb-4">
                                 <label className="form-label fw-bold">Type</label>
-                                <select className='form-control mb-2'  name="" id="" {...register('type')}>
+                                <select className='form-control mb-2' name="" id="" {...register('type')}>
                                     <option value="Two Wheeler">Two Wheeler</option>
                                     <option value="Four Wheeler">Four Wheeler</option>
                                     <option value="Three Wheeler">Three Wheeler</option>
                                     <option value="Other">Other</option>
                                 </select>
-                               {Type=='Other' && <input
+                                {Type == 'Other' && <input
                                     type="text"
                                     {...register("other_type", { required: "Type is required" })}
                                     className="form-control"
