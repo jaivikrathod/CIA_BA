@@ -398,12 +398,11 @@ const Dashboard = () => {
             <CCol xs={12} md={6} lg={3}>
               <label className="form-label">Select User/Agent</label>
               <select className="form-select" value={selectedValue} onChange={handleEntityChange}>
-                <option value="">All</option>
+                  <option value={`user-${user_id}`}>Self</option>
                 <optgroup label="Users">
                   {(users || []).map((u) => (
                     <option key={`user-${u.id}`} value={`user-${u.id}`}>{`${u.full_name}`}</option>
                   ))}
-                  <option value={`user-${user_id}`}>Self</option>
                 </optgroup>
                 <optgroup label="Agents">
                   {(agents || []).map((a) => (

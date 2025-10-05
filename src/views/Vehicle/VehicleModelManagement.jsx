@@ -103,11 +103,11 @@ const VehicleModelManagement = () => {
                     <table className="table table-striped table-hover" style={{ marginBottom: 0 }}>
                         <thead className="thead-dark" style={{ position: 'sticky', top: 0, zIndex: 1, background: '#343a40' }}>
                             <tr>
-                                <th>Sr. No.</th>
+                                <th>No.</th>
                                 <th>Company Name</th>
                                 <th>Type</th>
                                 <th>Model Name</th>
-                                <th>Model Launch Year</th>
+                                <th>Launch Year</th>
                                 <th>Other Detail</th>
                                 <th>Actions</th>
                             </tr>
