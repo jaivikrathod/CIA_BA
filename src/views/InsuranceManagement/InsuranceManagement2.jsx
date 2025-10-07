@@ -8,6 +8,7 @@ import { FaInfoCircle, FaUpload, FaSyncAlt, FaPlusSquare, FaDownload, FaTrash } 
 import useApi from "../../api/axios";
 import LoadingComponent from "../../components/common/LoadingComponent";
 import { useSelector } from "react-redux";
+import * as XLSX from 'xlsx';
 
 const InsuranceManagement2 = () => {
     const navigate = useNavigate();
@@ -147,9 +148,11 @@ const InsuranceManagement2 = () => {
         setUploadModal({ show: false, id: null });
     };
 
-    const getParticularInsurance = async (common_id) => {
-        navigate('/insurance-detail/' + common_id);
-    }
+    const getParticularInsurance = (common_id) => {
+        const url = `/#/insurance-detail/${common_id}`;
+        window.open(url, '_blank');
+    };
+
 
     const GetDate = (date)=>{
         return new Date(date).toLocaleDateString('en-GB')
@@ -267,65 +270,131 @@ const InsuranceManagement2 = () => {
 
     const isCustomDateIncomplete = filters.dateRange === 'custom' && (!filters.customFromDate || !filters.customToDate);
 
+    // const downloadCSV = async () => {
+    //     try {
+    //         setIsLoading(true);
+    //         const response = await api.post(`/insurance-list`, {
+    //             search: searchTerm,
+    //             segment: filters.segment,
+    //             ageRange: filters.ageRange,
+    //             minAge: filters.ageRange.split('-')[0] || '',
+    //             maxAge: filters.ageRange.split('-')[1] || '',
+    //             admin: filters.admin,
+    //             dateRange: filters.dateRange,
+    //             fromDate: filters.customFromDate,
+    //             toDate: filters.customToDate,
+    //             page: 1,
+    //             limit: 0
+    //         });
+
+    //         if (!response.data.data) {
+    //             toast.error('No insurance data available');
+    //             return;
+    //         }
+
+    //         const headers = ["Sr. No.", "Name", "Email", "Type", 'Age',"Date","segment",'vehicle_number','insurance_type','segment_vehicle_type','segment_vehicle_detail_type','Vehicle Company name','Vehicle Model','fuel_type','Year of manufacturer'];
+    //         const rows = response.data.data.map((insurance, index) => [
+    //             index + 1,
+    //             insurance.full_name,
+    //             insurance.email,
+    //             insurance.insurance_type,
+    //             insurance.age,
+    //             GetDate(insurance.insurance_date),
+    //             insurance.segment,
+    //             insurance.vehicle_number,
+    //             insurance.insurance_type,
+    //             insurance.segment_vehicle_type,
+    //             insurance.segment_vehicle_detail_type,
+    //             insurance.manufacturer,
+    //             insurance.model,
+    //             insurance.fuel_type,
+    //             insurance.yom,
+    //         ]);
+
+    //         let csvContent = "data:text/csv;charset=utf-8,";
+    //         csvContent += headers.join(",") + "\n";
+    //         rows.forEach(row => csvContent += row.join(",") + "\n");
+
+    //         const encodedUri = encodeURI(csvContent);
+    //         const link = document.createElement("a");
+    //         link.setAttribute("href", encodedUri);
+    //         link.setAttribute("download", "insurance.csv");
+    //         document.body.appendChild(link);
+    //         link.click();
+    //         document.body.removeChild(link);
+    //     } catch (error) {
+    //         toast.error('Failed to download insurance data');
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
+
+
     const downloadCSV = async () => {
-        try {
-            setIsLoading(true);
-            const response = await api.post(`/insurance-list`, {
-                search: searchTerm,
-                segment: filters.segment,
-                ageRange: filters.ageRange,
-                minAge: filters.ageRange.split('-')[0] || '',
-                maxAge: filters.ageRange.split('-')[1] || '',
-                admin: filters.admin,
-                dateRange: filters.dateRange,
-                fromDate: filters.customFromDate,
-                toDate: filters.customToDate,
-                page: 1,
-                limit: 0
-            });
+  try {
+    setIsLoading(true);
 
-            if (!response.data.data) {
-                toast.error('No insurance data available');
-                return;
-            }
+    const response = await api.post(`/insurance-list`, {
+      search: searchTerm,
+      segment: filters.segment,
+      ageRange: filters.ageRange,
+      minAge: filters.ageRange.split('-')[0] || '',
+      maxAge: filters.ageRange.split('-')[1] || '',
+      admin: filters.admin,
+      dateRange: filters.dateRange,
+      fromDate: filters.customFromDate,
+      toDate: filters.customToDate,
+      page: 1,
+      limit: 0
+    });
 
-            const headers = ["Sr. No.", "Name", "Email", "Type", 'Age',"Date","segment",'vehicle_number','insurance_type','segment_vehicle_type','segment_vehicle_detail_type','Vehicle Company name','Vehicle Model','fuel_type','Year of manufacturer'];
-            const rows = response.data.data.map((insurance, index) => [
-                index + 1,
-                insurance.full_name,
-                insurance.email,
-                insurance.insurance_type,
-                insurance.age,
-                GetDate(insurance.insurance_date),
-                insurance.segment,
-                insurance.vehicle_number,
-                insurance.insurance_type,
-                insurance.segment_vehicle_type,
-                insurance.segment_vehicle_detail_type,
-                insurance.manufacturer,
-                insurance.model,
-                insurance.fuel_type,
-                insurance.yom,
-            ]);
+    if (!response.data.data || response.data.data.length === 0) {
+      toast.error('No insurance data available');
+      return;
+    }
 
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += headers.join(",") + "\n";
-            rows.forEach(row => csvContent += row.join(",") + "\n");
+    // Define headers and rows
+    const headers = [
+      "Sr. No.", "Name", "Email", "Type", "Age", "Date", "Segment",
+      "Vehicle Number", "Insurance Type", "Segment Vehicle Type",
+      "Segment Vehicle Detail Type", "Vehicle Company Name",
+      "Vehicle Model", "Fuel Type", "Year of Manufacturer"
+    ];
 
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "insurance.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch (error) {
-            toast.error('Failed to download insurance data');
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const rows = response.data.data.map((insurance, index) => ({
+      "Sr. No.": index + 1,
+      "Name": insurance.full_name,
+      "Email": insurance.email,
+      "Type": insurance.insurance_type,
+      "Age": insurance.age,
+      "Date": GetDate(insurance.insurance_date),
+      "Segment": insurance.segment,
+      "Vehicle Number": insurance.vehicle_number,
+      "Insurance Type": insurance.insurance_type,
+      "Segment Vehicle Type": insurance.segment_vehicle_type,
+      "Segment Vehicle Detail Type": insurance.segment_vehicle_detail_type,
+      "Vehicle Company Name": insurance.manufacturer,
+      "Vehicle Model": insurance.model,
+      "Fuel Type": insurance.fuel_type,
+      "Year of Manufacturer": insurance.yom,
+    }));
 
+    // Create worksheet and workbook
+    const worksheet = XLSX.utils.json_to_sheet(rows, { header: headers });
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Insurance Data');
+
+    // Download Excel file
+    XLSX.writeFile(workbook, 'insurance_data.xlsx');
+
+    toast.success('Excel file downloaded successfully');
+  } catch (error) {
+    console.error('Error downloading Excel:', error);
+    toast.error('Failed to download insurance data');
+  } finally {
+    setIsLoading(false);
+  }
+};
     const handleDeleteInsurance = async (id) => {
         try {
             const response = await api.post(`/delete-insurance-details`, { id });
@@ -384,7 +453,7 @@ const InsuranceManagement2 = () => {
                                     <FaPlusSquare /> <span style={{"marginBottom":"1px"}}>New Insurance</span>
                                 </button>
                                 <button className="btn btn-success d-flex align-items-center gap-2" onClick={downloadCSV}>
-                                    <FaDownload /> <span style={{"marginBottom":"2px"}}> Download CSV</span>
+                                    <FaDownload /> <span style={{"marginBottom":"2px"}}> Download Excel</span>
                                 </button>
                             </div>
                         </div>

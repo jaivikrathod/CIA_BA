@@ -10,6 +10,8 @@ import { FaInfoCircle, FaEdit, FaTrash, FaPlusSquare, FaUpload, FaEye, FaDownloa
 import pdfImage from "../../assets/images/pdf.jpg";
 import useApi from "../../api/axios";
 import { useSelector } from 'react-redux';
+import * as XLSX from 'xlsx';
+
 
 const CustomerManagement = () => {
     const [isReadable, setisReadable] = useState(false);
@@ -126,9 +128,57 @@ const CustomerManagement = () => {
     };
 
     // Download CSV
+    // const downloadCSV = async () => {
+    //     try {
+    //         setIsLoading(true);
+    //         const response = await api.post(`/customer-list`, {
+    //             search: searchTerm,
+    //             gender: filters.gender,
+    //             ageRange: filters.ageRange,
+    //             minAge: filters.ageRange.split('-')[0] || '',
+    //             maxAge: filters.ageRange.split('-')[1] || '',
+    //             page: 1,
+    //             limit: 0
+    //         });
+
+    //         if (!response.data.data) {
+    //             toast.error('No customer data available');
+    //             return;
+    //         }
+
+    //         const headers = ["Sr. No.", "Name", "Email", "Primary Mobile", "Age", "Gender", "Address"];
+    //         const rows = response.data.data.map((customer, index) => [
+    //             index + 1,
+    //             customer.full_name,
+    //             customer.email,
+    //             customer.primary_mobile,
+    //             calculateAge(customer.dob) || "N/A",
+    //             customer.gender || "N/A",
+    //             customer.full_address || "N/A"
+    //         ]);
+
+    //         let csvContent = "data:text/csv;charset=utf-8,";
+    //         csvContent += headers.join(",") + "\n";
+    //         rows.forEach(row => csvContent += row.join(",") + "\n");
+
+    //         const encodedUri = encodeURI(csvContent);
+    //         const link = document.createElement("a");
+    //         link.setAttribute("href", encodedUri);
+    //         link.setAttribute("download", "customers.csv");
+    //         document.body.appendChild(link);
+    //         link.click();
+    //         document.body.removeChild(link);
+    //     } catch (error) {
+    //         toast.error('Failed to download customer data');
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
+
     const downloadCSV = async () => {
         try {
             setIsLoading(true);
+
             const response = await api.post(`/customer-list`, {
                 search: searchTerm,
                 gender: filters.gender,
@@ -139,34 +189,58 @@ const CustomerManagement = () => {
                 limit: 0
             });
 
-            if (!response.data.data) {
+            if (!response.data.data || response.data.data.length === 0) {
                 toast.error('No customer data available');
                 return;
             }
 
-            const headers = ["Sr. No.", "Name", "Email", "Primary Mobile", "Age", "Gender", "Address"];
-            const rows = response.data.data.map((customer, index) => [
-                index + 1,
-                customer.full_name,
-                customer.email,
-                customer.primary_mobile,
-                calculateAge(customer.dob) || "N/A",
-                customer.gender || "N/A",
-                customer.full_address || "N/A"
-            ]);
+            // Define headers
 
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += headers.join(",") + "\n";
-            rows.forEach(row => csvContent += row.join(",") + "\n");
+          
+            const headers = [
+                "Sr. No.",
+                "Name",
+                "Email",
+                "Primary Mobile",
+                "additional_mobile",
+                "Age",
+                "Gender",
+                "type",
+                "dob",
+                "date_of_incorporation",
+                "Address",
+                "City",
+                "State"
+            ];
 
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "customers.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Map response data into row objects
+            const rows = response.data.data.map((customer, index) => ({
+                "Sr. No.": index + 1,
+                "Name": customer.full_name,
+                "Email": customer.email,
+                "Primary Mobile": customer.primary_mobile,
+                "Age": calculateAge(customer.dob) || "N/A",
+                "Gender": customer.gender || "N/A",
+                "additional_mobile": customer.additional_mobile || "N/A",
+                "type": customer.type || "N/A",
+                "dob": customer.dob || "N/A",
+                "date_of_incorporation": customer.date_of_incorporation || "N/A",
+                "Address": customer.full_address || "N/A",
+                "City": customer.city || "N/A",
+                "State": customer.state || "N/A",
+            }));
+
+            // Create worksheet & workbook
+            const worksheet = XLSX.utils.json_to_sheet(rows, { header: headers });
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Customer Data');
+
+            // Generate and download Excel file
+            XLSX.writeFile(workbook, 'customers_data.xlsx');
+
+            toast.success('Excel file downloaded successfully');
         } catch (error) {
+            console.error('Error downloading Excel:', error);
             toast.error('Failed to download customer data');
         } finally {
             setIsLoading(false);
@@ -228,7 +302,7 @@ const CustomerManagement = () => {
                                     <FaPlusSquare /> New Customer
                                 </button>
                                 <button className="btn btn-success" onClick={downloadCSV}>
-                                    <FaDownload /> Download CSV
+                                    <FaDownload /> Download Excel
                                 </button>
                             </div>
                         </div>

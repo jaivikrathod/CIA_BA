@@ -18,6 +18,8 @@ import {
   Legend,
   ArcElement,
 } from 'chart.js'
+import * as XLSX from 'xlsx';
+
 
 ChartJS.register(
   CategoryScale,
@@ -36,7 +38,7 @@ const Dashboard = () => {
   const [insuranceCategoryReport, setinsuranceCategoryReport] = useState([]);
   const [users, setusers] = useState([]);
   const [agents, setagents] = useState([]);
-  const [selectedEntity, setSelectedEntity] = useState(null); // { type: 'user'|'agent', id, label }
+  const [selectedEntity, setSelectedEntity] = useState({type:'all'}); // { type: 'user'|'agent', id, label }
   const [preset, setPreset] = useState('all');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
@@ -187,49 +189,89 @@ const Dashboard = () => {
   };
 
   // CSV Download functionality
-  const downloadCSV = async () => {
-    try {
-      // Build parameters for the insurance report API with detailed data
-      const params = buildParams();
-      params.detailed = true; // Request detailed data for CSV export
+  // const downloadCSV = async () => {
+  //   try {
+  //     // Build parameters for the insurance report API with detailed data
+  //     const params = buildParams();
+  //     params.detailed = true; // Request detailed data for CSV export
 
-      const response = await api.get('/get-insurance-report', { params });
+  //     const response = await api.get('/get-insurance-report', { params });
 
-      if (response.data.detailed_data && response.data.detailed_data.length > 0) {
-        // Convert data to CSV format
-        const csvData = convertToCSV(response.data.detailed_data);
+  //     if (response.data.detailed_data && response.data.detailed_data.length > 0) {
+  //       // Convert data to CSV format
+  //       const csvData = convertToCSV(response.data.detailed_data);
 
-        // Create and download file
-        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
+  //       // Create and download file
+  //       const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+  //       const link = document.createElement('a');
+  //       const url = URL.createObjectURL(blob);
+  //       link.setAttribute('href', url);
 
-        // Generate filename with current date and filters
-        const currentDate = new Date().toISOString().split('T')[0];
-        let filename = `insurance_data_${currentDate}`;
+  //       // Generate filename with current date and filters
+  //       const currentDate = new Date().toISOString().split('T')[0];
+  //       let filename = `insurance_data_${currentDate}`;
 
-        if (selectedEntity) {
-          filename += `_${selectedEntity.type}_${selectedEntity.id}`;
-        }
-        if (preset && preset !== 'all') {
-          filename += `_${preset}`;
-        }
-        filename += '.csv';
+  //       if (selectedEntity) {
+  //         filename += `_${selectedEntity.type}_${selectedEntity.id}`;
+  //       }
+  //       if (preset && preset !== 'all') {
+  //         filename += `_${preset}`;
+  //       }
+  //       filename += '.csv';
 
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        alert('No data available to download');
+  //       link.setAttribute('download', filename);
+  //       link.style.visibility = 'hidden';
+  //       document.body.appendChild(link);
+  //       link.click();
+  //       document.body.removeChild(link);
+  //     } else {
+  //       alert('No data available to download');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error downloading CSV:', error);
+  //     alert('Error downloading CSV file');
+  //   }
+  // };
+
+const downloadCSV = async () => {
+  try {
+    const params = buildParams();
+    params.detailed = true;
+
+    const response = await api.get('/get-insurance-report', { params });
+
+    if (response.data.detailed_data && response.data.detailed_data.length > 0) {
+      const data = response.data.detailed_data;
+
+      // Convert JSON data to worksheet
+      const worksheet = XLSX.utils.json_to_sheet(data);
+
+      // Create a new workbook and append the worksheet
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Insurance Data');
+
+      // Generate filename
+      const currentDate = new Date().toISOString().split('T')[0];
+      let filename = `insurance_data_${currentDate}`;
+
+      if (selectedEntity) {
+        filename += `_${selectedEntity.type}_${selectedEntity.id}`;
       }
-    } catch (error) {
-      console.error('Error downloading CSV:', error);
-      alert('Error downloading CSV file');
+      if (preset && preset !== 'all') {
+        filename += `_${preset}`;
+      }
+      filename += `.xlsx`;
+
+      // Write file and trigger download
+      XLSX.writeFile(workbook, filename);
+    } else {
+      alert('No data available to download');
     }
-  };
+  } catch (error) {
+    console.error('Error downloading Excel:', error);
+    alert('Error downloading Excel file');
+  }
+};
 
   // Convert insurance data to CSV format
   const convertToCSV = (data) => {
@@ -398,6 +440,7 @@ const Dashboard = () => {
             <CCol xs={12} md={6} lg={3}>
               <label className="form-label">Select User/Agent</label>
               <select className="form-select" value={selectedValue} onChange={handleEntityChange}>
+                <option value='all'>All</option>
                 <option value={`user-${user_id}`}>Self</option>
                 {adminType == 'Admin' && (
                   <>
@@ -465,7 +508,7 @@ const Dashboard = () => {
                 style={{ minHeight: '38px' }}
               >
                 <i className="cil-cloud-download me-1"></i>
-                Download CSV
+                Download Excel
               </button>
             </CCol>
           </CRow>
