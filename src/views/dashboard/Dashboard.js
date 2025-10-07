@@ -440,7 +440,7 @@ const downloadCSV = async () => {
             <CCol xs={12} md={6} lg={3}>
               <label className="form-label">Select User/Agent</label>
               <select className="form-select" value={selectedValue} onChange={handleEntityChange}>
-                <option value='all'>All</option>
+                {adminType == 'Admin' && <option value='all'>All</option>}
                 <option value={`user-${user_id}`}>Self</option>
                 {adminType == 'Admin' && (
                   <>
