@@ -81,6 +81,7 @@ const Dashboard = () => {
       params.entity_id = selectedEntity.id;
     } else {
       params.entity_type = 'user';
+      params.entity_id = user_id;
     }
     if (preset === 'custom') {
       if (customStart) params.start_date = customStart;
