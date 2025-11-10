@@ -217,7 +217,7 @@ export default function InsuranceInitialDetails() {
                       )}
                     </div>
 
-                    <div className="mb-3">
+                    {/* <div className="mb-3">
                       <label className="form-label fw-semibold">Detailed Type</label>
                       <input
                         type="text"
@@ -234,7 +234,7 @@ export default function InsuranceInitialDetails() {
                       {touchedFields.segment_vehicle_detail_type && errors.segment_vehicle_detail_type && (
                         <div className="text-danger mt-1 small">{errors.segment_vehicle_detail_type.message}</div>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                 )}
 

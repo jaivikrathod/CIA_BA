@@ -76,7 +76,7 @@ const Dashboard = () => {
 
   const buildParams = () => {
     const params = { user_id };
-    if (selectedEntity) {
+    if (selectedEntity && adminType == 'Admin') {
       params.entity_type = selectedEntity.type;
       params.entity_id = selectedEntity.id;
     } else {
