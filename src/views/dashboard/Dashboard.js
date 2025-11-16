@@ -90,6 +90,7 @@ const Dashboard = () => {
     } else if (preset) {
       params.preset = preset;
     }
+    params.adminType = adminType
     return params;
   }
 

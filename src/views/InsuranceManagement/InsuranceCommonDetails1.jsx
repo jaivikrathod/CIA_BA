@@ -129,6 +129,7 @@ export default function InsuranceCommonDetails1() {
     data.user_id = user_id;
     let manufacturer = JSON.parse(data.manufacturer);
     data.manufacturer = manufacturer.company_name;
+    data.vehicle_number = data.vehicle_number.replace(/\s+/g, '');
     try {
       const response = await axios.post("/common-vehical", data);
       if (response.data.message) {

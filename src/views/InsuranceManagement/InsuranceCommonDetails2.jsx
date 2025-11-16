@@ -136,7 +136,7 @@ export default function InsuranceCommonDetails2() {
 
 
   const formFields = [
-    { label: "Idv", type: "number", id: "idv", validation: { required: "idv is required" }, width: "col-md-3" },
+    { label: "Idv", type: "number",  step: "0.01", id: "idv", validation: { required: "idv is required" }, width: "col-md-3" },
     { label: "Current NCB (%)", type: "select", id: "currentncb", validation: { required: "Current NCB is required" }, width: "col-md-3", options: [
       { value: "0", label: "0%" },
       { value: "20", label: "20%" },
@@ -148,23 +148,23 @@ export default function InsuranceCommonDetails2() {
       { value: "65", label: "65%" }
     ] },
     { label: "Policy No", type: "text", id: "policy_no", validation: { required: "Policy No is required" }, width: "col-md-3" },
-    { label: "OD Premium", type: "number", id: "od_premium", validation: { required: "OD Premium is required" }, width: "col-md-3" },
-    { label: "TP Premium", type: "number", id: "tp_premium", validation: { required: "TP Premium is required" }, width: "col-md-3" },
-    { label: "Package Premium", type: "number", id: "package_premium", width: "col-md-3", disabled: true },
-    { label: "Premium", type: "number", id: "premium", validation: { required: "Premium is required" }, width: "col-md-3" },
-    { label: "gst (Premium - Package Premium)", type: "number", id: "gst", disabled: true, width: "col-md-3" },
+    { label: "OD Premium", type: "number",  step: "0.01", id: "od_premium", validation: { required: "OD Premium is required" }, width: "col-md-3" },
+    { label: "TP Premium", type: "number",  step: "0.01", id: "tp_premium", validation: { required: "TP Premium is required" }, width: "col-md-3" },
+    { label: "Package Premium", type: "number",  step: "0.01", id: "package_premium", width: "col-md-3", disabled: true },
+    { label: "Premium", type: "number",  step: "0.01", id: "premium", validation: { required: "Premium is required" }, width: "col-md-3" },
+    { label: "gst (Premium - Package Premium)", type: "number",  step: "0.01", id: "gst", disabled: true, width: "col-md-3" },
     { label: "Insurance Date", type: "date", id: "insurance_date", validation: { required: "Insurance Date is required" }, width: "col-md-3" },
     // { label: "Collection Date", type: "date", id: "collection_date", validation: { required: "Collection Date is required" }, width: "col-md-3" },
     { label: "New Policy Start Date", type: "date", id: "policy_start_date", validation: { required: "Start Date is required" }, width: "col-md-3" },
     { label: "New Policy Expiry Date", type: "date", id: "policy_expiry_date", width: "col-md-3" },
-    { label: "Payout Percent", type: "number", id: "payout_percent", validation: { required: "Payout Percent is required" }, adminOnly: true, width: "col-md-3" },
-    { label: "Amount", type: "number", id: "amount", adminOnly: true, width: "col-md-3", disabled: true },
-    { label: "Net Payout Percent", type: "number", id: "net_payout_percent", validation: { required: "Net Payout Percent is required" }, adminOnly: true, width: "col-md-3" },
-    { label: "Net Amount", type: "number", id: "net_amount", adminOnly: true, width: "col-md-3", disabled: true },
-    { label: "Net Income", type: "number", id: "net_income", adminOnly: true, width: "col-md-3", disabled: true },
-    // { label: "tds", type: "number", id: "tds", validation: { required: "tds is required" }, adminOnly: false, width: "col-md-3" },
-    // { label: "commission percentage", type: "number", id: "commission_percentage", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
-    // { label: "commission amount", type: "number", id: "commission_amount", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
+    { label: "Payout Percent", type: "number",  step: "0.01", id: "payout_percent", validation: { required: "Payout Percent is required" }, adminOnly: true, width: "col-md-3" },
+    { label: "Amount", type: "number",  step: "0.01", id: "amount", adminOnly: true, width: "col-md-3", disabled: true },
+    { label: "Net Payout Percent", type: "number",  step: "0.01", id: "net_payout_percent", validation: { required: "Net Payout Percent is required" }, adminOnly: true, width: "col-md-3" },
+    { label: "Net Amount", type: "number",  step: "0.01", id: "net_amount", adminOnly: true, width: "col-md-3", disabled: true },
+    { label: "Net Income", type: "number",  step: "0.01", id: "net_income", adminOnly: true, width: "col-md-3", disabled: true },
+    // { label: "tds", type: "number",  step: "0.01", id: "tds", validation: { required: "tds is required" }, adminOnly: false, width: "col-md-3" },
+    // { label: "commission percentage", type: "number",  step: "0.01", id: "commission_percentage", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
+    // { label: "commission amount", type: "number",  step: "0.01", id: "commission_amount", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
   ];
   const case_typeValue = (watch('case_type') || '').toLowerCase();
 
@@ -186,7 +186,8 @@ export default function InsuranceCommonDetails2() {
   useEffect(() => {
      if (premium && commission_percentage) {
        const calculatedCommissionAmount = (premium * commission_percentage) / 100;
-       setValue('commission_amount', calculatedCommissionAmount);
+      const formatted = Number(calculatedAmount.toFixed(2)); 
+       setValue('commission_amount', formatted);
      } else {
        setValue('commission_amount', null);
      }
@@ -204,7 +205,8 @@ export default function InsuranceCommonDetails2() {
   useEffect(() => {
     if (od_premium && payout_percent) {
       const calculatedAmount = (od_premium * payout_percent) / 100;
-      setValue('amount', calculatedAmount);
+      const formatted = Number(calculatedAmount.toFixed(2)); 
+      setValue('amount', formatted);
     }else{
       setValue('amount', null);
     }
@@ -215,7 +217,8 @@ export default function InsuranceCommonDetails2() {
   useEffect(() => {
     if (od_premium && netPayoutPerntage) {
       const calculatedAmount = (od_premium * netPayoutPerntage) / 100;
-      setValue('net_amount', calculatedAmount);
+      const formatted = Number(calculatedAmount.toFixed(2)); 
+      setValue('net_amount', formatted);
     }else{
       setValue('net_amount', null);
     }
@@ -304,6 +307,7 @@ const net_amount = Number(watch('net_amount')) || 0;
                   className={`form-control ${errors[field.id] ? 'is-invalid' : ''}`}
                   {...register(field.id, field.validation)}
                   disabled={field.disabled}
+                  step={field.step}
                 />
                 {errors[field.id] && (
                   <div className="invalid-feedback">{errors[field.id].message}</div>

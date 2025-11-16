@@ -319,7 +319,7 @@ const PendingInsuranceManagement = () => {
                 <div className="row mb-3">
                     <div className="col-12">
                         <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                            <h2 className="mb-0">Insurance Management</h2>
+                            <h2 className="mb-0">Set Insruance Amount</h2>
                             {/* <div className="d-flex gap-2 flex-wrap">
                                 <button className="btn btn-primary d-flex align-items-center gap-2" onClick={() => setShowModal(true)}>
                                     <FaPlusSquare /> <span style={{"marginBottom":"1px"}}>New Insurance</span>

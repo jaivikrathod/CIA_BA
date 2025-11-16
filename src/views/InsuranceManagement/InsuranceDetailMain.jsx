@@ -138,7 +138,8 @@ const InsuranceDetailMain = () => {
   useEffect(() => {
     if (od_premium && payout_percent) {
       const calculatedAmount = (od_premium * payout_percent) / 100;
-      setValue('amount', calculatedAmount);
+      const formatted = Number(calculatedAmount.toFixed(2)); 
+      setValue('amount', formatted);
     } else {
       setValue('amount', null);
     }
@@ -204,7 +205,8 @@ const InsuranceDetailMain = () => {
   useEffect(() => {
     if (od_premium && netPayoutPerntage) {
       const calculatedAmount = (od_premium * netPayoutPerntage) / 100;
-      setValue('net_amount', calculatedAmount);
+      const formatted = Number(calculatedAmount.toFixed(2)); 
+      setValue('net_amount', formatted);
     } else {
       setValue('net_amount', null);
     }
