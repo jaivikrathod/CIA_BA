@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaEdit, FaSave, FaTimes, FaFilePdf, FaPlus } from 'react-icons/fa';
+import { FaEdit,FaTrash, FaSave, FaTimes, FaFilePdf, FaPlus, FaDeezer } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import pdf2 from '../../assets/images/pdf2.png'
@@ -8,8 +8,10 @@ import MediaUploadModal from '../UploadDoc/MediaUploadModal';
 import useApi from '../../api/axios';
 import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
 const InsuranceDetailMain = () => {
+  const Navigate = useNavigate();
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
@@ -237,6 +239,9 @@ const InsuranceDetailMain = () => {
     }
   }, [newPoloicyStartDate, setValue]);
 
+
+  const [fetchedDataUserID, setfetchedDataUserID] = useState('');
+
   useEffect(() => {
     if (fetchedData) {
       if (fetchedData.case_type == 'office') {
@@ -244,6 +249,7 @@ const InsuranceDetailMain = () => {
       } else {
         setValue('agent_id', fetchedData.agent_id);
       }
+      setfetchedDataUserID(fetchedData.user_id);
     }
   }, [fetchedData]);
 
@@ -434,6 +440,32 @@ const InsuranceDetailMain = () => {
       toast.error('Failed to delete document');
     }
   }
+  const [confirmDelete, setConfirmDelete] = useState({ show: false });
+
+  const handleConfirmDelete = () => {
+    setConfirmDelete({ show: true });
+  }
+
+  const handleDeleteInsurance = async () => {
+    try {
+      const response = await axios.post('/delete-particular-insurance', {id: activeInsuranceId});
+      if (response.data.success) {
+        toast.success('Insurance deleted successfully');
+        setConfirmDelete({ show: false });
+        if(insuranceData.length != 1){
+         location.reload();
+        } else {
+          Navigate('/insurance');
+        }
+      } else {
+        toast.error(response.data.message);
+      }
+    }catch (error) {
+      console.log(error);
+      toast.error('Failed to delete insurance');
+    }
+  }
+
 
   return (
     <>
@@ -459,12 +491,24 @@ const InsuranceDetailMain = () => {
                 </button>
               </>
             ) : (
-              <button
-                className="btn btn-primary"
-                onClick={() => setIsEditing(true)}
-              >
-                <FaEdit className="me-2" /> Edit
-              </button>
+                <div className='d-flex align-items-center justify-center'>
+                  <div className='d-flex'>
+                    <button
+                      className="d-flex align-items-center justify-center btn btn-primary"
+                      onClick={() => setIsEditing(true)}
+                    >
+                      <FaEdit className="me-2" /> Edit
+                    </button>
+                  </div>
+                  <div>
+                    <button
+                      className="text-white btn btn-danger ms-2 d-flex align-items-center justify-center btn btn-primary"
+                      onClick={() => handleConfirmDelete()}
+                    >
+                      <FaTrash className="me-2" />Delete
+                    </button>
+                  </div>
+                </div>
             )}
           </div>
         </div>
@@ -476,7 +520,7 @@ const InsuranceDetailMain = () => {
                 className={`nav-link ${activeTab === index ? 'active' : ''}`}
                 onClick={() => { setActiveTab(index); setActiveInsuranceId(insurance.id); }}
               >
-                {insuranceData.length - 1 == index ? 'Initial' : 'Renewal ' + (index + 1)}
+                {insuranceData.length - 1 == index ? 'Initial' : 'Renewal ' + (insuranceData.length - 1 - index)}
               </button>
             </li>
           ))}
@@ -989,6 +1033,28 @@ const InsuranceDetailMain = () => {
                           )}
                         </div>
                       )}
+                      {(case_type === 'self' && user_id != fetchedDataUserID) &&(
+                        <div className="col-md-3">
+                          <label htmlFor="user_id" className="form-label">Office Employee</label>
+                          <select
+                            id="user_id"
+                            className={`form-select ${errors.user_id ? 'is-invalid' : ''}`}
+                            disabled={!isEditing}
+                            {...register("user_id", { required: "Employee is required" })}
+                          >
+                            <option value="">Select Employee</option>
+                            {adminType === 'Admin' && User.map((item) => (
+                              <option key={item.id} value={item.id}>
+                                {item.full_name}
+                              </option>
+                            ))}
+                            <option value={user_id}>self</option>
+                          </select>
+                          {errors.user_id && (
+                            <div className="invalid-feedback">{errors.user_id.message}</div>
+                          )}
+                        </div>
+                      )}
 
                     </div>
                   </div>
@@ -1117,7 +1183,7 @@ const InsuranceDetailMain = () => {
 
 
                     <div className="d-flex gap-5 flex-wrap">
-                      {insuranceData[activeTab].documents && JSON.parse(insuranceData[activeTab].documents).map((doc, docIndex) => (
+                      {insuranceData[activeTab]?.documents && JSON.parse(insuranceData[activeTab]?.documents).map((doc, docIndex) => (
                         <>
                           <div key={docIndex} className="col-md-3 mb-3">
                             <div className="card h-100">
@@ -1190,8 +1256,38 @@ const InsuranceDetailMain = () => {
         handleClose={closeUploadModal}
         id={activeInsuranceId}
       />
+      {confirmDelete.show && (
+                <DeleteConfirmModal
+                    show={confirmDelete.show}
+                    onClose={() => setConfirmDelete({ show: false })}
+                    onConfirm={() => handleDeleteInsurance()}
+                />
+            )}
     </>
   );
 };
+
+ const DeleteConfirmModal = ({ show, onClose, onConfirm }) => {
+        if (!show) return null;
+        return (
+            <div className="modal fade show d-block" tabIndex="-1">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Confirm Deletion</h5>
+                            <button type="button" className="btn-close" onClick={onClose}></button>
+                        </div>
+                        <div className="modal-body">
+                            <p>Are you sure you want to delete this Insurance?</p>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn btn-danger" onClick={onConfirm}>Confirm</button>
+                            <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
 export default InsuranceDetailMain;
