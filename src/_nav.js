@@ -49,12 +49,12 @@ const _nav = (admintype) => {
       name: 'Set Insurance Amount',
       to: '/pending-insurance-amount',
       icon: <CIcon icon={cilDollar} customClassName="nav-icon" style={{ height: '20px' }} />,
-    },{
+    }, admintype === 'Admin' ?{
       component: CNavItem,
       name: 'Agents',
       to: '/agent',
       icon: <CIcon icon={cilContact} customClassName="nav-icon" style={{ height: '20px' }} />,
-    },{
+    }:null,{
       component: CNavItem,
       name: 'Agents Code',
       to: '/agent-codes',
