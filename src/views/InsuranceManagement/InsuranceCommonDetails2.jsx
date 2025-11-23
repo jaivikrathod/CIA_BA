@@ -224,15 +224,19 @@ export default function InsuranceCommonDetails2() {
     }
   }, [netPayoutPerntage, od_premium]);
 
-const amount = Number(watch('amount')) || 0;
-const net_amount = Number(watch('net_amount')) || 0;
+  const amount = Number(watch('amount')) || 0;
+  const net_amount = Number(watch('net_amount')) || 0;
   useEffect(() => {
-     if(amount && net_amount){ 
-        const calculatedNetIncome = amount - net_amount;
-        setValue('net_income', calculatedNetIncome);
-     }else{
+    if (amount && net_amount) {
+      const calculatedNetIncome = amount - net_amount;
+      let formattedValue = calculatedNetIncome % 1 !== 0
+        ? Number(calculatedNetIncome).toFixed(2)
+        : calculatedNetIncome;
+
+      setValue('net_income', formattedValue);
+    } else {
       setValue('net_income', null);
-     }
+    }
   }, [amount, net_amount]);
 
   const newPoloicyStartDate = watch('policy_start_date');
