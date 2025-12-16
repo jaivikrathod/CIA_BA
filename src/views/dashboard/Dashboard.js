@@ -321,10 +321,10 @@ const Dashboard = () => {
             setDateError('Start date must be before end date');
             return false;
         }
-        if (e > today) {
-            setDateError('End date cannot be in the future');
-            return false;
-        }
+        // if (e > today) {
+        //     setDateError('End date cannot be in the future');
+        //     return false;
+        // }
         return true;
     };
 
@@ -462,7 +462,9 @@ const Dashboard = () => {
                             <CFormLabel className="fw-semibold">Date Preset</CFormLabel>
                             <CFormSelect value={preset} onChange={(e) => { setPreset(e.target.value); setDateError(''); }}>
                                 <option value="all">All Time</option>
+                                <option value="last_month">Last Month</option>
                                 <option value="this_month">This Month</option>
+                                <option value="next_month">Next Month</option>
                                 <option value="2m">Last 2 Months</option>
                                 <option value="3m">Last 3 Months</option>
                                 <option value="6m">Last 6 Months</option>
