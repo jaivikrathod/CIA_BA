@@ -97,8 +97,8 @@ const AgentCodeManagement = () => {
                                     {filteredAgents.map((agent, index) => (
                                         <tr key={agent.id}>
                                             <td>{index + 1}</td>
-                                            <td>{agent.agent_name}</td>
-                                            <td>{agent.agent_code}</td>
+                                            <td title={agent.agent_name}>{agent.agent_name}</td>
+                                            <td title={agent.agent_code}>{agent.agent_code}</td>
                                             <td>
                                                 <button className="btn btn-link" title="Info" onClick={() => setSelectedAgent(agent)}>
                                                     <FaInfoCircle />
@@ -189,7 +189,7 @@ const AgentForm = ({ agent, onClose, setisReadable, isReadable,fetchAgentCode })
         <div className="modal fade show d-block" tabIndex="-1">
             <div className="modal-dialog modal-dialog-centered modal-lg">
                 <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'hidden' }}>
-                    <div className="modal-header bg-dark text-white">
+                    <div className="modal-header bg-dark">
                         <h5 className="modal-title">{isReadable ? (agent.id ? 'Edit Agent Code' : 'New Agent Code') : 'Agent Details'}</h5>
                         {!isReadable && (
                             <FaEdit className='ms-4' style={{ cursor: 'pointer' }} onClick={() => setisReadable(true)} />

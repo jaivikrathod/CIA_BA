@@ -378,9 +378,9 @@ const CustomerManagement = () => {
 
 
                     {/* Table Section */}
-                    <div className="table-responsive fade-in" style={{ maxHeight: '350px' }}>
-                        <table className="table table-striped table-hover" style={{"fontSize":"14px"}}>
-                            <thead className="thead-dark">
+                    <div className="table-responsive fade-in premium-table-wrapper" style={{ maxHeight: '350px' }}>
+                        <table className="table premium-table" style={{"fontSize":"14px"}}>
+                            <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                                 <tr>
                                     <th>Sr. No.</th>
                                     <th>Name</th>
@@ -397,11 +397,11 @@ const CustomerManagement = () => {
                                 {customers.map((customer, index) => (
                                     <tr key={customer.id} style={{ verticalAlign: "middle" }}>
                                         <td>{index + 1}</td>
-                                        <td>{customer.full_name}</td>
-                                        <td>{customer.email}</td>
-                                        <td>{customer.primary_mobile}</td>
-                                        <td>{calculateAge(customer.dob)}</td>
-                                        <td>{customer.gender || 'N/A'}</td>
+                                        <td title={customer.full_name}>{customer.full_name}</td>
+                                        <td title={customer.email}>{customer.email}</td>
+                                        <td title={customer.primary_mobile}>{customer.primary_mobile}</td>
+                                        <td title={calculateAge(customer.dob)}>{calculateAge(customer.dob)}</td>
+                                        <td title={customer.gender || 'N/A'}>{customer.gender || 'N/A'}</td>
                                         {/* <td>{customer.full_address || 'N/A'}</td> */}
                                         <td style={{"padding":"0px"}}>
                                             <button
@@ -582,7 +582,7 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                 <div className="modal-dialog modal-dialog-centered modal-lg">
                     <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'hidden' }}>
                         {isSubmitting && <LoadingComponent />}
-                        <div className="modal-header bg-dark text-white">
+                        <div className="modal-header bg-dark">
                             {isReadable && <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>}
                             {!isReadable && <><h5 className="modal-title">Customer Details</h5>
                                 <FaEdit className='ms-4' style={{ cursor: 'pointer' }} onClick={() => setisReadable(true)} /></>

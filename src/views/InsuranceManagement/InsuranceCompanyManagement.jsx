@@ -179,7 +179,7 @@ const CompanyFormModal = ({ show, company, onClose, fetchCompanies }) => {
         <div className="modal fade show d-block" tabIndex="-1">
             <div className="modal-dialog modal-dialog-centered modal-lg">
                 <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
-                    <div className="modal-header bg-dark text-white">
+                    <div className="modal-header bg-dark">
                         <h5 className="modal-title">{company.id ? 'Edit Insurance Company' : 'New Insurance Company'}</h5>
                         <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
                     </div>

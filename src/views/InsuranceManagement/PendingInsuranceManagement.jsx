@@ -562,7 +562,7 @@ const PendingInsuranceManagement = () => {
                         <div className="modal fade show d-block" tabIndex="-1">
                             <div className="modal-dialog">
                                 <div className="modal-content">
-                                    <div className="modal-header bg-dark text-white">
+                                    <div className="modal-header bg-dark">
                                         <h5 className="modal-title fw-bold">Enter Customer's Email/mobile</h5>
                                         <button type="button" className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
                                     </div>

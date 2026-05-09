@@ -99,9 +99,9 @@ const VehicleModelManagement = () => {
                 <div className="alert alert-info text-center" role="alert">
                     No Vehicle Model found. Please add a new vehicle.</div>
             ) : (<>
-                <div style={{ maxHeight: '350px', overflowY: 'auto', width: '100%' }}>
-                    <table className="table table-striped table-hover" style={{ marginBottom: 0 }}>
-                        <thead className="thead-dark" style={{ position: 'sticky', top: 0, zIndex: 1, background: '#343a40' }}>
+                <div className="premium-table-wrapper" style={{ maxHeight: '350px', overflowY: 'auto', width: '100%' }}>
+                    <table className="table premium-table" style={{ marginBottom: 0 }}>
+                        <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                             <tr>
                                 <th>No.</th>
                                 <th>Company Name</th>
@@ -116,11 +116,11 @@ const VehicleModelManagement = () => {
                             {vehicle_model.map((vehicle, index) => (
                                 <tr key={vehicle.id} style={{ verticalAlign: "middle" }}>
                                     <td>{index + 1}</td>
-                                    <td>{vehicle.company.company_name}</td>
-                                    <td>{vehicle.type}</td>
-                                    <td>{vehicle.model_name}</td>
-                                    <td>{vehicle.model_launch_year}</td>
-                                    <td>{vehicle.other_detail || '-'}</td>
+                                    <td title={vehicle.company.company_name}>{vehicle.company.company_name}</td>
+                                    <td title={vehicle.type}>{vehicle.type}</td>
+                                    <td title={vehicle.model_name}>{vehicle.model_name}</td>
+                                    <td title={vehicle.model_launch_year}>{vehicle.model_launch_year}</td>
+                                    <td title={vehicle.other_detail || '-'}>{vehicle.other_detail || '-'}</td>
                                     <td>
                                         <button
                                             className="btn btn-link"
@@ -234,7 +234,7 @@ const VehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model, vehicleC
         <div className="modal fade show d-block" tabIndex="-1">
             <div className="modal-dialog modal-dialog-centered modal-lg">
                 <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
-                    <div className="modal-header bg-dark text-white">
+                    <div className="modal-header bg-dark">
                         <h5 className="modal-title">{vehicle.id ? 'Edit vehicle' : 'New vehicle'}</h5>
                         <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
                     </div>

@@ -583,9 +583,9 @@ const Dashboard = () => {
 
                         <CCard className="mb-4 shadow-sm border-0"> 
                             <CCardBody className="p-0">
-                                <div className="table-responsive">
-                                    <table className="table table-striped table-hover table-borderless align-middle mb-0">
-                                        <thead className="table-light">
+                                <div className="table-responsive premium-table-wrapper">
+                                    <table className="table premium-table align-middle mb-0">
+                                        <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                                             <tr>
                                                 <th>Entity</th>
                                                 <th className="text-end">Policies</th>
@@ -601,7 +601,7 @@ const Dashboard = () => {
                                         <tbody>
                                             {(summaryPerEntity && summaryPerEntity.length > 0) ? summaryPerEntity.map((s, idx) => (
                                                 <tr key={`${s.type}-${s.id || idx}`}>
-                                                    <td>{s.label}</td>
+                                                    <td title={s.label}>{s.label}</td>
                                                     <td className="text-end">{s.totals?.policies ?? 0}</td>
                                                     <td className="text-end">{formatCurrency(s.totals?.od_premium)}</td>
                                                     <td className="text-end">{formatCurrency(s.totals?.package_premium)}</td>
@@ -618,7 +618,7 @@ const Dashboard = () => {
                                             )}
 
                                             {/* Combined row */}
-                                            <tr className="table-dark">
+                                            <tr style={{ backgroundColor: '#f1f5f9' }}>
                                                 <td><strong>TOTAL COMBINED</strong></td>
                                                 <td className="text-end"><strong>{combinedSummary.policies ?? combinedCounts.insurance ?? 0}</strong></td>
                                                 <td className="text-end"><strong>{formatCurrency(combinedSummary.od_premium)}</strong></td>

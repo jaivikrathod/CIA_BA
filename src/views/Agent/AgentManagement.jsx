@@ -83,9 +83,9 @@ const AgentManagement = () => {
                 ) : (
                     <>
 
-                        <div style={{ maxHeight: '70vh', overflowY: 'auto' }} className="table-responsive">
-                            <table className="table table-striped table-hover" >
-                                <thead className="thead-dark">
+                        <div style={{ maxHeight: '70vh', overflowY: 'auto' }} className="table-responsive premium-table-wrapper">
+                            <table className="table premium-table" >
+                                <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                                     <tr>
                                         <th>Sr. No.</th>
                                         <th>Name</th>
@@ -98,9 +98,9 @@ const AgentManagement = () => {
                                     {filteredAgents.map((agent, index) => (
                                         <tr key={agent.id}>
                                             <td>{index + 1}</td>
-                                            <td>{agent.full_name}</td>
-                                            <td>{agent.email}</td>
-                                            <td>{agent.primary_mobile}</td>
+                                            <td title={agent.full_name}>{agent.full_name}</td>
+                                            <td title={agent.email}>{agent.email}</td>
+                                            <td title={agent.primary_mobile}>{agent.primary_mobile}</td>
                                             <td>
                                                 <button className="btn btn-link" title="Info" onClick={() => setSelectedAgent(agent)}>
                                                     <FaInfoCircle />
@@ -191,7 +191,7 @@ const AgentForm = ({ agent, onClose, setisReadable, isReadable,fetchAgents }) =>
         <div className="modal fade show d-block" tabIndex="-1">
             <div className="modal-dialog modal-dialog-centered modal-lg">
                 <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'hidden' }}>
-                    <div className="modal-header bg-dark text-white">
+                    <div className="modal-header bg-dark">
                         <h5 className="modal-title">{isReadable ? (agent.id ? 'Edit Agent' : 'New Agent') : 'Agent Details'}</h5>
                         {!isReadable && (
                             <FaEdit className='ms-4' style={{ cursor: 'pointer' }} onClick={() => setisReadable(true)} />

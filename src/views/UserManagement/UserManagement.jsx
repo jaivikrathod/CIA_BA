@@ -65,9 +65,9 @@ const UserManagement = () => {
                 <div className="alert alert-info text-center" role="alert">
                     No users found. Please add a new user.</div>
             ) : (<>
-                <div style={{ maxHeight: '350px', overflowY: 'auto', width: '100%' }}>
-                    <table className="table table-striped table-hover" style={{ marginBottom: 0 }}>
-                        <thead className="thead-dark" style={{ position: 'sticky', top: 0, zIndex: 1, background: '#343a40' }}>
+                <div className="premium-table-wrapper" style={{ maxHeight: '350px', overflowY: 'auto', width: '100%' }}>
+                    <table className="table premium-table" style={{ marginBottom: 0 }}>
+                        <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                             <tr>
                                 <th>Sr. No.</th>
                                 <th>Name</th>
@@ -81,10 +81,10 @@ const UserManagement = () => {
                             {User.map((user, index) => (
                                 <tr key={user.id} style={{ verticalAlign: "middle" }}>
                                     <td>{index + 1}</td>
-                                    <td>{user.full_name}</td>
-                                    <td>{user.email}</td>
-                                    <td>{user.mobile}</td>
-                                    <td>{user.type || 'N/A'}</td>
+                                    <td title={user.full_name}>{user.full_name}</td>
+                                    <td title={user.email}>{user.email}</td>
+                                    <td title={user.mobile}>{user.mobile}</td>
+                                    <td title={user.type || 'N/A'}>{user.type || 'N/A'}</td>
                                     <td>
                                         <button
                                             className="btn btn-link"
@@ -169,7 +169,7 @@ const UserFormModal = ({ show, User, onClose, fetchUser }) => {
         <div className="modal fade show d-block" tabIndex="-1">
             <div className="modal-dialog modal-dialog-centered modal-lg">
                 <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
-                    <div className="modal-header bg-dark text-white">
+                    <div className="modal-header bg-dark">
                         <h5 className="modal-title">{User.id ? 'Edit User' : 'New User'}</h5>
                         <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
                     </div>

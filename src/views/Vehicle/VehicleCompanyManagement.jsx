@@ -68,9 +68,9 @@ const VehicleCompanyManagement = () => {
                 <div className="alert alert-info text-center" role="alert">
                     No Vehicle Companies found. Please add a new Company.</div>
             ) : (<>
-                <div style={{ maxHeight: '350px', overflowY: 'auto', width: '100%' }}>
-                    <table className="table table-striped table-hover" style={{ marginBottom: 0 }}>
-                        <thead className="thead-dark" style={{ position: 'sticky', top: 0, zIndex: 1, background: '#343a40' }}>
+                <div className="premium-table-wrapper" style={{ maxHeight: '350px', overflowY: 'auto', width: '100%' }}>
+                    <table className="table premium-table" style={{ marginBottom: 0 }}>
+                        <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                             <tr>
                                 <th>Sr. No.</th>
                                 <th>Company Name</th>
@@ -82,8 +82,8 @@ const VehicleCompanyManagement = () => {
                             {vehicleCompanies?.map((vehicle, index) => (
                                 <tr key={vehicle.id} style={{ verticalAlign: "middle" }}>
                                     <td>{index + 1}</td>
-                                    <td>{vehicle.company_name}</td>
-                                    <td>{vehicle.extras ?vehicle.extras: 'No data'}</td>
+                                    <td title={vehicle.company_name}>{vehicle.company_name}</td>
+                                    <td title={vehicle.extras ?vehicle.extras: 'No data'}>{vehicle.extras ?vehicle.extras: 'No data'}</td>
                                     <td>
                                         <button
                                             className="btn btn-link"
@@ -180,7 +180,7 @@ const VehicleFormCompany = ({ show, vehicle, onClose }) => {
         <div className="modal fade show d-block" tabIndex="-1">
             <div className="modal-dialog modal-dialog-centered modal-lg">
                 <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
-                    <div className="modal-header bg-dark text-white">
+                    <div className="modal-header bg-dark">
                         <h5 className="modal-title">{vehicle.id ? 'Edit vehicle' : 'New Vehicle Company'}</h5>
                         <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
                     </div>

@@ -596,9 +596,9 @@ const InsuranceManagement2 = () => {
                     <div className="alert alert-info text-center fade-in" role="alert">
                         No insurance found. Please add a new insurance.</div>
                 ) : (<>
-                    <div className="table-responsive fade-in" style={{ maxHeight: '350px' }}>
-                        <table className="table table-striped table-hover" style={{"fontSize":"14px"}}>
-                            <thead className="thead-dark">
+                    <div className="table-responsive fade-in premium-table-wrapper" style={{ maxHeight: '350px' }}>
+                        <table className="table premium-table" style={{"fontSize":"14px"}}>
+                            <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                                 <tr>
                                     <th>No</th>
                                     <th>Name</th>
@@ -616,14 +616,14 @@ const InsuranceManagement2 = () => {
                                 {insurance.map((insurance, index) => (
                                     <tr key={insurance.id} style={{ verticalAlign: "middle" }}>
                                         <td>{index + 1}</td>
-                                        <td>{insurance.full_name}</td>
-                                        <td>{insurance.primary_mobile}</td>
-                                        <td>{insurance.segment}</td>
+                                        <td title={insurance.full_name}>{insurance.full_name}</td>
+                                        <td title={insurance.primary_mobile}>{insurance.primary_mobile}</td>
+                                        <td title={insurance.segment}>{insurance.segment}</td>
                                         {/* <td>{insurance.email}</td> */}
-                                        <td>{insurance.insurance_type ?? 'N/A'}</td>
-                                        <td>{insurance.manufacturer ?? 'N/A'}</td>
-                                        <td>{insurance.model ?? 'N/A'}</td>
-                                        <td>{new Date(insurance.insurance_date).toLocaleDateString('en-GB')}</td>
+                                        <td title={insurance.insurance_type ?? 'N/A'}>{insurance.insurance_type ?? 'N/A'}</td>
+                                        <td title={insurance.manufacturer ?? 'N/A'}>{insurance.manufacturer ?? 'N/A'}</td>
+                                        <td title={insurance.model ?? 'N/A'}>{insurance.model ?? 'N/A'}</td>
+                                        <td title={new Date(insurance.insurance_date).toLocaleDateString('en-GB')}>{new Date(insurance.insurance_date).toLocaleDateString('en-GB')}</td>
                                         <td style={{"padding":"0px"}}>
                                             <button 
                                                 className="btn btn-link"
@@ -690,7 +690,7 @@ const InsuranceManagement2 = () => {
                         <div className="modal fade show d-block" tabIndex="-1">
                             <div className="modal-dialog">
                                 <div className="modal-content">
-                                    <div className="modal-header bg-dark text-white">
+                                    <div className="modal-header bg-dark">
                                         <h5 className="modal-title fw-bold">Enter Customer's Email/mobile</h5>
                                         <button type="button" className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
                                     </div>
