@@ -65,9 +65,9 @@ const InsuranceCompanyManagement = () => {
                 <div className="alert alert-info text-center" role="alert">
                     No insurance companies found. Please add a new company.</div>
             ) : (<>
-                <div style={{ maxHeight: '350px', overflowY: 'auto', width: '100%' }}>
-                    <table className="table table-striped table-hover" style={{ marginBottom: 0 }}>
-                        <thead className="thead-dark" style={{ position: 'sticky', top: 0, zIndex: 1, background: '#343a40' }}>
+                <div className="table-responsive premium-table-wrapper" style={{ maxHeight: '350px', overflowY: 'auto', width: '100%' }}>
+                    <table className="table premium-table" style={{ marginBottom: 0 }}>
+                        <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                             <tr>
                                 <th>Sr. No.</th>
                                 <th>Name</th>
@@ -79,8 +79,8 @@ const InsuranceCompanyManagement = () => {
                             {companies.map((company, index) => (
                                 <tr key={company.id} style={{ verticalAlign: "middle" }}>
                                     <td>{index + 1}</td>
-                                    <td>{company.name}</td>
-                                    <td>{company.extras || '-'}</td>
+                                    <td title={company.name}>{company.name}</td>
+                                    <td title={company.extras || '-'}>{company.extras || '-'}</td>
                                     <td>
                                         <button
                                             className="btn btn-link"

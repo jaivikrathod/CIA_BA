@@ -83,9 +83,9 @@ const AgentCodeManagement = () => {
                 ) : (
                     <>
 
-                        <div style={{ maxHeight: '70vh', overflowY: 'auto' }} className="table-responsive">
-                            <table className="table table-striped table-hover" >
-                                <thead className="thead-dark">
+                        <div style={{ maxHeight: '70vh', overflowY: 'auto' }} className="table-responsive premium-table-wrapper">
+                            <table className="table premium-table" >
+                                <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                                     <tr>
                                         <th>Sr. No.</th>
                                         <th>Agent Name</th>

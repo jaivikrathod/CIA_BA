@@ -37,7 +37,7 @@ body {
   text-transform: uppercase;
   border: none !important;
   border-bottom: 1px solid #e2e8f0 !important;
-  padding: 14px 24px;
+  padding: 12px 10px;
   vertical-align: middle;
   position: sticky;
   top: 0;
@@ -59,8 +59,8 @@ body {
 
 /* Cells */
 .table.premium-table tbody td {
-  padding: 16px 24px;
-  font-size: 0.875rem;
+  padding: 12px 10px;
+  font-size: 0.8125rem;
   font-weight: 400;
   vertical-align: middle;
   border: none !important;
@@ -69,7 +69,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
+  max-width: 140px;
 }
 
 /* First and Last Cells styling for rounded rows - REMOVED for clean corporate look */

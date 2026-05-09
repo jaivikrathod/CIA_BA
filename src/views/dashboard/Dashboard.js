@@ -46,8 +46,8 @@ const KpiCard = ({ title, value, icon, color = 'primary' }) => (
           <div className="text-muted small text-uppercase">{title}</div>
           <div className="fw-bold fs-5 text-dark mt-1">{value}</div>
         </div>
-        {icon =='rupees' ? <span className={`text-${color}`} style={{fontSize:'28px'}}>₹</span> :
-        <CIcon icon={icon} className={`text-${color}`} size="xl" />}
+        {/* {icon =='rupees' ? <span className={`text-${color}`} style={{fontSize:'28px'}}>₹</span> :
+        <CIcon icon={icon} className={`text-${color}`} size="xl" />} */}
       </div>
     </CCardBody>
   </CCard>
