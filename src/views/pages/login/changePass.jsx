@@ -30,13 +30,13 @@ export default function ChangePass() {
       return;
     }
 
-    if(data.password === "Password@123"){
+    if (data.password === "Password@123") {
       toast.error("New Password cannot be the default password");
       return;
     }
 
     try {
-      const response = await api.post(`/change-password/${id}`, {
+      const response = await api.post(`/forget-change-password/${id}`, {
         password: data.password,
       });
 
@@ -68,7 +68,7 @@ export default function ChangePass() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-group">
-            <div className="flex items-center gap-2 mb-2" style={{display: 'flex', justifyContent: 'space-between'}}>
+            <div className="flex items-center gap-2 mb-2" style={{ display: 'flex', justifyContent: 'space-between' }}>
               <label className="form-label m-0">New Password</label>
               <button
                 type="button"
@@ -76,7 +76,7 @@ export default function ChangePass() {
                 className=""
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
                 tabIndex={-1}
-                style={{background: "white", color: 'black', border: 'none'}}
+                style={{ background: "white", color: 'black', border: 'none' }}
               >
                 {showPassword ? <FiEyeOff size={18} className="mb-2" /> : <FiEye size={18} />}
               </button>
@@ -95,7 +95,7 @@ export default function ChangePass() {
           </div>
 
           <div className="form-group">
-            <div className="flex items-center gap-2 mb-2" style={{display: 'flex', justifyContent: 'space-between'}}>
+            <div className="flex items-center gap-2 mb-2" style={{ display: 'flex', justifyContent: 'space-between' }}>
               <label className="form-label m-0">Confirm Password</label>
               <button
                 type="button"
@@ -103,7 +103,7 @@ export default function ChangePass() {
                 className=""
                 aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 tabIndex={-1}
-                style={{background: "white", color: 'black', border: 'none'}}
+                style={{ background: "white", color: 'black', border: 'none' }}
               >
                 {showConfirmPassword ? <FiEyeOff size={18} className="mb-2" /> : <FiEye size={18} />}
               </button>
