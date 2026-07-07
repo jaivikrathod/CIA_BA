@@ -162,6 +162,7 @@ export default function InsuranceCommonDetails2() {
     { label: "Net Payout Percent", type: "number",  step: "0.01", id: "net_payout_percent", validation: { required: "Net Payout Percent is required" }, adminOnly: true, width: "col-md-3" },
     { label: "Net Amount", type: "number",  step: "0.01", id: "net_amount", adminOnly: true, width: "col-md-3", disabled: true },
     { label: "Net Income", type: "number",  step: "0.01", id: "net_income", adminOnly: true, width: "col-md-3", disabled: true },
+    { label: "Cashback Amount", type: "number",  step: "0.01", id: "cashback_amount", adminOnly: true, width: "col-md-3" },
     // { label: "tds", type: "number",  step: "0.01", id: "tds", validation: { required: "tds is required" }, adminOnly: false, width: "col-md-3" },
     // { label: "commission percentage", type: "number",  step: "0.01", id: "commission_percentage", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },
     // { label: "commission amount", type: "number",  step: "0.01", id: "commission_amount", validation: { required: "commission is required" }, adminOnly: true, width: "col-md-3" },

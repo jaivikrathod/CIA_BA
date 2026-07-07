@@ -385,6 +385,7 @@ const InsuranceDetailMain = () => {
         "net_payout_percent": data.net_payout_percent,
         "net_amount": data.net_amount,
         "net_income": data.net_income,
+        "cashback_amount": data.cashback_amount,
       }
 
       await axios.post(`/update-insurance`, { payload });
@@ -1106,6 +1107,15 @@ const InsuranceDetailMain = () => {
                           className="form-control"
                           disabled={adminType === 'Sub-admin' || !isEditing}
                           {...register('net_income')}
+                        />
+                      </div>
+                       <div className="col-md-3 mb-3">
+                        <label className="form-label">Cashback Amount</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          disabled={adminType === 'Sub-admin' || !isEditing}
+                          {...register('cashback_amount')}
                         />
                       </div>
                       {/* <div className="col-md-3 mb-3">
