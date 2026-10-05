@@ -93,9 +93,10 @@ export default function InsuranceCommonDetails1() {
             <Toaster position="top-right" />
 
             {/* Profile Update */}
+            <div className="page-card">
             <div className="row mb-4">
                 <div className="col-12">
-                    <h2 style={{ color: "#2c3e50", fontWeight: "600" }}>Update Profile</h2>
+                    <h2>Update Profile</h2>
                 </div>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="row g-3">
@@ -138,11 +139,13 @@ export default function InsuranceCommonDetails1() {
                     <button type="submit" className="btn btn-primary">Submit</button>
                 </div>
             </form>
+            </div>
 
             {/* Change Password */}
-            <div className="row mt-5">
+            <div className="page-card">
+            <div className="row mb-4">
                 <div className="col-12">
-                    <h2 style={{ color: "#2c3e50", fontWeight: "600" }}>Change Password</h2>
+                    <h2>Change Password</h2>
                 </div>
             </div>
             <form onSubmit={handlePasswordSubmit(onPasswordSubmit)} className="row g-3">
@@ -183,6 +186,7 @@ export default function InsuranceCommonDetails1() {
                     <button type="submit" className="btn btn-warning">Change Password</button>
                 </div>
             </form>
+            </div>
         </div>
     );
 }

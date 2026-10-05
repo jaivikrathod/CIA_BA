@@ -145,9 +145,9 @@ export default function InsuranceInitialDetails() {
       <ToastContainer />
       <div className="initial-insurance">
         <div className="col-lg-6 col-md-8 mx-auto">
-          <div className="card border-0 shadow-sm">
+          <div className="card">
             <div className="card-body p-4">
-              <h2 className="text-center mb-4" style={{ color: "#2c3e50", fontWeight: "600" }}>
+              <h2 className="text-center mb-4">
                 Insurance Details
               </h2>
 
@@ -157,8 +157,7 @@ export default function InsuranceInitialDetails() {
                     <label className="form-label fw-semibold">Select Insurance Type</label>
                     <select
                       {...register("insurance_type", { required: "Insurance type is required" })}
-                      className="form-select border-2"
-                      style={{ borderColor: errors.insurance_type ? "#dc3545" : "#dee2e6" }}
+                      className={`form-select ${errors.insurance_type ? "is-invalid" : ""}`}
                     >
                       <option value="">Choose insurance type</option>
                       <option value="Motor">Motor</option>
@@ -175,8 +174,7 @@ export default function InsuranceInitialDetails() {
                     <label className="form-label fw-semibold">Select Segment Type</label>
                     <select
                       {...register("segment", { required: "Segment type is required" })}
-                      className="form-select border-2"
-                      style={{ borderColor: errors.segment ? "#dc3545" : "#dee2e6" }}
+                      className={`form-select ${errors.segment ? "is-invalid" : ""}`}
                     >
                       <option value="">Choose segment type</option>
                       {selectedOption.map((option) => (
@@ -197,13 +195,7 @@ export default function InsuranceInitialDetails() {
                       <label className="form-label fw-semibold">Select Vehicle Type</label>
                       <select
                         {...register("segment_vehicle_type", { required: "Vehicle type is required" })}
-                        className="form-select border-2"
-                        style={{
-                          borderColor:
-                            touchedFields.segment_vehicle_type && errors.segment_vehicle_type
-                              ? "#dc3545"
-                              : "#dee2e6",
-                        }}
+                        className={`form-select ${touchedFields.segment_vehicle_type && errors.segment_vehicle_type ? "is-invalid" : ""}`}
                       >
                         <option value="">Choose vehicle type</option>
                         {selectedOption2.map((option) => (

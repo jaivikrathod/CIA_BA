@@ -1,31 +1,28 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import {
-  CAvatar,
-  CBadge,
   CDropdown,
   CDropdownDivider,
-  CDropdownHeader,
   CDropdownItem,
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react'
-import {
-  cilBell,
-  cilCreditCard,
-  cilCommentSquare,
-  cilEnvelopeOpen,
-  cilFile,
-  cilLockLocked,
-  cilSettings,
-  cilTask,
-  cilUser,
-} from '@coreui/icons'
+import { cilAccountLogout, cilUser } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
 import { useSelector } from 'react-redux'
+
+export const getInitials = (name) =>
+  (name || '')
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('') || 'U'
+
 const AppHeaderDropdown = () => {
   const username = useSelector((state) => state.username)
+  const adminType = useSelector((state) => state.adminType)
 
   const logout = () => {  
     localStorage.clear();
@@ -34,28 +31,23 @@ const AppHeaderDropdown = () => {
   }
   return (
     <CDropdown variant="nav-item">
-      <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
-         <img
-            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random&bold=true`}
-            alt="Admin Avatar"
-              style={{
-                width: '35px',
-                height: '35px',
-                borderRadius: '50%',
-                objectFit: 'cover',
-                marginTop: '3px',
-              }}
-            />
+      <CDropdownToggle placement="bottom-end" className="app-user-toggle" caret={false}>
+        <span className="app-avatar">{getInitials(username)}</span>
+        <span className="d-none d-md-block text-start">
+          <span className="app-user-name d-block">{username}</span>
+          <span className="app-user-role d-block">{adminType}</span>
+        </span>
       </CDropdownToggle>
-      <CDropdownMenu className="pt-0" placement="bottom-end">
+      <CDropdownMenu placement="bottom-end">
         <Link to="/edit-profile" style={{ textDecoration: 'none' }}>
         <CDropdownItem>
           <CIcon icon={cilUser} className="me-2" />
           Profile
         </CDropdownItem>
         </Link>
+        <CDropdownDivider />
         <CDropdownItem onClick={()=> logout()}>
-          <CIcon icon={cilLockLocked} className="me-2" />
+          <CIcon icon={cilAccountLogout} className="me-2" />
           Logout
         </CDropdownItem>
       </CDropdownMenu>

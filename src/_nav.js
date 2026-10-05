@@ -12,12 +12,15 @@ import {
   cilDollar
 } from '@coreui/icons'
 
-import { CNavItem } from '@coreui/react'
+import { CNavItem, CNavTitle } from '@coreui/react'
 
 const _nav = (admintype) => {
 
   return [
-
+    {
+      component: CNavTitle,
+      name: 'Overview',
+    },
     {
       component: CNavItem,
       name: 'Dashboard',
@@ -27,6 +30,10 @@ const _nav = (admintype) => {
       //   color: 'info',
       //   text: 'NEW',
       // },
+    },
+    {
+      component: CNavTitle,
+      name: 'Management',
     },
     {
       component: CNavItem,
@@ -59,6 +66,10 @@ const _nav = (admintype) => {
       name: 'Agents Code',
       to: '/agent-codes',
       icon: <CIcon icon={cilContact} customClassName="nav-icon" style={{ height: '20px' }} />,
+    },
+    {
+      component: CNavTitle,
+      name: 'Master Data',
     },
     {
       component: CNavItem,

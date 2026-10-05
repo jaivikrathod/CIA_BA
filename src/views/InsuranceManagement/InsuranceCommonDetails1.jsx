@@ -146,10 +146,10 @@ export default function InsuranceCommonDetails1() {
   };
 
   return (
-    <div className="container">
+    <div className="container page-card">
       <div className="row mb-4">
         <div className="col-12">
-          <h2 className="" style={{ color: "#2c3e50", fontWeight: "600" }}>
+          <h2>
             Vehicle Details
           </h2>
         </div>

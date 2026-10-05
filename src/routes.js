@@ -20,23 +20,23 @@ const pendingInsuranceManagement = React.lazy(()=> import("./views/InsuranceMana
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-  { path: '/customers', name: 'customers', element: CustomerManagement },
-  { path: '/users', name: 'users', element: UserManagement },
-  { path: '/edit-profile', name: 'editprofile', element: EditProfile },
-  { path: '/insurance', name: 'insurance', element: InsuranceManagement2 },
-  { path: '/pending-insurance-amount', name: 'pendinginsuranceamount', element: pendingInsuranceManagement},
+  { path: '/customers', name: 'Customers', element: CustomerManagement },
+  { path: '/users', name: 'Users', element: UserManagement },
+  { path: '/edit-profile', name: 'Profile', element: EditProfile },
+  { path: '/insurance', name: 'Insurance', element: InsuranceManagement2 },
+  { path: '/pending-insurance-amount', name: 'Set Insurance Amount', element: pendingInsuranceManagement},
   { path: '/insurance-initial/:id',  element: InsuranceInitialDetails },
   { path: '/common-insurance1/:id',  element: InsuranceCommonDetails1 },
   { path: '/common-insurance2/:id/:common_id',  element: InsuranceCommonDetails2 },
   { path: '/insurance-detail/:id', element: InsuranceDetailMain },
   { path: '/upload-insurance-document/:id', element: uploadInsuranceDocument },
   
-  { path: '/agent', name: 'agent', element: AgentManagement },
-  { path: '/agent-codes', name: 'agentcode', element: AgentCodeManagement },
+  { path: '/agent', name: 'Agents', element: AgentManagement },
+  { path: '/agent-codes', name: 'Agents Code', element: AgentCodeManagement },
 
-  { path: '/vehicle-company', name: 'vehicle', element: vehicleCompany },
-  { path: '/vehicle-models', name: 'vehicle', element: vehicleModel },
-  { path: '/insurance-companies', name: 'insuranceCompanies', element:InsuranceCompanyManagement },
+  { path: '/vehicle-company', name: 'Vehicle Make', element: vehicleCompany },
+  { path: '/vehicle-models', name: 'Vehicle Models', element: vehicleModel },
+  { path: '/insurance-companies', name: 'Insurance Company', element:InsuranceCompanyManagement },
 ]
 
 export default routes

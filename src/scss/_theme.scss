@@ -1,5 +1,5 @@
 body {
-  background-color: var(--cui-tertiary-bg);
+  background-color: var(--app-bg);
 }
 
 .wrapper {
@@ -54,11 +54,7 @@ body {
 @if $enable-dark-mode {
   @include color-mode(dark) {
     body {
-      background-color: var(--cui-dark-bg-subtle);
-    }
-
-    .footer {
-      --cui-footer-bg: var(--cui-body-bg);
+      background-color: var(--app-bg);
     }
   }
 }

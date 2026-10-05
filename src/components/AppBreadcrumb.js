@@ -29,7 +29,20 @@ const AppBreadcrumb = () => {
     return breadcrumbs
   }
 
+  // Parameterised pages (e.g. /insurance-detail/12) have no exact route match
+  const detailPageNames = {
+    'insurance-initial': 'New Insurance',
+    'common-insurance1': 'Vehicle Details',
+    'common-insurance2': 'Insurance Details',
+    'insurance-detail': 'Insurance Details',
+    'upload-insurance-document': 'Insurance Documents',
+  }
+
   const breadcrumbs = getBreadcrumbs(currentLocation)
+  const detailPageName = detailPageNames[currentLocation.split('/')[1]]
+  if (breadcrumbs.length === 0 && detailPageName) {
+    breadcrumbs.push({ pathname: currentLocation, name: detailPageName, active: true })
+  }
 
   return (
     <CBreadcrumb className="my-0">

@@ -4,14 +4,16 @@ import { useSelector, useDispatch } from 'react-redux'
 import {
   CCloseButton,
   CSidebar,
-  CSidebarBrand,
   CSidebarFooter,
   CSidebarHeader,
   CSidebarToggler,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilShieldAlt } from '@coreui/icons'
 
 import { AppSidebarNav } from './AppSidebarNav'
 import geNavItems from '../_nav'
+import { getInitials } from './header/AppHeaderDropdown'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
@@ -23,8 +25,7 @@ const AppSidebar = () => {
 
   return (
     <CSidebar
-      className="border-end"
-      colorScheme="dark"
+      className="app-sidebar"
       position="fixed"
       unfoldable={unfoldable}
       visible={sidebarShow}
@@ -32,34 +33,32 @@ const AppSidebar = () => {
         dispatch({ type: 'set', sidebarShow: visible })
       }}
     >
-      <CSidebarHeader className="border-bottom px-3 py-2  shadow-sm">
-        <div style={{ display: 'flex', gap: '18px', margin: '20px 0px 10px 10px', justifyContent: 'center', alignItems: 'center' }}>
-          <img
-            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random&bold=true`}
-            alt="Admin Avatar"
-            style={{
-              width: '35px',
-              height: '35px',
-              borderRadius: '50%',
-              objectFit: 'cover',
-            }}
-          />
-
-          <div >
-            <div className="fw-semibold " style={{ fontSize: '0.95rem' }}>{username}</div>
-            <div className="badge bg-primary text-white" style={{ fontSize: '10px' }}>{adminType}</div>
+      <CSidebarHeader>
+        <div className="app-brand">
+          <span className="app-brand-mark">
+            <CIcon icon={cilShieldAlt} height={20} />
+          </span>
+          <div className="app-brand-text">
+            <div className="app-brand-name">Care Insurance</div>
+            <div className="app-brand-sub">Agency Admin</div>
           </div>
         </div>
 
         <CCloseButton
           className="d-lg-none"
-          dark
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>
 
       <AppSidebarNav items={navigation} />
-      <CSidebarFooter className="border-top d-none d-lg-flex">
+      <CSidebarFooter className="d-none d-lg-flex">
+        <div className="app-user-card">
+          <span className="app-avatar">{getInitials(username)}</span>
+          <div className="app-user-text" style={{ minWidth: 0 }}>
+            <div className="app-user-name">{username}</div>
+            <div className="app-user-role">{adminType}</div>
+          </div>
+        </div>
         <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
         />

@@ -28,27 +28,32 @@ import CIcon from '@coreui/icons-react'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
+// Mid-tone series colours that stay readable on both the light and dark surface
 const softPalette = [
-  'rgba(15, 76, 129, 0.85)',
-  'rgba(72, 137, 115, 0.85)',
-  'rgba(153, 125, 94, 0.85)',
-  'rgba(112, 112, 112, 0.85)',
-  'rgba(96, 88, 168, 0.85)',
-  'rgba(95, 158, 160, 0.85)',
-  'rgba(170, 92, 92, 0.85)',
+  'rgba(59, 130, 246, 0.85)',
+  'rgba(16, 185, 129, 0.85)',
+  'rgba(245, 158, 11, 0.85)',
+  'rgba(139, 92, 246, 0.85)',
+  'rgba(6, 182, 212, 0.85)',
+  'rgba(239, 68, 68, 0.85)',
+  'rgba(236, 72, 153, 0.85)',
 ]
 
+const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+
 const KpiCard = ({ title, value, icon, color = 'primary' }) => (
-  <CCard className="kpi-card-shadow h-100" style={{ borderLeft: `4px solid var(--cui-${color})` }}>
-    <CCardBody className="p-3">
-      <div className="d-flex align-items-center justify-content-between">
-        <div className="text-truncate">
-          <div className="text-muted small text-uppercase">{title}</div>
-          <div className="fw-bold fs-5 text-dark mt-1">{value}</div>
-        </div>
-        {/* {icon =='rupees' ? <span className={`text-${color}`} style={{fontSize:'28px'}}>₹</span> :
-        <CIcon icon={icon} className={`text-${color}`} size="xl" />} */}
+  <CCard className="kpi-card">
+    <CCardBody>
+      <div className="kpi-head">
+        <div className="kpi-label">{title}</div>
+        <span
+          className="kpi-icon"
+          style={{ '--kpi-color': `var(--cui-${color})`, '--kpi-color-rgb': `var(--cui-${color}-rgb)` }}
+        >
+          {icon === 'rupees' ? '₹' : <CIcon icon={icon} />}
+        </span>
       </div>
+      <div className="kpi-value" title={String(value)}>{value}</div>
     </CCardBody>
   </CCard>
 )
@@ -224,6 +229,14 @@ const Dashboard = () => {
     const [summaryPerEntity, setSummaryPerEntity] = useState([]);
     const [combinedSummary, setCombinedSummary] = useState({ policies: 0, od_premium: 0, premium: 0, gst: 0, amount: 0, net_amount: 0, net_income: 0, tp_premium: 0 ,package_premium:0});
 
+    // Re-read the chart colours whenever the light/dark theme is switched
+    const [themeTick, setThemeTick] = useState(0);
+    useEffect(() => {
+        const onThemeChange = () => setThemeTick(t => t + 1);
+        document.documentElement.addEventListener('ColorSchemeChange', onThemeChange);
+        return () => document.documentElement.removeEventListener('ColorSchemeChange', onThemeChange);
+    }, []);
+
     // Data fetching functions
     useEffect(() => {
         fetchUsers();
@@ -386,26 +399,26 @@ const Dashboard = () => {
             datasets.push({
                 label: 'Combined',
                 data: combinedData,
-                backgroundColor: 'rgba(45,55,72,0.85)',
-                borderColor: 'rgba(45,55,72,1)',
+                backgroundColor: `rgba(${cssVar('--app-chart-neutral')}, 0.85)`,
+                borderColor: `rgba(${cssVar('--app-chart-neutral')}, 1)`,
                 borderWidth: 1,
             });
         }
 
         return { labels, datasets };
-    }, [monthlySeries]);
+    }, [monthlySeries, themeTick]);
 
     const barOptions = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Monthly Policies — Per Entity vs Combined' },
+            legend: { position: 'top', labels: { color: cssVar('--app-text-2'), usePointStyle: true, boxHeight: 8 } },
+            title: { display: true, text: 'Monthly Policies — Per Entity vs Combined', color: cssVar('--app-text') },
             tooltip: { mode: 'index', intersect: false }
         },
         scales: {
-            x: { stacked: false },
-            y: { beginAtZero: true }
+            x: { stacked: false, ticks: { color: cssVar('--app-text-muted') }, grid: { display: false }, border: { color: cssVar('--app-border') } },
+            y: { beginAtZero: true, ticks: { color: cssVar('--app-text-muted') }, grid: { color: cssVar('--app-border') }, border: { display: false } }
         }
     };
 
@@ -436,11 +449,11 @@ const Dashboard = () => {
 
     return (
         <>
-            <h3 className="mb-4 d-flex align-items-center"><CIcon icon={cilChart} size="xxl" className="me-2 text-primary" /> Performance Dashboard</h3>
+            <h3 className="mb-4 d-flex align-items-center"><CIcon icon={cilChart} size="xl" className="me-2 text-primary" /> Performance Dashboard</h3>
 
             {/* 1. Filter and Selection Card */}
-            <CCard className="mb-4 shadow-sm border-0">
-                <CCardHeader className="bg-light border-bottom">
+            <CCard className="mb-4">
+                <CCardHeader>
                     <h6 className="mb-0">Selection & Date Range</h6>
                 </CCardHeader>
                 <CCardBody>
@@ -512,38 +525,38 @@ const Dashboard = () => {
             <CButton color="success" onClick={downloadExcel} className="ms-3 shadow-sm">
                 <CIcon icon={cilCloudDownload} className="me-1" /> Export Details (.xlsx)
             </CButton> */}
-            <h4 className="mt-4 mb-3 d-flex justify-content-between align-items-center">
+            <h4 className="mt-4 mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 Combined Performance Summary
-                <CButton color="success" onClick={downloadExcel} className="ms-3 shadow-sm">
+                <CButton color="success" onClick={downloadExcel}>
                     <CIcon icon={cilCloudDownload} className="me-1" /> Export Details (.xlsx)
                 </CButton>
             </h4>
             <CRow className="g-3 mb-4">
-                <CCol sm={6} md={4} lg={2}>
+                <CCol xs={12} sm={6} lg={4} xxl={2}>
                     <KpiCard title="Total Policies" icon={cilFactory} color="primary"
                         value={combinedSummary.policies ?? combinedCounts.insurance ?? 0} />
                 </CCol>
-                <CCol sm={6} md={4} lg={2}>
+                <CCol xs={12} sm={6} lg={4} xxl={2}>
                     <KpiCard title="OD Premium" icon='rupees' color="warning"
                         value={formatCurrency(combinedSummary.od_premium)} />
                 </CCol>
-                {/* <CCol sm={6} md={4} lg={2}>
+                {/* <CCol xs={12} sm={6} lg={4} xxl={2}>
                     <KpiCard title="TP Premium" icon='rupees' color="info"
                         value={formatCurrency(combinedSummary.tp_premium)} />
                 </CCol> */}
-                 <CCol sm={6} md={4} lg={2}>
+                 <CCol xs={12} sm={6} lg={4} xxl={2}>
                     <KpiCard title="Package Premium" icon='rupees' color="info"
                         value={formatCurrency(combinedSummary.package_premium)} />
                 </CCol>
-                <CCol sm={6} md={4} lg={2}>
+                <CCol xs={12} sm={6} lg={4} xxl={2}>
                     <KpiCard title="Total Premium" icon='rupees' color="secondary"
                         value={formatCurrency(combinedSummary.premium)} />
                 </CCol>
-                <CCol sm={6} md={4} lg={2}>
+                <CCol xs={12} sm={6} lg={4} xxl={2}>
                     <KpiCard title="Net Amount" icon='rupees' color="success"
                         value={formatCurrency(combinedSummary.net_amount)} />
                 </CCol>
-                <CCol sm={6} md={4} lg={2}>
+                <CCol xs={12} sm={6} lg={4} xxl={2}>
                     <KpiCard title="Net Income" icon='rupees' color="danger"
                         value={formatCurrency(combinedSummary.net_income)} />
                 </CCol>
@@ -553,8 +566,8 @@ const Dashboard = () => {
 
                 <CRow>
                     <CCol xs={12} lg={12}>
-                        <CCard className="mb-4 shadow-sm border-0">
-                            <CCardHeader className="bg-white border-bottom">
+                        <CCard className="mb-4">
+                            <CCardHeader>
                                 <h6 className="mb-0">Monthly Policies Trend</h6>
                             </CCardHeader>
                             <CCardBody style={{ height: '400px' }}>
@@ -581,7 +594,7 @@ const Dashboard = () => {
                             Entity Comparison
                         </h4>
 
-                        <CCard className="mb-4 shadow-sm border-0"> 
+                        <CCard className="mb-4 overflow-hidden"> 
                             <CCardBody className="p-0">
                                 <div className="table-responsive premium-table-wrapper">
                                     <table className="table premium-table align-middle mb-0">
@@ -618,7 +631,7 @@ const Dashboard = () => {
                                             )}
 
                                             {/* Combined row */}
-                                            <tr style={{ backgroundColor: '#f1f5f9' }}>
+                                            <tr className="table-total-row">
                                                 <td><strong>TOTAL COMBINED</strong></td>
                                                 <td className="text-end"><strong>{combinedSummary.policies ?? combinedCounts.insurance ?? 0}</strong></td>
                                                 <td className="text-end"><strong>{formatCurrency(combinedSummary.od_premium)}</strong></td>

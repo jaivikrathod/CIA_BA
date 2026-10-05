@@ -86,7 +86,7 @@ export default function UploadInsuranceDoc() {
         <div className="row g-4">
           {documents.map((doc, index) => (
             <div className="col-md-4" key={index}>
-              <div className="card h-100 shadow-sm position-relative">
+              <div className="card h-100 position-relative">
                 <div className="card-body text-center">
                   {doc.name.toLowerCase().endsWith('.pdf') ? (
                     <img

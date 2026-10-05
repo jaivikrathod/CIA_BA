@@ -273,7 +273,7 @@ export default function InsuranceCommonDetails2() {
 
   return (
     <>
-      <form className="container" onSubmit={handleSubmit(onSubmit)}>
+      <form className="container page-card" onSubmit={handleSubmit(onSubmit)}>
         <div className="row g-3 ">
           <h3>Insurance Details</h3>
           {formFields.map((field) => {
@@ -473,7 +473,7 @@ export default function InsuranceCommonDetails2() {
 
 
 
-        <button type="submit" className="btn btn-primary mt-3">Submit</button>
+        <button type="submit" className="btn btn-primary mt-4">Submit</button>
       </form >
       <ToastContainer />
 

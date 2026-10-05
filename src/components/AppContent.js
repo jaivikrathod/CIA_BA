@@ -5,7 +5,7 @@ import routes from "../routes";
 import LoadingComponent from "./common/LoadingComponent";
 const AppContent = () => {
   return (
-    <CContainer className="px-4" lg>
+    <div className="app-content">
       <Suspense fallback={ <LoadingComponent />}>
         <Routes>
           {routes.map((route, idx) => {
@@ -24,7 +24,7 @@ const AppContent = () => {
           <Route path="/" element={<Navigate to="dashboard" replace />} />
         </Routes>
       </Suspense>
-    </CContainer>
+    </div>
   );
 };
 

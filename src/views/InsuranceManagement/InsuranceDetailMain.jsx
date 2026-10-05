@@ -473,7 +473,7 @@ const InsuranceDetailMain = () => {
       <div className="container mt-4">
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
 
-        <div className="d-flex justify-content-between align-items-center mb-4 insurance-detail-main">
+        <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 insurance-detail-main">
           <h2>Insurance Details</h2>
           <div>
             {isEditing ? (
@@ -527,7 +527,7 @@ const InsuranceDetailMain = () => {
           ))}
         </ul>
 
-        <div className="tab-content">
+        <div className="tab-content page-card">
           {insuranceData.length > 0 && (
             <form onSubmit={handleSubmit(handleSave)}>
               <div className={`tab-pane active`}>
