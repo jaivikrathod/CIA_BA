@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import useApi from "../../api/axios";
 import { useSelector } from "react-redux";
 import { ToastContainer, toast } from 'react-toastify';
+import { LuChevronLeft, LuChevronRight } from 'react-icons/lu'
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function InsuranceInitialDetails() {
@@ -235,18 +236,18 @@ export default function InsuranceInitialDetails() {
                     <button
                       type="button"
                       onClick={handlePrev}
-                      className="btn btn-outline-secondary px-4"
+                      className="btn btn-secondary"
                     >
-                      Previous
+                      <LuChevronLeft /> Previous
                     </button>
                   )}
 
                     <button
                       type="submit"
-                      className="btn btn-primary px-4 ms-auto"
+                      className="btn btn-primary ms-auto"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Submitting..." : "Next"}
+                      {isSubmitting ? "Submitting..." : <>Next <LuChevronRight /></>}
                     </button>
                   
                 </div>

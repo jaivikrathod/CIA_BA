@@ -23,8 +23,9 @@ import {
 } from 'chart.js'
 import * as XLSX from 'xlsx'
 import { useSelector } from 'react-redux'
-import { cilChart, cilDollar, cilFactory, cilCalendar, cilCloudDownload, cilX, cilSearch, cilCheckCircle } from '@coreui/icons'
+import { cilChart, cilDollar, cilFactory, cilX, cilSearch, cilCheckCircle } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
+import { LuCheck, LuDownload, LuX } from 'react-icons/lu'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
@@ -502,17 +503,17 @@ const Dashboard = () => {
                                 </CCol>
                                 <CCol xs={12} md={4} lg={2} className="mt-4 mt-lg-0">
                                     <CButton color="primary" className="w-100 mb-2" onClick={handleConfirmSearch}>
-                                        <CIcon icon={cilCalendar} className="me-1" /> Apply
+                                        <LuCheck /> Apply
                                     </CButton>
-                                    <CButton color="secondary" variant="outline" className="w-100" onClick={handleClearFilter}>
-                                        Clear Filter
+                                    <CButton color="secondary" className="w-100" onClick={handleClearFilter}>
+                                        <LuX /> Clear Filter
                                     </CButton>
                                 </CCol>
                             </>
                         ) : (
                             <CCol xs={12} md={12} lg={4} className="mt-4 mt-lg-0">
-                                <CButton color="secondary" variant="outline" onClick={handleClearFilter} style={{ minWidth: 120 }}>
-                                    <CIcon icon={cilCheckCircle} className="me-1" /> Clear Selections
+                                <CButton color="secondary" onClick={handleClearFilter}>
+                                    <LuX /> Clear Selections
                                 </CButton>
                             </CCol>
                         )}
@@ -527,8 +528,8 @@ const Dashboard = () => {
             </CButton> */}
             <h4 className="mt-4 mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 Combined Performance Summary
-                <CButton color="success" onClick={downloadExcel}>
-                    <CIcon icon={cilCloudDownload} className="me-1" /> Export Details (.xlsx)
+                <CButton color="secondary" onClick={downloadExcel}>
+                    <LuDownload /> Export Excel
                 </CButton>
             </h4>
             <CRow className="g-3 mb-4">

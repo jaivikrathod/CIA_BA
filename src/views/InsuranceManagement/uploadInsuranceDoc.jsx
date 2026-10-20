@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaUpload, FaTimes } from 'react-icons/fa';
+import { LuArrowRight, LuFileText, LuUpload, LuX } from 'react-icons/lu';
 import MediaUploadModal from '../UploadDoc/MediaUploadModal';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast,ToastContainer } from 'react-toastify';
@@ -70,17 +70,16 @@ export default function UploadInsuranceDoc() {
         <h5 className="mb-0">Insurance Documents</h5>
         <button
           onClick={openUploadModal}
-          className="btn btn-sm btn-primary"
-          title="Upload Document"
+          className="btn btn-sm btn-secondary"
         >
-          <FaUpload className="me-1" /> Upload
+          <LuUpload /> Upload
         </button>
       </div>
 
       {documents.length === 0 ? (
         <div className="text-muted text-center py-5">
           <p className="mb-2">No documents uploaded yet</p>
-          <FaUpload size={32} className="text-secondary" />
+          <LuUpload size={32} className="text-secondary" />
         </div>
       ) : (
         <div className="row g-4">
@@ -108,17 +107,18 @@ export default function UploadInsuranceDoc() {
                     className="btn btn-outline-primary btn-sm mt-2"
                     onClick={() => handleDocumentClick(doc)}
                   >
-                    View Document
+                    <LuFileText /> View Document
                   </button>
                 </div>
-                {/* Optional delete icon */}
-                <FaTimes
-                  size={14}
-                  className="position-absolute top-0 end-0 m-2 text-white bg-danger rounded-circle p-1"
-                  title="Delete"
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => handleDelete(doc)} 
-                />
+                <button
+                  type="button"
+                  className="btn-remove-badge"
+                  title="Remove document"
+                  aria-label="Remove document"
+                  onClick={() => handleDelete(doc)}
+                >
+                  <LuX />
+                </button>
               </div>
             </div>
           ))}
@@ -126,8 +126,8 @@ export default function UploadInsuranceDoc() {
       )}
 
       <div className="mt-4">
-        <button className="btn btn-success" onClick={() => navigate('/insurance')}>
-          Continue
+        <button className="btn btn-primary" onClick={() => navigate('/insurance')}>
+          Continue <LuArrowRight />
         </button>
       </div>
 

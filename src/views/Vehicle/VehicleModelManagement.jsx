@@ -3,6 +3,7 @@ import { set, useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useApi from '../../api/axios';
+import { LuPencil, LuPlus, LuTrash2 } from 'react-icons/lu'
 
 const VehicleModelManagement = () => {
     const [vehicle_model, setvehicle_model] = useState([]);
@@ -91,7 +92,7 @@ const VehicleModelManagement = () => {
                     <div className="input-group input-group-sm" style={{ maxWidth: 320 }}> <input type="text" className="form-control form-control-sm" placeholder="Enter Model name or company" onChange={(e)=>searchData(e.target.value)}/> </div>
                 </div>
                 <button className="btn btn-primary" onClick={handleNewvehicleClick}>
-                    <i className="fas fa-plus me-2"></i>New Vehicle Model
+                    <LuPlus /> New Vehicle Model
                 </button>
             </div>
 
@@ -123,18 +124,20 @@ const VehicleModelManagement = () => {
                                     <td title={vehicle.other_detail || '-'}>{vehicle.other_detail || '-'}</td>
                                     <td>
                                         <button
-                                            className="btn btn-link"
+                                            className="btn-icon"
                                             onClick={() => handlevehicleClick(vehicle)}
                                             title="Edit"
+                                            aria-label="Edit"
                                         >
-                                            <i className="fas fa-edit"></i>
+                                            <LuPencil />
                                         </button>
                                         <button
-                                            className="btn btn-link text-danger"
+                                            className="btn-icon btn-icon-danger"
                                             onClick={() => handleDeleteClick(vehicle.id)}
                                             title="Delete"
+                                            aria-label="Delete"
                                         >
-                                            <i className="fas fa-trash-alt"></i>
+                                            <LuTrash2 />
                                         </button>
                                     </td>
                                 </tr>
@@ -236,7 +239,7 @@ const VehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model, vehicleC
                 <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
                     <div className="modal-header bg-dark">
                         <h5 className="modal-title">{vehicle.id ? 'Edit vehicle' : 'New vehicle'}</h5>
-                        <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
+                        <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
                     </div>
                     <div className="modal-body p-4">
                         <form onSubmit={handleSubmit(onSubmit)}>
@@ -297,11 +300,9 @@ const VehicleFormModal = ({ show, vehicle, onClose, fetchvehicle_model, vehicleC
                                     rows={2}
                                 />
                             </div>
-                            <div className="d-flex justify-content-end mt-4">
-                                <button type="submit" className="btn btn-success px-4">
-                                    {vehicle.id ? 'Update' : 'Create'}
-                                </button>
-                                <button type="button" onClick={onClose} className="btn btn-secondary ms-2">Cancel</button>
+                            <div className="d-flex justify-content-end gap-2 mt-4">
+                                <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                                <button type="submit" className="btn btn-primary">{vehicle.id ? 'Update' : 'Create'}</button>
                             </div>
                         </form>
                     </div>
@@ -319,14 +320,14 @@ const DeleteConfirmModal = ({ show, onClose, onConfirm }) => {
                 <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title">Confirm Deletion</h5>
-                        <button type="button" className="btn-close" onClick={onClose}></button>
+                        <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
                     </div>
                     <div className="modal-body">
                         <p>Are you sure you want to delete this vehicle?</p>
                     </div>
                     <div className="modal-footer">
-                        <button className="btn btn-danger" onClick={onConfirm}>Confirm</button>
                         <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                        <button className="btn btn-danger" onClick={onConfirm}><LuTrash2 /> Delete</button>
                     </div>
                 </div>
             </div>

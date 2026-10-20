@@ -183,7 +183,7 @@ export default function InsuranceCommonDetails1() {
                 </div>
 
                 <div className="col-12 mt-4">
-                    <button type="submit" className="btn btn-warning">Change Password</button>
+                    <button type="submit" className="btn btn-primary">Change Password</button>
                 </div>
             </form>
             </div>

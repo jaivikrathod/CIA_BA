@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import MediaUploadModal from '../UploadDoc/MediaUploadModal';
 import LoadingComponent from '../../components/common/LoadingComponent';
 import "../../scss/customerManagement.css";
-import { FaInfoCircle, FaEdit, FaTrash, FaPlusSquare, FaUpload, FaEye, FaDownload } from "react-icons/fa";
+import { LuDownload, LuEye, LuFilePlus, LuPencil, LuPlus, LuTrash2, LuUpload, LuX } from "react-icons/lu";
 import pdfImage from "../../assets/images/pdf.jpg";
 import useApi from "../../api/axios";
 import { useSelector } from 'react-redux';
@@ -299,10 +299,10 @@ const CustomerManagement = () => {
                             <h2 className="mb-0">Customer Management</h2>
                             <div className="d-flex gap-2 flex-wrap">
                                 <button className="btn btn-primary" onClick={() => { setSelectedCustomer({}), setisReadable(true) }}>
-                                    <FaPlusSquare /> New Customer
+                                    <LuPlus /> New Customer
                                 </button>
-                                <button className="btn btn-success" onClick={downloadCSV}>
-                                    <FaDownload /> Download Excel
+                                <button className="btn btn-secondary" onClick={downloadCSV}>
+                                    <LuDownload /> Export Excel
                                 </button>
                             </div>
                         </div>
@@ -405,34 +405,38 @@ const CustomerManagement = () => {
                                         {/* <td>{customer.full_address || 'N/A'}</td> */}
                                         <td style={{"padding":"0px"}}>
                                             <button
-                                                className="btn btn-link"
+                                                className="btn-icon"
                                                 onClick={() => setSelectedCustomer(customer)}
-                                                title="Info"
+                                                title="View details"
+                                                aria-label="View details"
                                             >
-                                                <FaInfoCircle size={14} />
+                                                <LuEye />
                                             </button>
                                             <button
-                                                className="btn btn-link text-danger"
+                                                className="btn-icon btn-icon-danger"
                                                 onClick={() => setConfirmDelete({ show: true, id: customer.id })}
                                                 title="Delete"
+                                                aria-label="Delete"
                                             >
-                                                <FaTrash size={14} />
+                                                <LuTrash2 />
                                             </button>
                                         </td>
                                         <td style={{"padding":"0px"}}>
                                             <button
-                                                className="btn btn-link text-info"
+                                                className="btn-icon"
                                                 onClick={() => addNewInsurance(customer.id)}
-                                                title="Add Insurance"
+                                                title="Add insurance"
+                                                aria-label="Add insurance"
                                             >
-                                                <FaPlusSquare size={14} />
+                                                <LuFilePlus />
                                             </button>
                                             <button
-                                                className="btn btn-link text-primary"
+                                                className="btn-icon"
                                                 onClick={() => openUploadModal(customer.id)}
-                                                title="Upload"
+                                                title="Upload documents"
+                                                aria-label="Upload documents"
                                             >
-                                                <FaUpload size={14} />
+                                                <LuUpload />
                                             </button>
                                         </td>
                                     </tr>
@@ -442,12 +446,12 @@ const CustomerManagement = () => {
                         {hasMore && customers.length > 0 && (
                             <div className="load-more-container">
                                 <button
-                                    className="btn btn-primary load-more-btn"
+                                    className="btn btn-secondary load-more-btn"
                                     onClick={handleLoadMore}
                                     disabled={isLoading}
                                 >
                                     {isLoading ? (
-                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                     ) : null}
                                     Load More
                                 </button>
@@ -485,18 +489,14 @@ const CustomerManagement = () => {
                             <div className="modal-content">
                                 <div className="modal-header">
                                     <h5 className="modal-title">Confirm Delete</h5>
-                                    <button type="button" className="btn-close" onClick={() => setConfirmDelete({ show: false, id: null })}></button>
+                                    <button type="button" className="btn-close" aria-label="Close" onClick={() => setConfirmDelete({ show: false, id: null })}></button>
                                 </div>
                                 <div className="modal-body">
                                     <p>By deleting this customer, all the related insurance will delete automatically so Are you sure you want to delete this customer?</p>
                                 </div>
                                 <div className="modal-footer">
-                                    <button className="btn btn-danger" onClick={() => handleDeleteCustomer(confirmDelete.id)}>
-                                        Confirm
-                                    </button>
-                                    <button className="btn btn-secondary" onClick={() => setConfirmDelete({ show: false, id: null })}>
-                                        Cancel
-                                    </button>
+                                    <button className="btn btn-secondary" onClick={() => setConfirmDelete({ show: false, id: null })}>Cancel</button>
+                                    <button className="btn btn-danger" onClick={() => handleDeleteCustomer(confirmDelete.id)}><LuTrash2 /> Delete</button>
                                 </div>
                             </div>
                         </div>
@@ -585,9 +585,9 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                         <div className="modal-header bg-dark">
                             {isReadable && <h5 className="modal-title">{customer.id ? 'Edit Customer' : 'New Customer'}</h5>}
                             {!isReadable && <><h5 className="modal-title">Customer Details</h5>
-                                <FaEdit className='ms-4' style={{ cursor: 'pointer' }} onClick={() => setisReadable(true)} /></>
+                                <button type="button" className="btn-icon" title="Edit" aria-label="Edit" onClick={() => setisReadable(true)}><LuPencil /></button></>
                             }
-                            <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
+                            <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
                         </div>
                         <div className="modal-body p-4" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
                             <form onSubmit={handleSubmit(onSubmit)}>
@@ -766,17 +766,13 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                                                 )}
 
                                                 {isReadable && <button
-                                                    className="position-absolute top-0 end-0 bg-danger text-white border-0 rounded-circle d-flex align-items-center justify-content-center"
-                                                    style={{
-                                                        width: "22px",
-                                                        height: "22px",
-                                                        fontSize: "14px",
-                                                        cursor: "pointer",
-                                                        transform: "translate(50%, -50%)" /* Moves button slightly outside image */,
-                                                    }}
-                                                    onClick={() => deleteDocument(doc.name)}
+                                                    type="button"
+                                                    className="btn-remove-badge"
+                                                    title="Remove document"
+                                                    aria-label="Remove document"
+                                                    onClick={(e) => { e.preventDefault(); deleteDocument(doc.name); }}
                                                 >
-                                                    ×
+                                                    <LuX />
                                                 </button>
                                                 }
                                             </a>
@@ -789,13 +785,9 @@ const CustomerForm = ({ customer, onClose, setisReadable, isReadable, addEditCus
                                 </div>
 
                                 {isReadable &&
-                                    <div className="d-flex justify-content-end mt-4">
-                                        <button type="submit" className="btn btn-success px-4">
-                                            {customer.id ? 'Update' : 'Create'}
-                                        </button>
-                                        <button type='button' className='btn btn-danger ms-2' onClick={onClose}>
-                                            Cancel
-                                        </button>
+                                    <div className="d-flex justify-content-end gap-2 mt-4">
+                                        <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                                        <button type="submit" className="btn btn-primary">{customer.id ? 'Update' : 'Create'}</button>
                                     </div>
                                 }
                             </form>

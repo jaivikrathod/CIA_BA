@@ -2,6 +2,7 @@ import React, { useState,useEffect, use } from "react";
 import api from "../../api/axios";
 import { toast } from "react-toastify";
 import useApi from "../../api/axios";
+import { LuUpload } from 'react-icons/lu'
 
 const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key,id }) => {
   const [documentType, setDocumentType] = useState("");
@@ -91,7 +92,7 @@ const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key,
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title">Upload Media</h5>
-              <button type="button" className="btn-close" onClick={handleClose}></button>
+              <button type="button" className="btn-close" aria-label="Close" onClick={handleClose}></button>
             </div>
             <div className="modal-body">
               <div className="mb-3">
@@ -132,7 +133,7 @@ const MediaUploadModal = ({ show, customerId, handleClose,isCustomerDoc,api_key,
                 Close
               </button>
               <button type="button" className="btn btn-primary" onClick={handleUpload}>
-                Upload
+                <LuUpload /> Upload
               </button>
             </div>
           </div>

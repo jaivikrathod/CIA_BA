@@ -103,10 +103,10 @@
 }
 
 .login-container .login-btn {
-  background: #2563eb;
-  color: white;
+  background: var(--app-btn-primary);
+  color: #fff;
   border: none;
-  border-radius: 10px;
+  border-radius: .5rem;
   padding: 13px;
   font-size: 15px;
   font-weight: 600;
@@ -117,8 +117,8 @@
 }
 
 .login-container .login-btn:hover {
-  background: #1d4ed8;
-  box-shadow: 0 6px 16px -4px rgba(37, 99, 235, 0.5);
+  background: var(--app-btn-primary-hover);
+  box-shadow: 0 6px 16px -4px rgba(var(--app-primary-rgb), 0.5);
 }
 
 .login-container .login-btn:focus-visible {
@@ -127,7 +127,8 @@
 }
 
 .login-container .login-btn:disabled {
-  background: #94a3b8;
+  background: var(--app-btn-primary);
+  opacity: .55;
   cursor: not-allowed;
   box-shadow: none;
 }

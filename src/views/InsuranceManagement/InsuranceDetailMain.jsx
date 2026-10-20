@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaEdit,FaTrash, FaSave, FaTimes, FaFilePdf, FaPlus, FaDeezer } from 'react-icons/fa';
+import { FaFilePdf } from 'react-icons/fa';
+import { LuFileText, LuPencil, LuSave, LuTrash2, LuUpload, LuX } from 'react-icons/lu';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import pdf2 from '../../assets/images/pdf2.png'
@@ -479,36 +480,32 @@ const InsuranceDetailMain = () => {
             {isEditing ? (
               <>
                 <button
-                  className="btn btn-success me-2"
-                  onClick={handleSubmit(handleSave)}
-                >
-                  <FaSave className="me-2" /> Save
-                </button>
-                <button
-                  className="btn btn-common btn-danger"
+                  className="btn btn-secondary me-2"
                   onClick={() => handleCancel()}
                 >
-                  <FaTimes className="me-2" /> Cancel
+                  <LuX /> Cancel
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleSubmit(handleSave)}
+                >
+                  <LuSave /> Save
                 </button>
               </>
             ) : (
-                <div className='d-flex align-items-center justify-center'>
-                  <div className='d-flex'>
-                    <button
-                      className="d-flex align-items-center justify-center btn btn-primary"
-                      onClick={() => setIsEditing(true)}
-                    >
-                      <FaEdit className="me-2" /> Edit
-                    </button>
-                  </div>
-                  <div>
-                    <button
-                      className="text-white btn btn-danger ms-2 d-flex align-items-center justify-center btn btn-primary"
-                      onClick={() => handleConfirmDelete()}
-                    >
-                      <FaTrash className="me-2" />Delete
-                    </button>
-                  </div>
+                <div className='d-flex align-items-center gap-2'>
+                  <button
+                    className="btn btn-outline-danger"
+                    onClick={() => handleConfirmDelete()}
+                  >
+                    <LuTrash2 /> Delete
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    <LuPencil /> Edit
+                  </button>
                 </div>
             )}
           </div>
@@ -1181,14 +1178,13 @@ const InsuranceDetailMain = () => {
                     <div className="border-bottom pb-3 mb-4 d-flex align-items-center">
                       <h4 className="mb-0">Documents</h4>
 
-                      <div className="ms-3">
-                        <div onClick={() => openUploadModal(insuranceData[activeTab].id)}
-                          className="d-flex justify-content-center align-items-center rounded-circle bg-primary"
-                          style={{ width: '20px', height: '20px', cursor: 'pointer' }}
-                        >
-                          <FaPlus color="white" size={10} />
-                        </div>
-                      </div>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-secondary ms-auto"
+                        onClick={() => openUploadModal(insuranceData[activeTab].id)}
+                      >
+                        <LuUpload /> Upload
+                      </button>
                     </div>
 
 
@@ -1233,17 +1229,17 @@ const InsuranceDetailMain = () => {
                                   className="btn btn-sm btn-outline-primary mt-2"
                                   onClick={() => handleDocumentClick(doc)}
                                 >
-                                  View Document
+                                  <LuFileText /> View Document
                                 </button>
-                                <div className="ms-3">
-                                  <div
-                                    className="d-flex justify-content-center align-items-center rounded-circle bg-danger position-absolute"
-                                    style={{ width: '20px', height: '20px', cursor: 'pointer', top: '-8px', right: '-10px' }}
-                                    onClick={() => handleDelete(doc)}
-                                  >
-                                    <FaTimes color="white" size={10} />
-                                  </div>
-                                </div>
+                                <button
+                                  type="button"
+                                  className="btn-remove-badge"
+                                  title="Remove document"
+                                  aria-label="Remove document"
+                                  onClick={() => handleDelete(doc)}
+                                >
+                                  <LuX />
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -1285,14 +1281,14 @@ const InsuranceDetailMain = () => {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">Confirm Deletion</h5>
-                            <button type="button" className="btn-close" onClick={onClose}></button>
+                            <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
                         </div>
                         <div className="modal-body">
                             <p>Are you sure you want to delete this Insurance?</p>
                         </div>
                         <div className="modal-footer">
-                            <button className="btn btn-danger" onClick={onConfirm}>Confirm</button>
                             <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                            <button className="btn btn-danger" onClick={onConfirm}><LuTrash2 /> Delete</button>
                         </div>
                     </div>
                 </div>

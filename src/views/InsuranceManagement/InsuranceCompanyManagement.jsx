@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useApi from '../../api/axios';
+import { LuPencil, LuPlus, LuTrash2 } from 'react-icons/lu'
 
 const InsuranceCompanyManagement = () => {
     const [companies, setCompanies] = useState([]);
@@ -57,7 +58,7 @@ const InsuranceCompanyManagement = () => {
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h2>Insurance Company Management</h2>
                 <button className="btn btn-primary" onClick={handleNewCompanyClick}>
-                    <i className="fas fa-plus me-2"></i>New Insurance Company
+                    <LuPlus /> New Insurance Company
                 </button>
             </div>
 
@@ -83,18 +84,20 @@ const InsuranceCompanyManagement = () => {
                                     <td title={company.extras || '-'}>{company.extras || '-'}</td>
                                     <td>
                                         <button
-                                            className="btn btn-link"
+                                            className="btn-icon"
                                             onClick={() => handleCompanyClick(company)}
                                             title="Edit"
+                                            aria-label="Edit"
                                         >
-                                            <i className="fas fa-edit"></i>
+                                            <LuPencil />
                                         </button>
                                         <button
-                                            className="btn btn-link text-danger"
+                                            className="btn-icon btn-icon-danger"
                                             onClick={() => handleDeleteClick(company.id)}
                                             title="Delete"
+                                            aria-label="Delete"
                                         >
-                                            <i className="fas fa-trash-alt"></i>
+                                            <LuTrash2 />
                                         </button>
                                     </td>
                                 </tr>
@@ -181,7 +184,7 @@ const CompanyFormModal = ({ show, company, onClose, fetchCompanies }) => {
                 <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
                     <div className="modal-header bg-dark">
                         <h5 className="modal-title">{company.id ? 'Edit Insurance Company' : 'New Insurance Company'}</h5>
-                        <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
+                        <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
                     </div>
                     <div className="modal-body p-4">
                         <form onSubmit={handleSubmit(onSubmit)}>
@@ -202,11 +205,9 @@ const CompanyFormModal = ({ show, company, onClose, fetchCompanies }) => {
                                     rows={2}
                                 />
                             </div>
-                            <div className="d-flex justify-content-end mt-4">
-                                <button type="submit" className="btn btn-success px-4">
-                                    {company.id ? 'Update' : 'Create'}
-                                </button>
-                                <button type="button" onClick={onClose} className="btn btn-secondary ms-2">Cancel</button>
+                            <div className="d-flex justify-content-end gap-2 mt-4">
+                                <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                                <button type="submit" className="btn btn-primary">{company.id ? 'Update' : 'Create'}</button>
                             </div>
                         </form>
                     </div>
@@ -224,14 +225,14 @@ const DeleteConfirmModal = ({ show, onClose, onConfirm }) => {
                 <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title">Confirm Deletion</h5>
-                        <button type="button" className="btn-close" onClick={onClose}></button>
+                        <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
                     </div>
                     <div className="modal-body">
                         <p>Are you sure you want to delete this insurance company?</p>
                     </div>
                     <div className="modal-footer">
-                        <button className="btn btn-danger" onClick={onConfirm}>Confirm</button>
                         <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                        <button className="btn btn-danger" onClick={onConfirm}><LuTrash2 /> Delete</button>
                     </div>
                 </div>
             </div>

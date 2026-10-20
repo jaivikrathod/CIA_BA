@@ -27,6 +27,12 @@
   --app-success-hover: #15803d;
   --app-danger: #dc2626;
   --app-danger-soft: rgba(220, 38, 38, .1);
+  --app-btn-primary: #2563eb;
+  --app-btn-primary-hover: #1d4ed8;
+  --app-btn-primary-active: #1e40af;
+  --app-btn-danger: #dc2626;
+  --app-btn-danger-hover: #b91c1c;
+  --app-btn-danger-active: #991b1b;
   --app-info: #0284c7;
   --app-info-soft: rgba(2, 132, 199, .12);
   --app-ring: rgba(37, 99, 235, .22);
@@ -59,6 +65,12 @@
   --app-success-hover: #22c55e;
   --app-danger: #ef4444;
   --app-danger-soft: rgba(239, 68, 68, .16);
+  --app-btn-primary: #2563eb;
+  --app-btn-primary-hover: #3b82f6;
+  --app-btn-primary-active: #1d4ed8;
+  --app-btn-danger: #dc2626;
+  --app-btn-danger-hover: #ef4444;
+  --app-btn-danger-active: #b91c1c;
   --app-info: #38bdf8;
   --app-info-soft: rgba(56, 189, 248, .16);
   --app-ring: rgba(59, 130, 246, .35);
@@ -545,27 +557,43 @@ h1, h2, h3, h4, h5, h6 {
 // ---------------------------------------------------------------------------
 // Buttons
 // ---------------------------------------------------------------------------
+// One set of roles across the app:
+//   .btn-primary          main action of a page, form or dialog
+//   .btn-secondary        everything else (cancel, back, clear, export, load more)
+//   .btn-danger           confirming a destructive action
+//   .btn-outline-danger   starting a destructive action from a page header
+//   .btn-icon             icon-only row actions in tables (add .btn-icon-danger for delete)
+// Icons come from react-icons/lu (Lucide) and are sized by the button.
 .btn {
   --cui-btn-font-size: .875rem;
   --cui-btn-font-weight: 500;
+  --cui-btn-line-height: 1.25rem;
   --cui-btn-padding-x: .875rem;
   --cui-btn-padding-y: .5rem;
   --cui-btn-border-radius: .5rem;
+  --cui-btn-disabled-opacity: .55;
   display: inline-flex;
-  gap: .4rem;
+  gap: .5rem;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
   transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
 
-  > svg.me-1,
-  > svg.me-2,
-  > i.me-2 {
-    margin-right: 0 !important;
+  > svg {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
   }
 
   &:focus-visible {
+    outline: 0;
     box-shadow: 0 0 0 3px var(--app-ring);
+  }
+
+  .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: .15em;
   }
 }
 
@@ -573,59 +601,48 @@ h1, h2, h3, h4, h5, h6 {
   --cui-btn-font-size: .8125rem;
   --cui-btn-padding-x: .625rem;
   --cui-btn-padding-y: .3125rem;
+  gap: .375rem;
+
+  > svg {
+    width: .875rem;
+    height: .875rem;
+  }
 }
 
 .btn-primary {
   --cui-btn-color: #fff;
-  --cui-btn-bg: #2563eb;
-  --cui-btn-border-color: #2563eb;
+  --cui-btn-bg: var(--app-btn-primary);
+  --cui-btn-border-color: var(--app-btn-primary);
   --cui-btn-hover-color: #fff;
-  --cui-btn-hover-bg: #1d4ed8;
-  --cui-btn-hover-border-color: #1d4ed8;
+  --cui-btn-hover-bg: var(--app-btn-primary-hover);
+  --cui-btn-hover-border-color: var(--app-btn-primary-hover);
   --cui-btn-active-color: #fff;
-  --cui-btn-active-bg: #1e40af;
-  --cui-btn-active-border-color: #1e40af;
+  --cui-btn-active-bg: var(--app-btn-primary-active);
+  --cui-btn-active-border-color: var(--app-btn-primary-active);
   --cui-btn-disabled-color: #fff;
-  --cui-btn-disabled-bg: #2563eb;
-  --cui-btn-disabled-border-color: #2563eb;
-  box-shadow: var(--app-shadow-xs);
-}
-
-.btn-success {
-  --cui-btn-color: #fff;
-  --cui-btn-bg: #16a34a;
-  --cui-btn-border-color: #16a34a;
-  --cui-btn-hover-color: #fff;
-  --cui-btn-hover-bg: #15803d;
-  --cui-btn-hover-border-color: #15803d;
-  --cui-btn-active-color: #fff;
-  --cui-btn-active-bg: #166534;
-  --cui-btn-active-border-color: #166534;
-  --cui-btn-disabled-color: #fff;
-  --cui-btn-disabled-bg: #16a34a;
-  --cui-btn-disabled-border-color: #16a34a;
+  --cui-btn-disabled-bg: var(--app-btn-primary);
+  --cui-btn-disabled-border-color: var(--app-btn-primary);
   box-shadow: var(--app-shadow-xs);
 }
 
 .btn-danger {
   --cui-btn-color: #fff;
-  --cui-btn-bg: #dc2626;
-  --cui-btn-border-color: #dc2626;
+  --cui-btn-bg: var(--app-btn-danger);
+  --cui-btn-border-color: var(--app-btn-danger);
   --cui-btn-hover-color: #fff;
-  --cui-btn-hover-bg: #b91c1c;
-  --cui-btn-hover-border-color: #b91c1c;
+  --cui-btn-hover-bg: var(--app-btn-danger-hover);
+  --cui-btn-hover-border-color: var(--app-btn-danger-hover);
   --cui-btn-active-color: #fff;
-  --cui-btn-active-bg: #991b1b;
-  --cui-btn-active-border-color: #991b1b;
-}
+  --cui-btn-active-bg: var(--app-btn-danger-active);
+  --cui-btn-active-border-color: var(--app-btn-danger-active);
+  --cui-btn-disabled-color: #fff;
+  --cui-btn-disabled-bg: var(--app-btn-danger);
+  --cui-btn-disabled-border-color: var(--app-btn-danger);
+  box-shadow: var(--app-shadow-xs);
 
-.btn-warning {
-  --cui-btn-color: #1f1300;
-  --cui-btn-bg: #f59e0b;
-  --cui-btn-border-color: #f59e0b;
-  --cui-btn-hover-color: #1f1300;
-  --cui-btn-hover-bg: #e08e06;
-  --cui-btn-hover-border-color: #e08e06;
+  &:focus-visible {
+    box-shadow: 0 0 0 3px var(--app-danger-soft);
+  }
 }
 
 .btn-secondary,
@@ -642,21 +659,130 @@ h1, h2, h3, h4, h5, h6 {
   --cui-btn-disabled-color: var(--app-text-muted);
   --cui-btn-disabled-bg: var(--app-surface);
   --cui-btn-disabled-border-color: var(--app-border);
+  box-shadow: var(--app-shadow-xs);
+
+  > svg {
+    color: var(--app-text-muted);
+  }
+
+  &:hover > svg {
+    color: inherit;
+  }
 }
 
 .btn-outline-primary {
   --cui-btn-color: var(--app-primary);
-  --cui-btn-border-color: var(--app-primary);
-  --cui-btn-hover-color: #fff;
-  --cui-btn-hover-bg: #2563eb;
-  --cui-btn-hover-border-color: #2563eb;
-  --cui-btn-active-color: #fff;
-  --cui-btn-active-bg: #1d4ed8;
-  --cui-btn-active-border-color: #1d4ed8;
+  --cui-btn-bg: transparent;
+  --cui-btn-border-color: rgba(var(--app-primary-rgb), .45);
+  --cui-btn-hover-color: var(--app-on-primary-soft);
+  --cui-btn-hover-bg: var(--app-primary-soft);
+  --cui-btn-hover-border-color: var(--app-primary);
+  --cui-btn-active-color: var(--app-on-primary-soft);
+  --cui-btn-active-bg: var(--app-primary-soft);
+  --cui-btn-active-border-color: var(--app-primary);
+}
+
+.btn-outline-danger {
+  --cui-btn-color: var(--app-danger);
+  --cui-btn-bg: var(--app-surface);
+  --cui-btn-border-color: var(--app-border-strong);
+  --cui-btn-hover-color: var(--app-danger);
+  --cui-btn-hover-bg: var(--app-danger-soft);
+  --cui-btn-hover-border-color: var(--app-danger);
+  --cui-btn-active-color: var(--app-danger);
+  --cui-btn-active-bg: var(--app-danger-soft);
+  --cui-btn-active-border-color: var(--app-danger);
+  box-shadow: var(--app-shadow-xs);
+
+  &:focus-visible {
+    box-shadow: 0 0 0 3px var(--app-danger-soft);
+  }
 }
 
 .btn-link {
   text-decoration: none;
+}
+
+// Icon-only row actions
+.btn-icon {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: .5rem;
+  transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
+  place-items: center;
+
+  > svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &:hover {
+    color: var(--app-text);
+    background-color: var(--app-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 3px var(--app-ring);
+  }
+
+  &:disabled {
+    pointer-events: none;
+    opacity: .5;
+  }
+}
+
+.btn-icon-danger:hover {
+  color: var(--app-danger);
+  background-color: var(--app-danger-soft);
+}
+
+.btn-icon-group {
+  display: inline-flex;
+  gap: .125rem;
+  align-items: center;
+}
+
+// Small round "remove" badge on attachment thumbnails
+.btn-remove-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  width: 1.375rem;
+  height: 1.375rem;
+  padding: 0;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border-strong);
+  border-radius: 999px;
+  box-shadow: var(--app-shadow-sm);
+  transform: translate(50%, -50%);
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+  place-items: center;
+
+  > svg {
+    width: .75rem;
+    height: .75rem;
+  }
+
+  &:hover {
+    color: #fff;
+    background: var(--app-btn-danger);
+    border-color: var(--app-btn-danger);
+  }
+
+  &:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 3px var(--app-danger-soft);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -946,42 +1072,6 @@ small.text-danger {
     background-color: var(--app-surface-2);
   }
 
-  .btn-link {
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    color: var(--app-text-muted);
-    border-radius: .5rem;
-
-    &:hover {
-      color: var(--app-text);
-      background-color: var(--app-surface-hover);
-    }
-
-    &.text-danger {
-      color: var(--app-danger) !important;
-
-      &:hover {
-        background-color: var(--app-danger-soft);
-      }
-    }
-
-    &.text-primary {
-      color: var(--app-primary) !important;
-
-      &:hover {
-        background-color: var(--app-primary-soft);
-      }
-    }
-
-    &.text-info {
-      color: var(--app-info) !important;
-
-      &:hover {
-        background-color: var(--app-info-soft);
-      }
-    }
-  }
 }
 
 .load-more-container {

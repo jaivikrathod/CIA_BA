@@ -8,7 +8,7 @@ const AppFooter = () => {
         <a href="www.careinsuranceagency.com" target="_blank" rel="noopener noreferrer">
           Care Insurance Agency
         </a>
-        <span className="ms-1">&copy; 2025.</span>
+        <span className="ms-1">&copy; {new Date().getFullYear()}.</span>
       </div>
       {/* <div className="ms-auto">
         <span className="me-1">Powered by</span>

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import "../../scss/customerManagement.css";
-import { FaInfoCircle, FaTrash, FaPlusSquare, FaEdit, FaDownload } from "react-icons/fa";
+import { LuEye, LuPencil, LuPlus, LuTrash2 } from "react-icons/lu";
 import useApi from "../../api/axios";
 
 const AgentCodeManagement = () => {
@@ -75,7 +75,7 @@ const AgentCodeManagement = () => {
                 <div className="d-flex justify-content-between align-items-center mb-3">
                     <h2>Agent Code Management</h2>
                     <button className="btn btn-primary" onClick={() => { setSelectedAgent({}); setisReadable(true); }}>
-                        <FaPlusSquare className='mb-1' /> New Agent code
+                        <LuPlus /> New Agent Code
                     </button>
                 </div>
                 {agents.length === 0 ? (
@@ -100,11 +100,11 @@ const AgentCodeManagement = () => {
                                             <td title={agent.agent_name}>{agent.agent_name}</td>
                                             <td title={agent.agent_code}>{agent.agent_code}</td>
                                             <td>
-                                                <button className="btn btn-link" title="Info" onClick={() => setSelectedAgent(agent)}>
-                                                    <FaInfoCircle />
+                                                <button className="btn-icon" title="View details" aria-label="View details" onClick={() => setSelectedAgent(agent)}>
+                                                    <LuEye />
                                                 </button>
-                                                <button className="btn btn-link text-danger" title="Delete" onClick={() => setConfirmDelete({ show: true, id: agent.id })}>
-                                                    <FaTrash />
+                                                <button className="btn-icon btn-icon-danger" title="Delete" aria-label="Delete" onClick={() => setConfirmDelete({ show: true, id: agent.id })}>
+                                                    <LuTrash2 />
                                                 </button>
                                             </td>
                                         </tr>
@@ -137,14 +137,14 @@ const AgentCodeManagement = () => {
                             <div className="modal-content">
                                 <div className="modal-header">
                                     <h5 className="modal-title">Confirm Delete</h5>
-                                    <button type="button" className="btn-close" onClick={() => setConfirmDelete({ show: false, id: null })}></button>
+                                    <button type="button" className="btn-close" aria-label="Close" onClick={() => setConfirmDelete({ show: false, id: null })}></button>
                                 </div>
                                 <div className="modal-body">
                                     <p>Are you sure you want to delete this agent code?</p>
                                 </div>
                                 <div className="modal-footer">
-                                    <button className="btn btn-danger" onClick={() => handleDeleteAgent(confirmDelete.id)}>Confirm</button>
                                     <button className="btn btn-secondary" onClick={() => setConfirmDelete({ show: false, id: null })}>Cancel</button>
+                                    <button className="btn btn-danger" onClick={() => handleDeleteAgent(confirmDelete.id)}><LuTrash2 /> Delete</button>
                                 </div>
                             </div>
                         </div>
@@ -192,9 +192,9 @@ const AgentForm = ({ agent, onClose, setisReadable, isReadable,fetchAgentCode })
                     <div className="modal-header bg-dark">
                         <h5 className="modal-title">{isReadable ? (agent.id ? 'Edit Agent Code' : 'New Agent Code') : 'Agent Details'}</h5>
                         {!isReadable && (
-                            <FaEdit className='ms-4' style={{ cursor: 'pointer' }} onClick={() => setisReadable(true)} />
+                            <button type="button" className="btn-icon" title="Edit" aria-label="Edit" onClick={() => setisReadable(true)}><LuPencil /></button>
                         )}
-                        <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
+                        <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
                     </div>
                     <div className="modal-body p-4" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
                         <form onSubmit={handleSubmit(onSubmit)}>

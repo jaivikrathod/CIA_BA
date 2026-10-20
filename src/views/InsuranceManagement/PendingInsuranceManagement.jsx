@@ -4,7 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MediaUploadModal from '../UploadDoc/MediaUploadModal';
 import "../../scss/customerManagement.css";
-import { FaInfoCircle, FaUpload, FaSyncAlt, FaPlusSquare, FaDownload, FaTrash } from "react-icons/fa";
+import { LuDownload, LuEye, LuPlus, LuRefreshCw, LuSearch, LuTrash2, LuUpload, LuX } from "react-icons/lu";
 import useApi from "../../api/axios";
 import LoadingComponent from "../../components/common/LoadingComponent";
 import { useSelector } from "react-redux";
@@ -292,14 +292,14 @@ const PendingInsuranceManagement = () => {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">Confirm Deletion</h5>
-                            <button type="button" className="btn-close" onClick={onClose}></button>
+                            <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
                         </div>
                         <div className="modal-body">
                             <p>Are you sure you want to delete this Insurance?</p>
                         </div>
                         <div className="modal-footer">
-                            <button className="btn btn-danger" onClick={onConfirm}>Confirm</button>
                             <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                            <button className="btn btn-danger" onClick={onConfirm}><LuTrash2 /> Delete</button>
                         </div>
                     </div>
                 </div>
@@ -321,11 +321,11 @@ const PendingInsuranceManagement = () => {
                         <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
                             <h2 className="mb-0">Set Insruance Amount</h2>
                             {/* <div className="d-flex gap-2 flex-wrap">
-                                <button className="btn btn-primary d-flex align-items-center gap-2" onClick={() => setShowModal(true)}>
-                                    <FaPlusSquare /> <span style={{"marginBottom":"1px"}}>New Insurance</span>
+                                <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+                                    <LuPlus /> New Insurance
                                 </button>
-                                <button className="btn btn-success d-flex align-items-center gap-2" onClick={downloadCSV}>
-                                    <FaDownload /> <span style={{"marginBottom":"2px"}}> Download CSV</span>
+                                <button className="btn btn-secondary" onClick={downloadCSV}>
+                                    <LuDownload /> Export Excel
                                 </button>
                             </div> */}
                         </div>
@@ -433,11 +433,11 @@ const PendingInsuranceManagement = () => {
                         onClick={handleApplyFilters}
                         disabled={isCustomDateIncomplete}
                     >
-                        Search
+                        <LuSearch /> Search
                     </button>
                     {(filters.segment || filters.ageRange || filters.admin || filters.dateRange) && (
                         <button
-                            className="btn btn-outline-secondary"
+                            className="btn btn-secondary"
                             onClick={() => {
                                 const cleared = {
                                     segment: "",
@@ -459,7 +459,7 @@ const PendingInsuranceManagement = () => {
                                 fetchInsurance(1, false, 10, '', cleared);
                             }}
                         >
-                            Clear
+                            <LuX /> Clear
                         </button>
                     )}
                 </div>
@@ -498,32 +498,36 @@ const PendingInsuranceManagement = () => {
                                         <td title={new Date(insurance.insurance_date).toLocaleDateString('en-GB')}>{new Date(insurance.insurance_date).toLocaleDateString('en-GB')}</td>
                                         <td style={{"padding":"0px"}}>
                                             <button 
-                                                className="btn btn-link"
+                                                className="btn-icon"
                                                 onClick={() => getParticularInsurance(insurance.common_id)}
-                                                title="Info"
+                                                title="View details"
+                                                aria-label="View details"
                                             >
-                                                <FaInfoCircle size={14} />
+                                                <LuEye />
                                             </button>
                                             {/* <button
                                                 onClick={() => renewInsurance(insurance.id, insurance.common_id)}
-                                                className="btn btn-link"
-                                                title="Renew Insurance"
+                                                className="btn-icon"
+                                                title="Renew insurance"
+                                                aria-label="Renew insurance"
                                             >
-                                                <FaSyncAlt size={14} />
+                                                <LuRefreshCw />
                                             </button>
                                             <button
                                                 onClick={() => handleConfirmDelete(insurance.id)}
-                                                className="btn btn-link text-danger"
-                                                title="Delete Insurance"
+                                                className="btn-icon btn-icon-danger"
+                                                title="Delete insurance"
+                                                aria-label="Delete insurance"
                                             >
-                                                <FaTrash size={14}/>
+                                                <LuTrash2 />
                                             </button> */}
                                             {/* <button
                                                 onClick={() => openUploadModal(insurance.id)}
-                                                className="btn btn-link"
-                                                title="Upload"
+                                                className="btn-icon"
+                                                title="Upload documents"
+                                                aria-label="Upload documents"
                                             >
-                                                <FaUpload />
+                                                <LuUpload />
                                             </button> */}
                                         </td>
                                     </tr>
@@ -533,12 +537,12 @@ const PendingInsuranceManagement = () => {
                         {hasMore && insurance.length > 0 && (
                             <div className="load-more-container">
                                 <button
-                                    className="btn btn-primary load-more-btn"
+                                    className="btn btn-secondary load-more-btn"
                                     onClick={handleLoadMore}
                                     disabled={isLoading}
                                 >
                                     {isLoading ? (
-                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                     ) : null}
                                     Load More
                                 </button>
@@ -564,7 +568,7 @@ const PendingInsuranceManagement = () => {
                                 <div className="modal-content">
                                     <div className="modal-header bg-dark">
                                         <h5 className="modal-title fw-bold">Enter Customer's Email/mobile</h5>
-                                        <button type="button" className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
+                                        <button type="button" className="btn-close" aria-label="Close" onClick={() => setShowModal(false)}></button>
                                     </div>
                                     <div className="modal-body">
                                         <form onSubmit={handleEmailSubmit}>
